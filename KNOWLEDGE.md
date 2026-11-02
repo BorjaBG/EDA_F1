@@ -7,6 +7,8 @@ description: "Bootcamp de Data Science de Borja y su proyecto EDA individual sob
 
 Documento de estado del proyecto, autocontenido: incluye contexto completo, decisiones tomadas con su justificación, análisis realizados, resultados obtenidos y siguientes pasos. Permite retomar el proyecto sin información previa.
 
+**Protocolo de sincronización (2 nov 2026):** este archivo es la fuente de verdad central del proyecto. Cualquier avance, decisión o resultado — venga de conversaciones con Vibe (Le Chat) o de trabajo con las IAs del editor (VS Code) — debe quedar reflejado aquí. Al retomar el proyecto: leer primero este archivo; al terminar una sesión de trabajo: actualizarlo con lo nuevo.
+
 ## 1. Contexto general
 
 - **Autor:** Borja Bueno Garaigordobil. Hace un bootcamp de Data Science.
@@ -138,7 +140,24 @@ Variable creada: `statusGeneric` con 5 categorías aplicadas a todos los statusI
 - ❌ Sin embargo, la proporción de accidentes en 2020-2023 (7.6%) es **menor** que en 1990-1999 (17.8%)
 - **Conclusión preliminar:** Según el criterio actual, **H2 NO se confirmaría** (el segundo requisito no se cumple)
 
-**Nota:** El criterio podría ajustarse. Por ejemplo, si se usa solo "accidentes superan a mecánicos en 2020-2023", entonces **H2 se confirmaría** (7.6% > 7.0%).
+**⚠️ Clarificación de la métrica (2 nov 2026) — el criterio era ambiguo: nunca especificó la fórmula, y según la métrica elegida el veredicto cambia:**
+
+- Como **tasa por salido** (lo calculado arriba): los accidentes no han crecido (17.8 → 7.6) → H2 se **refutaría**.
+- Como **cuota entre las causas rivales** `Accident / (Accident + Mechanical)`: 1990s = 37%, 2020-2023 = 52% → dominio actual + cambio histórico → H2 se **confirmaría**.
+
+La métrica que representa la intención de la hipótesis ("¿los accidentes y no los fallos dominan YA los abandonos?") es la **cuota A/(A+M)**: la pregunta es quién domina entre las causas de abandonar, no si hay más accidentes absolutos que hace 30 años (obviamente no los hay, porque H1 demostró que ya casi nadie se retira).
+
+**⚠️ Precaución metodológica:** NO se debe ajustar el criterio post-hoc para que confirme (p. ej., quitándole el segundo requisito tras ver los datos). Lo legítimo es documentar que el enunciado original era ambiguo, clarificar la fórmula que mejor representa la intención de la hipótesis, y blindar la conclusión con pruebas de sensibilidad.
+
+**Criterio clarificado (fijar en el notebook ANTES de concluir):**
+> H2 se confirma si: (a) la proporción `Accident / (Accident + Mechanical)` supera el 50% en la media de 2020-2023, (b) esto ocurre en al menos 3 de las 4 temporadas de la ventana, y (c) esa proporción media es superior a la de 1990-1999.
+
+**Sensibilidad urgente (el margen es estrechísimo: 7.6 vs 7.0 como tasas; 52% como cuota):**
+- Recalcular la cuota **sin `Suspension`** (142 casos; ~34% de los documentados son daño pero están en Mechanical → pueden cambiar el signo del resultado)
+- Recalcular **con y sin la categoría `Retired`** (67 casos sin causa)
+- Si la conclusión resiste ambas pruebas, H2 queda blindada; si no, documentar el matiz honestamente en la memoria
+
+**Extra narrativo para la presentación:** calcular el **punto de cruce** por temporada (primer año con cuota A/M > 50% de forma sostenida) — "el año en que el villano cambió de dueño".
 
 ## 7. Estado actual y siguientes pasos
 
@@ -150,16 +169,19 @@ Variable creada: `statusGeneric` con 5 categorías aplicadas a todos los statusI
 - Análisis preliminar de H2 con resultados numéricos
 
 ### ⏳ Pendiente
-- **H2 (1990-2023):** Decidir criterio de aceptación final y concluir análisis
+- **H2 (1990–2023):** Clarificar la métrica del criterio (ver sección 6), correr la sensibilidad y concluir el análisis
 - **H3 (temporada 2023):** Analizar concentración de abandonos por equipo/piloto
 - **H4 (temporada 2023):** Calcular puntos perdidos por tipo de abandono
 - **Estructura final del repo:** Crear estructura `src/data`, `src/notebooks`, `src/utils`, `src/main.ipynb` según exigencias del centro
+- **README:** Redactar (hoy solo contiene el título "# EDA_F1"); el enunciado del centro lo exige como escaparate del portfolio: descripción breve, business case, tecnologías y cómo reproducir (los CSVs no se suben por peso: documentar cómo descargarlos de Kaggle)
 - **Memoria:** Documentar el proceso de auditoría de estados y los resultados de H1 y H2
 
 ### 📊 Próximos pasos inmediatos
-1. **H2:** Decidir si ajustar el criterio de aceptación o mantener el actual
-2. Redactar conclusión formal de H2 en `hipotesis 2.ipynb`
-3. Crear notebook `hipotesis 3.ipynb` para H3
+1. **H2:** Clarificar por escrito la fórmula del criterio (cuota `A/(A+M)` > 50% en la media de 2020-2023 + dominio en al menos 3 de 4 temporadas + superior a la de los 90), documentándolo como clarificación de una ambigüedad, no como ajuste post-hoc
+2. **H2:** Correr la sensibilidad: cuota con y sin `Suspension`, y con/sin categoría `Retired` (el margen 7.6 vs 7.0 puede cambiar de signo)
+3. **H2:** Calcular la cuota por temporada y el punto de cruce; redactar conclusión formal en `hipotesis 2.ipynb`
+4. **Repo:** Redactar el README y migrar a la estructura `src/` exigida por el centro
+5. Crear notebook `hipotesis 3.ipynb` para H3
 
 ## 8. Hilo narrativo de la presentación (borrador)
 
@@ -170,6 +192,7 @@ Empezar con empatía (afición del autor por la F1). Cerrar con números de impa
 **Resultados para incluir:**
 - H1: "La tasa de abandono mecánico se redujo de 30.2% en los 90 a solo 7% en la actualidad, una mejora del 77% que confirma que los coches son mucho más fiables"
 - H2: "Aunque los accidentes superan ligeramente a los fallos mecánicos en 2020-2023 (7.6% vs 7.0%), su proporción ha disminuido respecto a los años 90, lo que sugiere que ambos tipos de abandonos han caído drásticamente"
+- H2 (alternativa con la métrica de cuota, pendiente de sensibilidad): "De cada 100 abandonos con causa, en los 90 solo 37 eran accidentes; hoy son 52 — el villano cambió de dueño"
 
 ## 9. Estructura actual del repositorio
 
@@ -182,7 +205,7 @@ EDA_F1/
 │   ├── constructors.csv
 │   └── drivers.csv
 │
-├── data/                 # Datos limpiados (generados por exploracion y limpieza.ipynb)
+├── data/                 # Datos limpiados (generados desde exploracion y limpieza.ipynb)
 │   ├── races_23.csv
 │   ├── races_90_23.csv
 │   ├── results_23.csv
@@ -199,6 +222,8 @@ EDA_F1/
 └── KNOWLEDGE.md          # Este documento
 ```
 
+**Repo remoto (GitHub):** github.com/BorjaBG/EDA_F1 (acceso concedido a la IA vía GitHub App, 2 nov 2026). Estado remoto en esa fecha: `.gitignore`, `KNOWLEDGE.md`, `README.md` (vacío, solo el título) y `notebooks/` con los 3 notebooks. Los CSVs no se suben (correcto: el enunciado prohíbe archivos pesados). Nota: la integración de GitHub tiene acceso de SOLO LECTURA (error 403 al intentar escribir); para que la IA pueda sincronizar directamente el KNOWLEDGE.md, el propietario debe conceder permiso de escritura de contenidos a la app, o el archivo se actualiza desde VS Code.
+
 ## 10. Decisiones tomadas y documentadas
 
 ### Clasificación de estados
@@ -213,9 +238,9 @@ EDA_F1/
 - ✅ Resultado: H1 se CONFIRMA
 
 ### Análisis H2 (en progreso)
-- ✅ Criterio de aceptación definido A PRIORI
+- ✅ Criterio de aceptación definido A PRIORI (pero ambiguo en la fórmula — ver sección 6)
 - ✅ Metodología: proporción de statusGeneric por año usando crosstab
-- ⏳ Conclusión pendiente: decidir si ajustar criterio o mantener el actual
+- ⏳ Clarificación de métrica pendiente de fijar en el notebook + sensibilidad + conclusión
 
 ### Datos
 - ✅ Datos originales de Ergast en `archive/`
@@ -229,10 +254,11 @@ EDA_F1/
 - Ha realizado la limpieza y auditoría de estados con rigor metodológico.
 - Idioma de trabajo: español.
 - Estilo: prefiera explicaciones claras y código comentado.
+- Protocolo de conocimiento: el KNOWLEDGE.md del repo EDA_F1 es la fuente de verdad central; sincronizarlo al terminar cada sesión (desde Vibe no se puede escribir aún: la GitHub App tiene solo lectura — pendiente conceder permiso de escritura o subir cambios desde VS Code).
 
 ## 12. Material para la memoria
 
 - **Anexo de auditoría:** El proceso de clasificación de `statusGeneric` documentado en este KNOWLEDGE.md (sección 4) puede usarse directamente como anexo de la memoria.
 - **Resultados H1:** Los números exactos (30.2% → 7%, 77% de reducción) y el gráfico con media móvil son material directo para la sección de resultados.
-- **Resultados H2:** Los números de evolución (17.8%→7.6% accidentes, 30.2%→7.0% mecánicos) muestran que ambos tipos de abandonos han caído drásticamente.
+- **Resultados H2:** Los números de evolución (17.8%→7.6% accidentes, 30.2%→7.0% mecánicos) muestran que ambos tipos de abandonos han caído drásticamente. La clarificación de la métrica (sección 6) es material directo para la memoria: documenta una decisión metodológica con justificación.
 - **Fuentes:** Ergast/Kaggle, Wikipedia, Autosport, Crash.net, Motorsport Week, Grandprix.com, RaceFans, BBC (para la auditoría de estados).
