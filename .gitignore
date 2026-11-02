@@ -1,3 +1,24 @@
+# ============================================================
+# PROYECTO EDA F1 — .gitignore
+# ============================================================
+
+# --- Datos crudos (no subir al repo) ---
+# Los CSVs del dataset de Kaggle/Ergast son pesados y reproducibles
+archive/
+*.csv
+*.zip
+
+# Archivos de datos procesados / intermedios
+data/
+*.parquet
+*.feather
+*.pkl
+*.pickle
+
+# ============================================================
+# PYTHON GENERAL
+# ============================================================
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
