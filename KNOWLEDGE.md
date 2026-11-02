@@ -115,7 +115,7 @@ Variable creada: `statusGeneric` con 5 categorías aplicadas a todos los statusI
 
 **Visualización:** Gráfico con puntos anuales + media móvil de 5 años (celdas 6, 8, 9, 10 de `hipotesis 1.ipynb`) muestra tendencia claramente decreciente.
 
-## 6. Análisis completado: H2 ✅
+## 6. Análisis completado: H2
 
 ### Hipótesis H2
 **Enunciado:** "Los accidentes, no los fallos, dominan ya los abandonos (1990-2023)"
@@ -131,7 +131,7 @@ Variable creada: `statusGeneric` con 5 categorías aplicadas a todos los statusI
 2. Merge con año y filtro de coches que salieron (excluir DNQ, DNPQ, 107% Rule, Withdrew)
 3. Cálculo de cuota: `Accident / (Accident + Mechanical issue)` por año
 4. Análisis de sensibilidad: reclasificación temporal de statusId 22 (Suspension) como Accident
-5. Visualización: gráficos de líneas con datos anuales y media móvil (5 años)
+5. Visualización: gráficos de líneas con datos anuales y media móvil (5 años), incluida la media móvil de la cuota A/(A+M) con umbral del 50%
 
 **Resultados obtenidos:**
 
@@ -163,17 +163,20 @@ Variable creada: `statusGeneric` con 5 categorías aplicadas a todos los statusI
 
 El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1%) y 2022 (47.9%) están ligeramente por debajo del umbral, a pesar de que la media de la década sí supera el 50%.
 
-**Punto de cruce identificado:**
-- Primer año con cuota > 50%: **2008** (59.3%)
-- Tendencia: la cuota ha crecido de forma sostenida desde los años 90 (37%) hasta la actualidad (52.6%)
+**Media móvil de la cuota (tendencia suavizada, 5 años) — análisis complementario (2 nov 2026):**
+- La cuota suavizada cruza el 50% solo **dos veces** en 34 años: **2012** (51.3%) y **2023** (51.5%)
+- El cruce de 2012 fue transitorio: volvió a caer hasta ~38% (2018) y no se recuperó hasta ~2023
+- El pico de 2008-2009 (59.3%/54.7% anual) nunca superó el 50% suavizado (máx. 49.1% en 2009)
+- **Interpretación:** el dominio de los accidentes no está consolidado ni siquiera en tendencia suavizada; el cambio es real pero reciente y con retrocesos — refuerza la refutación del criterio anual
+- Nota: calculado con las cuotas anuales (redondeadas a 3 decimales) del notebook; pendiente añadir un print de la serie MM5 al notebook para respaldo numérico del gráfico (celda 13)
 
 **Material para presentación:**
 "Aunque la cuota de accidentes ha crecido de 37% a 53%, no domina de forma sostenida en los últimos 4 años. El cambio es real, pero aún no es definitivo."
 
 **Visualizaciones generadas:**
 - Celda 8: Gráfico de barras por década (cuota A/(A+M))
-- Celda 12: Gráfico de líneas con tasas absolutas anuales
-- Celda 13: Gráfico de líneas con media móvil de 5 años (tendencias suavizadas)
+- Celda 12: Gráfico de líneas con tasas absolutas anuales + media móvil de 5 años
+- Celda 13: Gráfico de la cuota A/(A+M) — cuota anual (scatter), media móvil de 5 años y umbral del 50% marcado
 
 ## 7. Estado actual y siguientes pasos
 
