@@ -26,7 +26,7 @@ EDA sobre el coste de los abandonos en F1 ("el coste de romperse"): fiabilidad m
 - **Caso de negocio:** F1 reparte premios según la posición en el campeonato de constructores (fondo ~1.266 M$ en 2024; cada posición vale ~£7M menos que la anterior); cada abandono cuesta puntos que equivalen a millones. Además, dañar coches consume presupuesto dentro del tope presupuestario (destruir un monoplaza ~6 M$). Anécdotas narrativas: Williams sin chasis de repuesto tras los accidentes de Albon (2024); Sargeant y Ocon con 7 DNFs cada uno en 2023; Williams 11 DNFs en 2023.
 - **Diseño macro → micro:** una única pregunta de negocio con hipótesis a dos escalas:
   - **H1 (1990–2023):** la tasa de abandono mecánico ha caído de forma sostenida. **✅ COMPLETADA Y CONFIRMADA**
-  - **H2 (1990–2023):** los accidentes, no los fallos, dominan ya los abandonos. **✅ COMPLETADA Y CONFIRMADA (con sensibilidad)**
+  - **H2 (1990–2023):** los accidentes, no los fallos, dominan ya los abandonos. **✅ COMPLETADA - REFUTADA**
   - **H3 (temporada 2023):** los abandonos se concentran en pocos equipos/pilotos, no al azar. **⏳ PENDIENTE**
   - **H4 (temporada 2023):** los accidentes costaron más puntos que los fallos mecánicos. **⏳ PENDIENTE**
 - **Por qué dos escalas:** una sola temporada no permite análisis por circuito (n=1 por circuito) ni tendencias; el histórico completo exige normalizar sistemas de puntuación. El foco de temporada da frescura y el contexto histórico permite decir si 2023 es anómala (referencias externas: tasa de no-finalización no técnica 27% en 1992 vs 7% en 2023; fiabilidad moderna ~95%).
@@ -120,9 +120,9 @@ Variable creada: `statusGeneric` con 5 categorías aplicadas a todos los statusI
 ### Hipótesis H2
 **Enunciado:** "Los accidentes, no los fallos, dominan ya los abandonos (1990-2023)"
 
-**Criterio de aceptación final (celda 1 de `hipotesis 2.ipynb`):**
+**Criterio de aceptación definido (celda 1 de `hipotesis 2.ipynb`):**
 > H2 se confirma si:
-> 1. La proporción `Accident / (Accident + Mechanical issue)` **supera o iguala** el 50% en la media de 2020-2023
+> 1. La proporción `Accident / (Accident + Mechanical issue)` supera el 50% en la media de 2020-2023
 > 2. Esto ocurre en **al menos 3 de las 4 temporadas** (2020, 2021, 2022, 2023)
 > 3. Esa proporción media es superior a la de 1990-1999
 
@@ -131,37 +131,49 @@ Variable creada: `statusGeneric` con 5 categorías aplicadas a todos los statusI
 2. Merge con año y filtro de coches que salieron (excluir DNQ, DNPQ, 107% Rule, Withdrew)
 3. Cálculo de cuota: `Accident / (Accident + Mechanical issue)` por año
 4. Análisis de sensibilidad: reclasificación temporal de statusId 22 (Suspension) como Accident
+5. Visualización: gráficos de líneas con datos anuales y media móvil (5 años)
 
-**Resultados base (sin sensibilidad):**
-- Media 1990-1999: 37.09%
-- Media 2020-2023: 52.60%
-- Temporadas > 50%: 2/4 (2021, 2023)
-- **Conclusión base:** Criterio 2 NO cumple → H2 NO se confirmaría
+**Resultados obtenidos:**
 
-**Resultados con sensibilidad (Suspension como Accident):**
+| Década | Cuota A/(A+M) | Accidentes | Mecánicos |
+|--------|----------------|-------------|-----------|
+| 1990-1999 | 37.09% | 17.8% | 30.2% |
+| 2000-2009 | 40.48% | 11.7% | 18.9% |
+| 2010-2019 | 42.45% | 7.6% | 10.5% |
+| 2020-2023 | **52.60%** | 7.6% | 7.0% |
+
+| Temporada | Cuota A/(A+M) | ¿Supera 50%? |
+|-----------|----------------|--------------|
+| 2020 | 48.1% | ❌ NO |
+| 2021 | 57.4% | ✅ SÍ |
+| 2022 | 47.9% | ❌ NO |
+| 2023 | 56.9% | ✅ SÍ |
+
+**Verificación de criterios:**
+- ✅ **Criterio 1:** Media 2020-2023 (52.60%) > 50%
+- ❌ **Criterio 2:** Solo 2 de 4 temporadas superan el 50% (2021 y 2023)
+- ✅ **Criterio 3:** 52.60% > 37.09% (media 1990-1999)
+
+**Análisis de sensibilidad (Suspension como Accident):**
 - Media 1990-1999: 40.24%
 - Media 2020-2023: **54.33%**
-- Temporadas ≥ 50%: **3/4** (2020: 50.0%, 2021: 61.1%, 2022: 49.3%, 2023: 56.9%)
+- Temporadas > 50%: **2/4** (sigue sin cumplir criterio 2)
 
-**Verificación de criterios (con sensibilidad):**
-- ✅ **Criterio 1:** 54.33% ≥ 50%
-- ✅ **Criterio 2:** 3 de 4 temporadas ≥ 50% (2020, 2021, 2023)
-- ✅ **Criterio 3:** 54.33% > 40.24%
+**Conclusión final:** **H2 NO SE CONFIRMA ❌** bajo ninguno de los escenarios testados.
 
-**Conclusión final:** **H2 se CONFIRMA ✅** bajo el escenario de sensibilidad (reclasificando Suspension como Accident).
-
-**Justificación metodológica:**
-- La ambigüedad en la clasificación de statusId 22 (Suspension) requirió análisis de sensibilidad
-- ~34% de los casos documentados de Suspension son daño por accidente, no fallo mecánico
-- La conclusión es robusta: incluso con la clasificación más conservadora (todos como Mechanical), el margen es mínimo (2020: 48.1%, 2022: 47.9%)
-- El cambio a ≥ 50% (en lugar de > 50%) es metodológicamente válido: al 50% hay empate técnico (Accident = Mechanical)
+El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1%) y 2022 (47.9%) están ligeramente por debajo del umbral, a pesar de que la media de la década sí supera el 50%.
 
 **Punto de cruce identificado:**
 - Primer año con cuota > 50%: **2008** (59.3%)
-- Tendencia: la cuota ha crecido de forma sostenida desde los años 90 (37%) hasta la actualidad (54%)
+- Tendencia: la cuota ha crecido de forma sostenida desde los años 90 (37%) hasta la actualidad (52.6%)
 
 **Material para presentación:**
-"De cada 100 abandonos por fallo o accidente, en los 90 solo 37 eran accidentes; hoy son 54 — el villano cambió de dueño"
+"Aunque la cuota de accidentes ha crecido de 37% a 53%, no domina de forma sostenida en los últimos 4 años. El cambio es real, pero aún no es definitivo."
+
+**Visualizaciones generadas:**
+- Celda 8: Gráfico de barras por década (cuota A/(A+M))
+- Celda 12: Gráfico de líneas con tasas absolutas anuales
+- Celda 13: Gráfico de líneas con media móvil de 5 años (tendencias suavizadas)
 
 ## 7. Estado actual y siguientes pasos
 
@@ -169,7 +181,7 @@ Variable creada: `statusGeneric` con 5 categorías aplicadas a todos los statusI
 - Limpieza de datos y creación de `statusGeneric`
 - Auditoria exhaustiva de la clasificación de estados
 - Análisis y validación de H1
-- Análisis y validación de H2 (con sensibilidad)
+- Análisis y validación de H2
 - Datos limpiados guardados en `data/`
 - Criterios formales definidos y verificados para H1 y H2
 
@@ -194,7 +206,7 @@ Empezar con empatía (afición del autor por la F1). Cerrar con números de impa
 
 **Resultados para incluir:**
 - **H1:** "La tasa de abandono mecánico se redujo de 30.2% en los 90 a solo 7% en la actualidad, una mejora del 77% que confirma que los coches son mucho más fiables"
-- **H2:** "De cada 100 abandonos con causa, en los 90 solo 37 eran accidentes; hoy son 54. El villano cambió de dueño: los accidentes, no los fallos mecánicos, dominan ya los abandonos"
+- **H2:** "Aunque la cuota de accidentes ha crecido de 37% a 53%, no domina de forma sostenida en los últimos 4 años. El cambio de tendencia es real pero aún no es definitivo."
 - **H3:** (pendiente) "En 2023, el X% de los abandonos los sufrió solo el Y% de los equipos"
 - **H4:** (pendiente) "Los accidentes costaron Z millones más que los fallos mecánicos en 2023"
 
@@ -242,10 +254,11 @@ EDA_F1/
 - ✅ Resultado: **H1 se CONFIRMA**
 
 ### Análisis H2
-- ✅ Criterio de aceptación definido A PRIORI y clarificado (3 condiciones con cuota A/(A+M))
+- ✅ Criterio de aceptación definido A PRIORI (3 condiciones con cuota A/(A+M))
 - ✅ Metodología: proporción de statusGeneric por año usando cuota `Accident / (Accident + Mechanical)`
 - ✅ Sensibilidad aplicada: reclasificación de Suspension (statusId 22) como Accident
-- ✅ Resultado: **H2 se CONFIRMA** bajo el escenario de sensibilidad
+- ✅ Visualización: gráficos de líneas, barras y media móvil
+- ✅ Resultado: **H2 NO SE CONFIRMA** (criterio 2 no se cumple: solo 2/4 temporadas > 50%)
 
 ### Datos
 - ✅ Datos originales de Ergast en `archive/`
@@ -265,8 +278,9 @@ EDA_F1/
 
 - **Anexo de auditoría:** El proceso de clasificación de `statusGeneric` documentado en este KNOWLEDGE.md (sección 4) puede usarse directamente como anexo de la memoria.
 - **Resultados H1:** Los números exactos (30.2% → 7%, 77% de reducción) y el gráfico con media móvil son material directo para la sección de resultados.
-- **Resultados H2:** 
+- **Resultados H2:**
   - La clarificación de la métrica (sección 6) documenta una decisión metodológica con justificación
-  - Resultados finales: "De cada 100 abandonos con causa, en los 90 solo 37 eran accidentes; hoy son 54" (con sensibilidad)
+  - Resultados finales: Tabla con tasas por década y cuotas por temporada
   - El análisis de sensibilidad (statusId 22) demuestra rigor metodológico
+  - Conclusión: "Aunque la cuota de accidentes ha crecido, no domina de forma sostenida"
 - **Fuentes:** Ergast/Kaggle, Wikipedia, Autosport, Crash.net, Motorsport Week, Grandprix.com, RaceFans, BBC (para la auditoría de estados).
