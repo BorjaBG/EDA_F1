@@ -155,9 +155,39 @@ Variable creada: `statusGeneric` con 5 categorías aplicadas a todos los statusI
 - ❌ **Criterio 2:** Solo 2 de 4 temporadas superan el 50% (2021 y 2023)
 - ✅ **Criterio 3:** 52.60% > 37.09% (media 1990-1999)
 
+**Análisis de sensibilidad (Suspension como Accident):**
+- Media 1990-1999: 40.24%; media 2020-2023: **54.33%**; temporadas > 50%: **2/4** (sigue sin cumplirse la consistencia anual)
+- Rol metodológico: es la COTA MÁXIMA favorable a los accidentes; al no salvar H2 ni siquiera este escenario, los escenarios intermedios quedan descartados por diseño
+
+**Auditoría `Retired` (statusId 31) — censo completo (informe `informe_retired_statusId31.md`, nov 2026):**
+- 67/67 casos verificados con fuentes externas, 0 sin datos: **46 F (68.7%), 16 D (23.9%), 5 O (7.5%)**
+- **Cero casos 1990-2004**: la etiqueta solo existe desde ~2005 (cambio administrativo del cronometraje FIA: retiradas en boxes pasan a anunciarse como "Retired" en vez de con su avería específica) → la comparación histórica del criterio 3 queda intacta
+- Impacto en la ventana crítica 2020-2023 (7 casos: 3 F, 1 D, 3 O): con el mapeo F→Mechanical, D→Accident, O→fuera del reparto, entran +1 accidente y +3 mecánicos → la cuota moderna baja ligeramente (~51-52%, estimado) → **la sensibilidad Retired REFUERZA la no-confirmación**
+- Conclusión: el veredicto de H2 es robusto ante los 4 escenarios de clasificación (base, Suspension→Accident, Retired mapeado, combinado). La exclusión de `Retired` en el análisis base era ligeramente favorable a H2 (68.7% de los casos eran mecánicos), y aun así H2 no se confirmó
+- ⚠️ Pendiente: ejecutar en VS Code la sensibilidad exacta con el mapeo del informe; los O quedan fuera del reparto (decisión declarada)
+
 **Conclusión final:** **H2 NO SE CONFIRMA ❌**
 
 El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1%) y 2022 (47.9%) están ligeramente por debajo del umbral, a pesar de que la media de la década sí supera el 50%.
+
+**Terminología oficial (revisión 2-3 nov 2026):** el término correcto es **"no se confirma"**, no "se refuta": con los datos no cabe afirmar ni que los accidentes dominan ni que no dominan. Con n≈240 abandonos con causa en 2020-2023, una cuota de 52.6% frente a un empate 50/50 da p≈0.56 (estimado con conteos aproximados; pendiente test binomial exacto) → **paridad estadística**. Formulación oficial:
+> "H2 no se confirma: los datos de 2020-2023 muestran paridad entre accidentes y fallos mecánicos (52.6% vs 47.4%), con una tendencia estructural al alza desde los 90 (37%). La afirmación 'los accidentes dominan ya' no está soportada; la correcta es 'los accidentes alcanzaron y rozan el dominio, pero no lo consolidan'."
+
+⚠️ Pendiente en el notebook: la celda de conclusión aún dice "H2 se REFUTA con los datos actuales" — sustituir por la formulación oficial.
+
+**Media móvil de la cuota (análisis complementario, 2 nov 2026):**
+- La cuota suavizada (ventana de 5 años) cruza el 50% solo **dos veces** en 34 años: **2012** (51.3%, transitorio: volvió a caer hasta ~38% en 2018) y **2023** (51.5%)
+- El pico de 2008-2009 (59.3%/54.7% anual) nunca superó el 50% suavizado (máx. 49.1% en 2009)
+- **Interpretación:** el cambio es real pero reciente y con retrocesos; el cruce de 2023 es una observación de frontera (incluye 2019, solo 4 temporadas modernas) — confirmarlo requiere datos futuros
+- Decisiones declaradas: ventana de 5 años por consistencia con H1; la serie suavizada empieza en 1994 (NaN 1990-93 por `min_periods`); la MM5 describe, no dictamina — nunca se usa para re-evaluar el criterio a posteriori
+- Blindaje opcional: MM5 con ventanas 3 y 7 (confirmar que 2012 es transitorio en todas y que 2023 solo cruza con ventana 5)
+
+**Cierre metodológico (revisión punto por punto de H2, 2-3 nov 2026):**
+- El enunciado admite dos lecturas — (a) dominio por temporada, (b) dominio en conjunto — y el criterio exige ambas a la vez más el ancla histórica: hipótesis deliberadamente "dura" (si el fenómeno es real, debe verse claro, no con diferencia mínima)
+- La ventana 2020-2023 se fijó a priori como "las últimas 4 temporadas" (evita grados de libertad del investigador / cherry-picking); 2020 es temporada COVID atípica pero no se excluye post-hoc
+- El criterio de consistencia anual exige mayoría de TEMPORADAS (3/4), no mayoría del total — añade consistencia año a año que la media no tiene
+- La métrica es la media de cuotas anuales (cada año pesa igual); la cuota calculada desde series de tasas es equivalente a conteos (el denominador común se cancela). Pendiente calcular la cuota agregada de la ventana como robustez
+- Con todo ello, la no-confirmación es robusta ante ambas lecturas del enunciado
 
 **Material para presentación:**
 "Aunque la cuota de accidentes ha crecido de 37% a 53%, no domina de forma sostenida en los últimos 4 años. El cambio es real, pero aún no es definitivo."
@@ -185,6 +215,14 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 3. Zonas de parrilla: Cuartos (1-5, 6-10, 11-15, 16-20); ~110 salidas por zona en 2023.
 4. Chi-cuadrado: Comparación de accidentes observados vs. esperados (proporcional a salidas por equipo).
 5. Gradiente: Tasa trasera / tasa delantera.
+
+**Notas metodológicas y revisión (Vibe, 3 nov 2026):**
+- **Marco conceptual:** H3 es una "radiografía" del accidente de 2023: quién se accidenta, desde dónde sale, y si el "quién" es real o solo el eco del "dónde" (variable de confusión: los equipos peores clasifican atrás).
+- **Ángulo exploratorio declarado a priori (cruce equipo×zona):** comparar la zona habitual del equipo (su media de clasificación 2023) con la posición concreta del día del accidente. Si dentro de una misma zona todos los equipos se accidentan parecido → manda la parrilla; si hay equipos que destacan controlando la zona → manda el equipo. ⚠️ Pendiente de añadir al notebook; con n=33 en casillas 10×zonas es puramente descriptivo (no confirma ni tumba H3, como se declaró a priori).
+- **Salidas desde pit lane (`grid=0`):** en 2023 hay 5 casos; el notebook los cuenta en la mitad trasera (215 delantera + 225 trasera = 440 salidas). Decisión razonable (pit lane = último), pero debe declararse en el notebook y la memoria.
+- **Bug a corregir (celda de zonas):** `bins=[0,5,10,15,21]` con `right=False` genera intervalos [0-4],[5-9],[10-14],[15-20] — desplazados una posición respecto al criterio a priori (1-5, 6-10, 11-15, 16-20). Corregir a `bins=[1,6,11,16,21]`. Afecta solo a los gráficos descriptivos por zona; los tres criterios del veredicto no cambian.
+- **Numeración de criterios a unificar en el notebook:** la celda del top-3 lo llama "Criterio 2" y la celda de conclusión "Criterio 1" — unificar como en este documento (1=top-3, 2=chi-cuadrado, 3=gradiente).
+- **Limitación declarada a priori:** con n=33 y esperados ~3.3 accidentes por equipo, el chi-cuadrado tiene poca potencia y sus esperados < 5 (aproximación al límite); debe llegar a la memoria. Nota: el chi-cuadrado aplicado evalúa tasas por equipo, no solo conteos.
 
 **Resultados obtenidos:**
 - **Top-3 equipos**: Alpine F1 Team (6 accidentes, 18.2%), Williams (6 accidentes, 18.2%), Haas F1 Team (4 accidentes, 12.1%) → **48.5%** (❌ NO CUMPLE criterio 1: 48.5% < 50%).
@@ -215,7 +253,7 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 ### ⏳ Pendiente
 - **H4 (temporada 2023):** Calcular puntos perdidos por tipo de abandono
 - **Cálculos en VS Code (en cola):** sensibilidad Retired exacta con el mapeo del informe; cuota agregada 2020-2023; conteos exactos A y M 2020-2023 para test binomial exacto; opcional MM5 ventanas 3/7; cuota 2020 a 4 decimales en escenario Suspension
-- **Cambios de notebook pendientes (repo):** `hipotesis 2.ipynb`: sustituir "H2 se REFUTA" por la formulación oficial "no se confirma"; añadir print de la serie MM5 (celda 13) + comentario NaN 1990-93; comentario de equivalencia cuota tasas↔conteos (celda 7)
+- **Cambios de notebook pendientes (repo):** `hipotesis 2.ipynb`: sustituir "H2 se REFUTA" por la formulación oficial "no se confirma"; añadir print de la serie MM5 (celda 13) + comentario NaN 1990-93; comentario de equivalencia cuota tasas↔conteos (celda 7). `hipotesis 3.ipynb`: corregir bins de zonas a `[1,6,11,16,21]`; unificar numeración de criterios (1=top-3, 2=chi-cuadrado, 3=gradiente); declarar la asignación pit lane (`grid=0`) a la mitad trasera; añadir el cruce exploratorio equipo×zona (zona habitual del equipo vs posición del día del accidente)
 - **Subir `informe_retired_statusId31.md` al repo** (p. ej. `docs/`) y referenciarlo
 - **Estructura final del repo:** Crear estructura `src/data`, `src/notebooks`, `src/utils`, `src/main.ipynb` según exigencias del centro
 - **README:** Redactar (actualmente solo contiene el título "# EDA_F1")
@@ -227,7 +265,7 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 
 ## 9. Hilo narrativo de la presentación (borrador)
 
-"F1 reparte ~1.200M$ según una tabla de puntos → cada bandera a cuadros que no ves es un cheque que no cobras → históricamente los coches se rompían; hoy casi nunca → entonces ¿quién quema dinero ahora y por qué? → en 2023 lo pagaron unos pocos equipos/pilotos, sobre todo por accidentes → plan de acción: inversión en fiabilidad vs formación/sanciones". 
+"F1 reparte ~1.200M$ según una tabla de puntos → cada bandera a cuadros que no ves es un cheque que no cobras → históricamente los coches se rompían; hoy casi nunca → entonces ¿quién quema dinero ahora y por qué? → pero en 2023 el accidente fue democrático: se repartió entre los equipos de forma estadísticamente indistinguible del azar, aunque la mitad trasera de la parrilla sufrió un 30% más → plan de acción: gestionar el riesgo deportivo (parrilla trasera) más que invertir en fiabilidad". 
 
 Empezar con empatía (afición del autor por la F1). Cerrar con números de impacto. Sin código ni jerga; la correlación se explica como "cuando uno sube, ¿sube el otro?".
 
@@ -266,7 +304,7 @@ EDA_F1/
 └── KNOWLEDGE.md          # Este documento
 ```
 
-**Repo remoto (GitHub):** github.com/BorjaBG/EDA_F1 (acceso concedido a la IA vía GitHub App, 2 nov 2026; con permiso de ESCRITURA). Estado remoto: `.gitignore`, `KNOWLEDGE.md`, `README.md` (vacío) y `notebooks/` con los 3 notebooks. Los CSVs no se suben (correcto: el enunciado prohíbe archivos pesados).
+**Repo remoto (GitHub):** github.com/BorjaBG/EDA_F1 (acceso concedido a la IA vía GitHub App, 2 nov 2026; con permiso de ESCRITURA). Estado remoto: `.gitignore`, `KNOWLEDGE.md`, `README.md` (vacío) y `notebooks/` con los 4 notebooks. Los CSVs no se suben (correcto: el enunciado prohíbe archivos pesados).
 
 ## 11. Decisiones tomadas y documentadas
 
@@ -284,7 +322,9 @@ EDA_F1/
 ### Análisis H2
 - ✅ Criterio de aceptación definido A PRIORI (3 condiciones con cuota A/(A+M))
 - ✅ Metodología: proporción de statusGeneric por año usando cuota `Accident / (Accident + Mechanical)`
-- ✅ Sensibilidad aplicada: reclasificación de Suspension (statusId 22) como Accident
+- ✅ Sensibilidad aplicada: reclasificación de Suspension (statusId 22) como Accident (cota máxima pro-accidentes)
+- ✅ Nueva sensibilidad (nov 2026): censo documental de `Retired` (67/67 casos, informe `informe_retired_statusId31.md`) con mapeo F→Mechanical, D→Accident, O→fuera; refuerza la no-confirmación
+- ✅ Veredicto robusto ante los 4 escenarios de clasificación (base, Suspension→Accident, Retired mapeado, combinado)
 - ✅ Visualización: gráficos de líneas, barras y media móvil
 - ✅ Resultado: **H2 NO SE CONFIRMA** (criterio 2 no se cumple: solo 2/4 temporadas > 50%)
 
@@ -314,10 +354,13 @@ EDA_F1/
 - **Resultados H2:**
   - La clarificación de la métrica (sección 6, Análisis H2) documenta una decisión metodológica con justificación
   - Resultados finales: Tabla con tasas por década y cuotas por temporada
-  - El análisis de sensibilidad (statusId 22) demuestra rigor metodológico
+  - El análisis de sensibilidad (statusId 22, cota máxima) y la auditoría de `Retired` (67/67 casos, 0 sin datos) como anexos de robustez — ambos refuerzan la no-confirmación
+  - Media móvil de la cuota: cruces transitorios 2012/2023; el cambio es real pero reciente y con retrocesos
+  - Cierre metodológico: las dos lecturas del enunciado + paridad estadística (p≈0.56) — por qué "no se confirma" y no "se refuta"; media de cuotas anuales vs cuota agregada (decisión declarada); clasificación caso a caso vs componente físico (alerón de Grosjean 2013: F estructural sin contacto, frente a Front wing/Broken wing = Accident por contacto): la categoría depende de la causa verificada, no de la pieza
   - Conclusión: "Aunque la cuota de accidentes ha crecido, no domina de forma sostenida"
 - **Resultados H3:**
   - Tabla con desglose por equipo/zona y valores numéricos exactos: top-3 equipos (Alpine, Williams, Haas) = 48.5%, chi-cuadrado p=0.9661, gradiente trasera/delantera = 1.30.
   - Análisis de los 3 criterios y por qué no se confirman: top-3 no llega al 50%, p-value muy superior a 0.05 (distribución indistinguible del azar), gradiente por debajo del umbral 1.5x.
   - Conclusión: "Los accidentes de 2023 no muestran concentración estadísticamente significativa (p=0.9661) ni relación clara con la zona de salida (gradiente=1.30), y el top-3 solo acumula el 48.5% de los accidentes."
+  - Limitaciones y decisiones a documentar: chi-cuadrado con n=33 y esperados ~3.3 por equipo (poca potencia, aproximación al límite — declarado a priori); salidas desde pit lane (5 casos) asignadas a la mitad trasera; corrección de los bins de zonas; cruce exploratorio equipo×zona (pendiente de añadir al notebook)
 - **Fuentes:** Ergast/Kaggle, Wikipedia, Autosport, Crash.net, Motorsport Week, Grandprix.com, RaceFans, BBC (para la auditoría de estados).
