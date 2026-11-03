@@ -50,7 +50,7 @@ EDA sobre el coste de los abandonos en F1 ("el coste de romperse"): fiabilidad m
   - `exploracion y limpieza.ipynb`: limpieza inicial y creación de `statusGeneric`. **✅ COMPLETADO**
   - `hipotesis 1.ipynb`: análisis completo de H1. **✅ COMPLETADO**
   - `hipotesis 2.ipynb`: análisis completo de H2. **✅ COMPLETADO**
-  - `hipotesis 3.ipynb`: análisis completo de H3 (33 accidentes analizados). **✅ COMPLETADO**
+  - `hipotesis 3.ipynb`: análisis completo de H3 (33 accidentes analizados). **✅ COMPLETADO Y REPRODUCIBLE** (Restart & Run All verificado)
 - **Trampas de calidad conocidas:** el sistema de puntuación cambió (9-6-4 → 10-6-4 → 25-18-15 desde 2010) → normalizar a "proporción de puntos posibles" o restringir; el campo `laps` permite validar "+N Laps"; regla del 90%: hay pilotos retirados que figuran como clasificados.
 
 ## 4. Clasificación de estados (COMPLETADA y auditada)
@@ -255,7 +255,7 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 ### ⏳ Pendiente
 - **H4 (temporada 2023):** Calcular puntos perdidos por tipo de abandono
 - **Cálculos en VS Code (en cola):** sensibilidad Retired exacta con el mapeo del informe; cuota agregada 2020-2023; conteos exactos A y M 2020-2023 para test binomial exacto; opcional MM5 ventanas 3/7; cuota 2020 a 4 decimales en escenario Suspension
-- **Cambios de notebook pendientes (repo):** `hipotesis 2.ipynb`: sustituir "H2 se REFUTA" por la formulación oficial "no se confirma"; añadir print de la serie MM5 (celda 13) + comentario NaN 1990-93; comentario de equivalencia cuota tasas↔conteos (celda 7). `hipotesis 3.ipynb`: ✅ bins corregidos y pit lane unificado (verificado: gradiente 1.52, criterio 3 CUMPLE), numeración unificada, pit lane declarado, cruce exploratorio añadido (heatmap + gráfico de barras apiladas); ⚠️ pendiente: definir `labels` en la celda de zona (hoy solo existe por estado del kernel; un "Restart & Run All" falla con NameError) y re-ejecutar para verificar 13/219, 20/221, 1.52
+- **Cambios de notebook pendientes (repo):** `hipotesis 2.ipynb`: sustituir "H2 se REFUTA" por la formulación oficial "no se confirma"; añadir print de la serie MM5 (celda 13) + comentario NaN 1990-93; comentario de equivalencia cuota tasas↔conteos (celda 7). `hipotesis 3.ipynb`: ✅ bins corregidos y pit lane unificado (verificado: gradiente 1.52, criterio 3 CUMPLE), numeración unificada, pit lane declarado, cruce exploratorio añadido (heatmap + gráfico de barras apiladas); ✅ `labels` definido en la celda de zona antes de su primer uso y notebook re-ejecutado de arriba abajo sin errores (commit 8c777ab; verificado en remoto: 13/219, 20/221, gradiente 1.52, criterio 3 CUMPLE) → **H3 CERRADA** (3 nov 2026)
 - **Subir `informe_retired_statusId31.md` al repo** (p. ej. `docs/`) y referenciarlo
 - **Estructura final del repo:** Crear estructura `src/data`, `src/notebooks`, `src/utils`, `src/main.ipynb` según exigencias del centro
 - **README:** Redactar (actualmente solo contiene el título "# EDA_F1")
