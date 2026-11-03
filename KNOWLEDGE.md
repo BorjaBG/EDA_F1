@@ -136,7 +136,7 @@ Variable creada: `statusGeneric` con 5 categorías aplicadas a todos los statusI
 **Resultados obtenidos:**
 
 | Década | Cuota A/(A+M) | Accidentes | Mecánicos |
-|--------|----------------|-------------|------------|
+|--------|----------------|-------------|-----------|
 | 1990-1999 | 37.09% | 17.8% | 30.2% |
 | 2000-2009 | 40.48% | 11.7% | 18.9% |
 | 2010-2019 | 42.45% | 7.6% | 10.5% |
@@ -295,7 +295,7 @@ EDA_F1/
 └── KNOWLEDGE.md          # Este documento
 ```
 
-**Repo remoto (GitHub):** github.com/BorjaBG/EDA_F1 (acceso concedido a la IA vía GitHub App, 2 nov 2026; con permiso de ESCRITURA). Estado remoto: `.gitignore`, `KNOWLEDGE.md`, `README.md` (vacío) y `notebooks/` con los 3 notebooks. Los CSVs no se suben (correcto: el enunciado proh00edbe archivos pesados).
+**Repo remoto (GitHub):** github.com/BorjaBG/EDA_F1 (acceso concedido a la IA vía GitHub App, 2 nov 2026; con permiso de ESCRITURA). Estado remoto: `.gitignore`, `KNOWLEDGE.md`, `README.md` (vacío) y `notebooks/` con los 3 notebooks. Los CSVs no se suben (correcto: el enunciado prohíbe archivos pesados).
 
 ## 10. Decisiones tomadas y documentadas
 
@@ -314,8 +314,8 @@ EDA_F1/
 - ✅ Criterio de aceptación definido A PRIORI (3 condiciones con cuota A/(A+M))
 - ✅ Metodología: proporción de statusGeneric por año usando cuota `Accident / (Accident + Mechanical)`
 - ✅ Sensibilidad aplicada: reclasificación de Suspension (statusId 22) como Accident
-- ✅ Nueva sensibilidad (nov 2026): censo documental de `Retired` (67/67 casos) con mapeo F→Mechanical, D→Accident, O→fuera; refuerza la no-confirmación (informe `informe_retired_statusId31.md`)
 - ✅ Visualización: gráficos de líneas, barras y media móvil
+- ✅ Nueva sensibilidad (nov 2026): censo documental de `Retired` (67/67 casos) con mapeo F→Mechanical, D→Accident, O→fuera; refuerza la no-confirmación (informe `informe_retired_statusId31.md`)
 - ✅ Resultado: **H2 NO SE CONFIRMA** (criterio 2 no se cumple: solo 2/4 temporadas > 50%); veredicto robusto ante los 4 escenarios de clasificación
 
 ### Análisis H3
