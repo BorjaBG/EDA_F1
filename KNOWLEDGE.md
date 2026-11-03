@@ -218,10 +218,11 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 
 **Notas metodológicas y revisión (Vibe, 3 nov 2026):**
 - **Marco conceptual:** H3 es una "radiografía" del accidente de 2023: quién se accidenta, desde dónde sale, y si el "quién" es real o solo el eco del "dónde" (variable de confusión: los equipos peores clasifican atrás).
-- **Ángulo exploratorio declarado a priori (cruce equipo×zona):** comparar la zona habitual del equipo (su media de clasificación 2023) con la posición concreta del día del accidente. Si dentro de una misma zona todos los equipos se accidentan parecido → manda la parrilla; si hay equipos que destacan controlando la zona → manda el equipo. ⚠️ Pendiente de añadir al notebook; con n=33 en casillas 10×zonas es puramente descriptivo (no confirma ni tumba H3, como se declaró a priori).
-- **Salidas desde pit lane (`grid=0`):** en 2023 hay 5 casos; el notebook los cuenta en la mitad trasera (215 delantera + 225 trasera = 440 salidas). Decisión razonable (pit lane = último), pero debe declararse en el notebook y la memoria.
-- **Bug a corregir (celda de zonas):** `bins=[0,5,10,15,21]` con `right=False` genera intervalos [0-4],[5-9],[10-14],[15-20] — desplazados una posición respecto al criterio a priori (1-5, 6-10, 11-15, 16-20). Corregir a `bins=[1,6,11,16,21]`. Afecta solo a los gráficos descriptivos por zona; los tres criterios del veredicto no cambian.
-- **Numeración de criterios a unificar en el notebook:** la celda del top-3 lo llama "Criterio 2" y la celda de conclusión "Criterio 1" — unificar como en este documento (1=top-3, 2=chi-cuadrado, 3=gradiente).
+- **Ángulo exploratorio declarado a priori (cruce equipo×zona):** comparar la zona habitual del equipo (su media de clasificación 2023) con la posición concreta del día del accidente. Si dentro de una misma zona todos los equipos se accidentan parecido → manda la parrilla; si hay equipos que destacan controlando la zona → manda el equipo. ✅ **Implementado en el notebook** (heatmap de contingencia + gráfico de barras apiladas por equipo/zona); con n=33 en casillas 10×zonas es puramente descriptivo (no confirma ni tumba H3, como se declaró a priori).
+- **Salidas desde pit lane (`grid=0`):** en 2023 hay 5 casos; el notebook los cuenta en la mitad trasera. ✅ **Declarado en el notebook** (celda de markdown después del cálculo del top-3): decisión razonable (pit lane = último, ya que los coches salen después de que el resto haya recibido la señal de inicio).
+- **Bug en bins de zonas:** ✅ **Corregido** a `bins=[1,6,11,16,21]`. Afecta solo a los gráficos descriptivos por zona; los tres criterios del veredicto no cambian.
+- **Numeración de criterios:** ✅ **Unificada** en el notebook (1=top-3, 2=chi-cuadrado, 3=gradiente).
+
 - **Limitación declarada a priori:** con n=33 y esperados ~3.3 accidentes por equipo, el chi-cuadrado tiene poca potencia y sus esperados < 5 (aproximación al límite); debe llegar a la memoria. Nota: el chi-cuadrado aplicado evalúa tasas por equipo, no solo conteos.
 
 **Resultados obtenidos:**
@@ -238,6 +239,7 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 - Gráfico de barras por equipo (con anotación del top-3: 48.5%).
 - Gráfico de tarta por zona de parrilla.
 - Gráfico de comparación delantera vs. trasera (con umbral del 1.5× marcado).
+- **Cruce exploratorio:** heatmap de contingencia zona habitual vs. zona real + gráfico de barras apiladas por equipo/zona.
 
 ## 8. Estado actual y siguientes pasos
 
@@ -253,7 +255,7 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 ### ⏳ Pendiente
 - **H4 (temporada 2023):** Calcular puntos perdidos por tipo de abandono
 - **Cálculos en VS Code (en cola):** sensibilidad Retired exacta con el mapeo del informe; cuota agregada 2020-2023; conteos exactos A y M 2020-2023 para test binomial exacto; opcional MM5 ventanas 3/7; cuota 2020 a 4 decimales en escenario Suspension
-- **Cambios de notebook pendientes (repo):** `hipotesis 2.ipynb`: sustituir "H2 se REFUTA" por la formulación oficial "no se confirma"; añadir print de la serie MM5 (celda 13) + comentario NaN 1990-93; comentario de equivalencia cuota tasas↔conteos (celda 7). `hipotesis 3.ipynb`: corregir bins de zonas a `[1,6,11,16,21]`; unificar numeración de criterios (1=top-3, 2=chi-cuadrado, 3=gradiente); declarar la asignación pit lane (`grid=0`) a la mitad trasera; añadir el cruce exploratorio equipo×zona (zona habitual del equipo vs posición del día del accidente)
+- **Cambios de notebook pendientes (repo):** `hipotesis 2.ipynb`: sustituir "H2 se REFUTA" por la formulación oficial "no se confirma"; añadir print de la serie MM5 (celda 13) + comentario NaN 1990-93; comentario de equivalencia cuota tasas↔conteos (celda 7). `hipotesis 3.ipynb`: ✅ bins corregidos, numeración unificada, pit lane declarado, cruce exploratorio añadido (heatmap + gráfico de barras apiladas)
 - **Subir `informe_retired_statusId31.md` al repo** (p. ej. `docs/`) y referenciarlo
 - **Estructura final del repo:** Crear estructura `src/data`, `src/notebooks`, `src/utils`, `src/main.ipynb` según exigencias del centro
 - **README:** Redactar (actualmente solo contiene el título "# EDA_F1")
