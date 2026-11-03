@@ -220,7 +220,7 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 - **Marco conceptual:** H3 es una "radiografía" del accidente de 2023: quién se accidenta, desde dónde sale, y si el "quién" es real o solo el eco del "dónde" (variable de confusión: los equipos peores clasifican atrás).
 - **Ángulo exploratorio declarado a priori (cruce equipo×zona):** comparar la zona habitual del equipo (su media de clasificación 2023) con la posición concreta del día del accidente. Si dentro de una misma zona todos los equipos se accidentan parecido → manda la parrilla; si hay equipos que destacan controlando la zona → manda el equipo. ✅ **Implementado en el notebook** (heatmap de contingencia + gráfico de barras apiladas por equipo/zona); con n=33 en casillas 10×zonas es puramente descriptivo (no confirma ni tumba H3, como se declaró a priori).
 - **Salidas desde pit lane (`grid=0`):** en 2023 hay 5 casos; el notebook los cuenta en la mitad trasera. ✅ **Declarado en el notebook** (celda de markdown después del cálculo del top-3): decisión razonable (pit lane = último, ya que los coches salen después de que el resto haya recibido la señal de inicio).
-- **Bug en bins de zonas:** ✅ **Corregido** a `bins=[1,6,11,16,21]`. Afecta solo a los gráficos descriptivos por zona; los tres criterios del veredicto no cambian.
+- **Bins de zonas + pit lane (corregido y verificado, 3 nov 2026):** definición única `grid.replace(0, 20)` + `bins=[1,6,11,16,21]`, `right=False`, aplicada a accidentes (celda de zona) y a salidas (celda del gradiente). El fix reasignó 1 accidente con `grid=0` de la Zona 1 a la Zona 4 y corrigió los denominadores → **el gradiente pasó de 1.30 a 1.52 y el criterio 3 pasa a CUMPLE**. ⚠️ Fragilidad declarada: con n=33, 1.52 está en el filo del umbral 1.5 — un solo accidente reclasificado voltea el criterio (si ese accidente de pit lane contara como delantera: ~1.34). El 1.30 anterior era un artefacto (pit lane caía en la Zona 1 con los bins antiguos).
 - **Numeración de criterios:** ✅ **Unificada** en el notebook (1=top-3, 2=chi-cuadrado, 3=gradiente).
 
 - **Limitación declarada a priori:** con n=33 y esperados ~3.3 accidentes por equipo, el chi-cuadrado tiene poca potencia y sus esperados < 5 (aproximación al límite); debe llegar a la memoria. Nota: el chi-cuadrado aplicado evalúa tasas por equipo, no solo conteos.
@@ -228,12 +228,12 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 **Resultados obtenidos:**
 - **Top-3 equipos**: Alpine F1 Team (6 accidentes, 18.2%), Williams (6 accidentes, 18.2%), Haas F1 Team (4 accidentes, 12.1%) → **48.5%** (❌ NO CUMPLE criterio 1: 48.5% < 50%).
 - **Chi-cuadrado**: p-value = **0.9661** (❌ NO CUMPLE criterio 2: p >> 0.05; distribución estadísticamente indistinguible del azar).
-- **Gradiente**: **1.30** (trasera/delantera) (❌ NO CUMPLE criterio 3: 1.30 < 1.5).
+- **Gradiente**: **1.52** (trasera: 20/221 salidas = 9.05% vs delantera: 13/219 = 5.94%) (✅ **CUMPLE** criterio 3: 1.52 ≥ 1.5).
 
-**Conclusión final:** **H3 NO SE CONFIRMA ❌** (ninguno de los 3 criterios se cumple).
+**Conclusión final:** **H3 NO SE CONFIRMA ❌** (exige 3/3; caen los criterios 1 y 2, pero el criterio 3 SÍ se cumple: gradiente 1.52 ≥ 1.5).
 
 **Material para presentación:**
-> *"Aunque los equipos de la mitad trasera de la parrilla tienen un 30% más de accidentes, la distribución por equipos es estadísticamente similar al azar (p=0.9661), y el top-3 solo acumula el 48.5% de los accidentes — por debajo del umbral del 50%."*
+> *"Los accidentes de 2023 fueron democráticos entre equipos (top-3 = 48.5%, p=0.9661: indistinguible del azar), pero no respecto a la parrilla: la mitad trasera sufrió un 52% más de accidentes (gradiente 1.52). Al no cumplirse los 3 criterios a la vez, H3 no se confirma — aunque sí emerge un gradiente de parrilla."*
 
 **Visualizaciones generadas:**
 - Gráfico de barras por equipo (con anotación del top-3: 48.5%).
@@ -255,7 +255,7 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 ### ⏳ Pendiente
 - **H4 (temporada 2023):** Calcular puntos perdidos por tipo de abandono
 - **Cálculos en VS Code (en cola):** sensibilidad Retired exacta con el mapeo del informe; cuota agregada 2020-2023; conteos exactos A y M 2020-2023 para test binomial exacto; opcional MM5 ventanas 3/7; cuota 2020 a 4 decimales en escenario Suspension
-- **Cambios de notebook pendientes (repo):** `hipotesis 2.ipynb`: sustituir "H2 se REFUTA" por la formulación oficial "no se confirma"; añadir print de la serie MM5 (celda 13) + comentario NaN 1990-93; comentario de equivalencia cuota tasas↔conteos (celda 7). `hipotesis 3.ipynb`: ✅ bins corregidos, numeración unificada, pit lane declarado, cruce exploratorio añadido (heatmap + gráfico de barras apiladas)
+- **Cambios de notebook pendientes (repo):** `hipotesis 2.ipynb`: sustituir "H2 se REFUTA" por la formulación oficial "no se confirma"; añadir print de la serie MM5 (celda 13) + comentario NaN 1990-93; comentario de equivalencia cuota tasas↔conteos (celda 7). `hipotesis 3.ipynb`: ✅ bins corregidos y pit lane unificado (verificado: gradiente 1.52, criterio 3 CUMPLE), numeración unificada, pit lane declarado, cruce exploratorio añadido (heatmap + gráfico de barras apiladas); ⚠️ pendiente: definir `labels` en la celda de zona (hoy solo existe por estado del kernel; un "Restart & Run All" falla con NameError) y re-ejecutar para verificar 13/219, 20/221, 1.52
 - **Subir `informe_retired_statusId31.md` al repo** (p. ej. `docs/`) y referenciarlo
 - **Estructura final del repo:** Crear estructura `src/data`, `src/notebooks`, `src/utils`, `src/main.ipynb` según exigencias del centro
 - **README:** Redactar (actualmente solo contiene el título "# EDA_F1")
@@ -267,14 +267,14 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 
 ## 9. Hilo narrativo de la presentación (borrador)
 
-"F1 reparte ~1.200M$ según una tabla de puntos → cada bandera a cuadros que no ves es un cheque que no cobras → históricamente los coches se rompían; hoy casi nunca → entonces ¿quién quema dinero ahora y por qué? → pero en 2023 el accidente fue democrático: se repartió entre los equipos de forma estadísticamente indistinguible del azar, aunque la mitad trasera de la parrilla sufrió un 30% más → plan de acción: gestionar el riesgo deportivo (parrilla trasera) más que invertir en fiabilidad". 
+"F1 reparte ~1.200M$ según una tabla de puntos → cada bandera a cuadros que no ves es un cheque que no cobras → históricamente los coches se rompían; hoy casi nunca → entonces ¿quién quema dinero ahora y por qué? → pero en 2023 el accidente fue democrático: se repartió entre los equipos de forma estadísticamente indistinguible del azar, aunque la mitad trasera de la parrilla sufrió un 52% más (gradiente 1.52, en el filo del umbral) → plan de acción: gestionar el riesgo deportivo (parrilla trasera) más que invertir en fiabilidad". 
 
 Empezar con empatía (afición del autor por la F1). Cerrar con números de impacto. Sin código ni jerga; la correlación se explica como "cuando uno sube, ¿sube el otro?".
 
 **Resultados para incluir:**
 - **H1:** "La tasa de abandono mecánico se redujo de 30.2% en los 90 a solo 7% en la actualidad, una mejora del 77% que confirma que los coches son mucho más fiables"
 - **H2:** "Aunque la cuota de accidentes ha crecido de 37% a 53%, no domina de forma sostenida en los últimos 4 años. El cambio de tendencia es real pero aún no es definitivo."
-- **H3:** "Los accidentes de 2023 no muestran concentración significativa: el top-3 suma solo el 48.5%, el p-value del chi-cuadrado es 0.9661 (no significativo), y el gradiente es de 1.30 (por debajo del 1.5x esperado)."
+- **H3:** "Los accidentes de 2023 fueron democráticos entre equipos (top-3 = 48.5%, p=0.9661: indistinguible del azar), pero la mitad trasera sufrió un 52% más (gradiente 1.52). H3 no se confirma porque exige los 3 criterios a la vez."
 - **H4:** (pendiente) "Los accidentes costaron Z millones más que los fallos mecánicos en 2023"
 
 ## 10. Estructura actual del repositorio
@@ -333,7 +333,7 @@ EDA_F1/
 ### Análisis H3
 - ✅ Enunciado reformulado y criterio de aceptación definidos A PRIORI (3 nov 2026, ver sección 7)
 - ✅ Metodología: Zonas de parrilla (cuartos), chi-cuadrado de bondad, gradiente trasera/delantera
-- ✅ Resultado: **H3 NO SE CONFIRMA** (ninguno de los 3 criterios cumplido: top-3=48.5%<50%, p=0.9661>>0.05, gradiente=1.30<1.5)
+- ✅ Resultado: **H3 NO SE CONFIRMA** (criterios 1 y 2 caen: top-3=48.5%<50%, p=0.9661>>0.05; criterio 3 CUMPLE: gradiente=1.52≥1.5, trasera 9.05% vs delantera 5.94%)
 
 ### Datos
 - ✅ Datos originales de Ergast en `archive/`
@@ -361,8 +361,8 @@ EDA_F1/
   - Cierre metodológico: las dos lecturas del enunciado + paridad estadística (p≈0.56) — por qué "no se confirma" y no "se refuta"; media de cuotas anuales vs cuota agregada (decisión declarada); clasificación caso a caso vs componente físico (alerón de Grosjean 2013: F estructural sin contacto, frente a Front wing/Broken wing = Accident por contacto): la categoría depende de la causa verificada, no de la pieza
   - Conclusión: "Aunque la cuota de accidentes ha crecido, no domina de forma sostenida"
 - **Resultados H3:**
-  - Tabla con desglose por equipo/zona y valores numéricos exactos: top-3 equipos (Alpine, Williams, Haas) = 48.5%, chi-cuadrado p=0.9661, gradiente trasera/delantera = 1.30.
-  - Análisis de los 3 criterios y por qué no se confirman: top-3 no llega al 50%, p-value muy superior a 0.05 (distribución indistinguible del azar), gradiente por debajo del umbral 1.5x.
-  - Conclusión: "Los accidentes de 2023 no muestran concentración estadísticamente significativa (p=0.9661) ni relación clara con la zona de salida (gradiente=1.30), y el top-3 solo acumula el 48.5% de los accidentes."
-  - Limitaciones y decisiones a documentar: chi-cuadrado con n=33 y esperados ~3.3 por equipo (poca potencia, aproximación al límite — declarado a priori); salidas desde pit lane (5 casos) asignadas a la mitad trasera; corrección de los bins de zonas; cruce exploratorio equipo×zona (pendiente de añadir al notebook)
+  - Tabla con desglose por equipo/zona y valores numéricos exactos: top-3 equipos (Alpine, Williams, Haas) = 48.5%, chi-cuadrado p=0.9661, gradiente trasera/delantera = 1.52 (20/221 vs 13/219).
+  - Análisis de los 3 criterios: top-3 no llega al 50% y p-value muy superior a 0.05 (distribución indistinguible del azar); el gradiente SÍ supera el umbral (1.52 ≥ 1.5) — H3 no se confirma porque exige los 3 a la vez. Declarar la fragilidad: con n=33, un solo accidente reclasificado voltea el criterio 3.
+  - Conclusión: "Los accidentes de 2023 no muestran concentración estadísticamente significativa (p=0.9661) ni top-3 dominante (48.5%), pero sí un gradiente de parrilla: la mitad trasera sufrió un 52% más (gradiente 1.52, en el filo del umbral)."
+  - Limitaciones y decisiones a documentar: chi-cuadrado con n=33 y esperados ~3.3 por equipo (poca potencia, aproximación al límite — declarado a priori); salidas desde pit lane (5 casos) asignadas a la mitad trasera (`replace(0,20)`, unificado en accidentes y salidas); corrección de los bins de zonas y su efecto en el criterio 3 (1.30→1.52); cruce exploratorio equipo×zona (ya en el notebook: equipos de zona habitual 1 se accidentan en Z1-Z2; zona habitual 3 concentra 13/15 en Z3-Z4 → descriptivamente, manda la parrilla)
 - **Fuentes:** Ergast/Kaggle, Wikipedia, Autosport, Crash.net, Motorsport Week, Grandprix.com, RaceFans, BBC (para la auditoría de estados).
