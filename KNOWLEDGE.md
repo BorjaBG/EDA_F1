@@ -28,7 +28,7 @@ EDA sobre el coste de los abandonos en F1 ("el coste de romperse"): fiabilidad m
   - **H1 (1990–2023):** la tasa de abandono mecánico ha caído de forma sostenida. **✅ COMPLETADA Y CONFIRMADA**
   - **H2 (1990–2023):** los accidentes, no los fallos, dominan ya los abandonos. **✅ COMPLETADA - NO CONFIRMADA**
   - **H3 (temporada 2023):** "Los accidentes de 2023 no se repartieron al azar: se concentran en pocos equipos, y esa concentración se relaciona con la zona de salida (mitad de parrilla hacia atrás)." **✅ COMPLETADA - NO CONFIRMADA**
-  - **H4 (temporada 2023):** "En 2023, los abandonos por accidente costaron más puntos (y por tanto más dinero de premio) que los fallos mecánicos." **⏳ EN DISEÑO A PRIORI** (ver sección 14)
+  - **H4 (temporada 2023):** "En 2023, los abandonos por accidente costaron más puntos (y por tanto más dinero de premio) que los fallos mecánicos." **✅ COMPLETADA - CONFIRMADA** (ver sección 7.5 - Contrafactual A: 65 vs 28 pts, ratio 2.32x)
 - **Por qué dos escalas:** una sola temporada no permite análisis por circuito (n=1 por circuito) ni tendencias; el histórico completo exige normalizar sistemas de puntuación. El foco de temporada da frescura y el contexto histórico permite decir si 2023 es anómala (referencias externas: tasa de no-finalización no técnica 27% en 1992 vs 7% en 2023; fiabilidad moderna ~95%).
 - **Foco de temporada:** 2023 (alternativa considerada: 2024).
 - **Ideas descartadas durante la exploración** (por si se reabren): pole→victoria, ¿piloto o coche?, estrategia de boxes, reglamento 2022 y adelantamientos, efecto GP en casa, lluvia, sprints, punto de vuelta rápida (2019-2024, eliminado en 2025).
@@ -241,6 +241,44 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 - Gráfico de comparación delantera vs. trasera (con umbral del 1.5× marcado).
 - **Cruce exploratorio:** heatmap de contingencia zona habitual vs. zona real + gráfico de barras apiladas por equipo/zona.
 
+## 7.5 Análisis completado: H4 ✅
+
+### Hipótesis H4
+**Enunciado formal:** "En 2023, los abandonos por accidente costaron más puntos (y por tanto más dinero de premio) que los fallos mecánicos."
+
+**Diseño a priori:** KNOWLEDGE.md sección 14 (4 nov 2026)
+
+**Metodología aplicada:**
+1. **Contrafactual A (principal):** Posición en la última vuelta completada del piloto antes de abandonar (de `archive/lap_times.csv`)
+2. **Fallback declarado:** Posición de parrilla (`grid`) para abandonos en vuelta 1 sin datos en lap_times
+3. **Contrafactual B (sensibilidad):** Media de puntos del piloto cuando terminó en 2023 (o del equipo si <3 carreras terminadas)
+4. **Conteo simple (sensibilidad):** Número de abandonos por tipo
+
+**Datos de entrada:**
+- `archive/lap_times.csv`: 589,081 filas, cubre raceIds 1098-1120 (temporada 2023)
+- `data/results_23.csv`: 440 resultados con `statusGeneric`
+- Total abandonos con causa en 2023: **58** (33 Accidentes, 25 Mecánicos)
+
+**Resultados obtenidos:**
+
+| Método | Accidentes | Mecánicos | Ratio | Criterio 1 | Criterio 2 |
+|--------|------------|-----------|-------|------------|------------|
+| **Contrafactual A** (principal) | 65 pts | 28 pts | **2.32x** | ✅ CUMPLE | ✅ CUMPLE |
+| Contrafactual B (sensibilidad) | 133.4 pts | 93.9 pts | 1.42x | ✅ CUMPLE | ❌ NO CUMPLE |
+| Conteo simple (sensibilidad) | 33 abandonos | 25 abandonos | 1.32x | ✅ CUMPLE | ❌ NO CUMPLE |
+
+**Verificación de criterios (A PRIORI):**
+- ✅ **Criterio 1:** Contrafactual A - 65 > 28
+- ✅ **Criterio 2:** Contrafactual A - 65 >= 1.5 × 28 (42)
+
+**Conclusión final:** **H4 SE CONFIRMA ✅** (Contrafactual A, método principal, cumple ambos criterios definidos a priori)
+
+**Notas:**
+- Cobertura lap_times: 49/58 abandonos (84.5%) con datos de última vuelta; 9/58 (15.5%) usando fallback (grid)
+- Contrafactual B y conteo simple son análisis de sensibilidad: ambos cumplen criterio 1 (Acc > Mec) pero no el 2 (ratio < 1.5x)
+- El veredicto de H4 se basa en el Contrafactual A como método principal acordado a priori
+
+
 ## 8. Estado actual y siguientes pasos
 
 ### ✅ Completo
@@ -249,11 +287,11 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 - Análisis y validación de H1
 - Análisis y validación de H2
 - Análisis y validación de H3 (notebook `hipotesis 3.ipynb` con 33 accidentes analizados)
+- Análisis y validación de H4 (notebook `hipotesis 4.ipynb` - Contrafactual A: 65 vs 28 pts, ratio 2.32x)
 - Datos limpiados guardados en `data/`
-- Criterios formales definidos y verificados para H1, H2 y H3
+- Criterios formales definidos y verificados para H1, H2, H3 y H4
 
 ### ⏳ Pendiente
-- **H4 (temporada 2023):** ejecutar el diseño de la sección 14 — pendiente: verificación de `archive/lap_times.csv` en VS Code (cobertura 2023 + coherencia última vuelta vs `laps`), ratificar criterios, crear `notebooks/hipotesis 4.ipynb`
 - **Cálculos en VS Code (en cola):** sensibilidad Retired exacta con el mapeo del informe; cuota agregada 2020-2023; conteos exactos A y M 2020-2023 para test binomial exacto; opcional MM5 ventanas 3/7; cuota 2020 a 4 decimales en escenario Suspension
 - **Cambios de notebook pendientes (repo):** `hipotesis 2.ipynb`: sustituir "H2 se REFUTA" por la formulación oficial "no se confirma"; añadir print de la serie MM5 (celda 13) + comentario NaN 1990-93; comentario de equivalencia cuota tasas↔conteos (celda 7). `hipotesis 3.ipynb`: ✅ bins corregidos y pit lane unificado (verificado: gradiente 1.52, criterio 3 CUMPLE), numeración unificada, pit lane declarado, cruce exploratorio añadido (heatmap + gráfico de barras apiladas); ✅ `labels` definido en la celda de zona antes de su primer uso y notebook re-ejecutado de arriba abajo sin errores (commit 8c777ab; verificado en remoto: 13/219, 20/221, gradiente 1.52, criterio 3 CUMPLE) → **H3 CERRADA** (3 nov 2026)
 - **Subir `informe_retired_statusId31.md` al repo** (p. ej. `docs/`) y referenciarlo
@@ -262,7 +300,7 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 - **Memoria:** Documentar proceso, resultados y dificultades
 
 ### 📊 Próximos pasos inmediatos
-1. **H4:** Crear notebook `hipotesis 4.ipynb` y calcular impacto económico de accidentes vs mecánicos en 2023
+1. **H4:** ✅ Análisis completado (`notebooks/hipotesis 4.ipynb` - Contrafactual A: 65 vs 28 pts, ratio 2.32x)
 2. **Repo:** Redactar README y migrar a estructura `src/` exigida por el centro
 
 ## 9. Hilo narrativo de la presentación (borrador)
