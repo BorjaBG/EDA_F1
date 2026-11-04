@@ -475,3 +475,28 @@ EDA_F1/
 **Dinero: las tres piezas (no mezclar):** (1) dejado de ganar = puntos perdidos→posiciones→£M [núcleo de H4]; (2) gastado en reparaciones = factura SI [capa complementaria]; (3) coste de oportunidad del presupuesto (carbono roto vs upgrades) [solo narrativa].
 
 **Estado:** ✅ CERRADA (4 nov 2026). Criterios ratificados e implementados en `notebooks/hipotesis 4.ipynb` (Restart & Run All verificado) → **H4 SE CONFIRMA** (ver sección 7.5).
+
+## 15. Estilo visual del proyecto (acordado con Vibe, 4 nov 2026)
+
+**Paleta de colores COMÚN para todos los notebooks y gráficos** — colores oficiales de Fórmula 1:
+
+| Uso | Color | Código |
+| --- | --- | --- |
+| Accidente / riesgo / línea protagonista (MM5) | Rojo F1 | `#E10600` |
+| Mecánico / contraste / umbrales de criterio | Negro-carbón F1 | `#15151E` |
+| Datos crudos (puntos anuales, delantera, categorías neutras) | Gris | `#9CA3AF` |
+| Grid y fondos | Gris claro | `#E5E5E5` |
+
+**Regla semántica transversal:** rojo = accidente/peligro/tendencia protagonista; negro = mecánico/contraste; gris = dato crudo. Los umbrales de criterio (50%, 1.5×) SIEMPRE en negro discontinuo (`umbral_criterio(ax, y, etiqueta)`), para distinguir "regla" de "dato".
+
+**Implementación acordada:** celda de estilo idéntica y autocontenida al inicio de cada notebook (sin imports externos ni módulos compartidos), con las constantes `ROJO_F1`, `NEGRO_F1`, `GRIS_F1`, `CLARO_F1`, `PALETA_F1`, un `plt.rcParams.update()` común (títulos bold 14, grid claro, sin marco de leyenda) y la función helper `umbral_criterio`. Tipografía: sans-serif; opcional Titillium Web (fuente oficial de F1, gratuita en Google Fonts) si está instalada.
+
+**Cambios previstos por notebook (solo color, cero lógica):**
+- **H1:** puntos anuales → gris; MM5 → rojo F1
+- **H2:** accidentes/mecánicos → `#E10600`/`#15151E`; `#FF6B35`→rojo F1, `#1F77B4`→negro F1; scatter cuota anual → gris, MM cuota → rojo F1; umbral 50% → `umbral_criterio` (negro discontinuo, ya no rojo punteado)
+- **H3:** pastel `#ff9999`/`#66b3ff` → rojo F1/negro F1; mitades de parrilla: delantera → gris, trasera → rojo F1 (sustituye `#4CAF50`/`#FF5722` y `green`/`orange`); umbral 1.5× → `umbral_criterio`; heatmap y pie descriptivos pueden mantenerse (no van a diapositivas) o pasar a `cmap='Reds'`
+- **H4:** `#E63946`→`#E10600` y `#1D3557`→`#15151E` (la estructura de los gráficos definitiva no cambia)
+
+**Al aplicar los cambios:** ejecutar Restart & Run All en cada notebook para que los outputs guardados muestren la paleta nueva (los .ipynb guardan las imágenes antiguas si no se re-ejecutan).
+
+**Estado:** ⚠️ PENDIENTE de aplicar en VS Code (usuario); tras subirlo, Vibe verifica y cierra esta sección.
