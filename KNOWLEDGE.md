@@ -28,7 +28,7 @@ EDA sobre el coste de los abandonos en F1 ("el coste de romperse"): fiabilidad m
   - **H1 (1990–2023):** la tasa de abandono mecánico ha caído de forma sostenida. **✅ COMPLETADA Y CONFIRMADA**
   - **H2 (1990–2023):** los accidentes, no los fallos, dominan ya los abandonos. **✅ COMPLETADA - NO CONFIRMADA**
   - **H3 (temporada 2023):** "Los accidentes de 2023 no se repartieron al azar: se concentran en pocos equipos, y esa concentración se relaciona con la zona de salida (mitad de parrilla hacia atrás)." **✅ COMPLETADA - NO CONFIRMADA**
-  - **H4 (temporada 2023):** los accidentes costaron más puntos que los fallos mecánicos. **⏳ PENDIENTE**
+  - **H4 (temporada 2023):** "En 2023, los abandonos por accidente costaron más puntos (y por tanto más dinero de premio) que los fallos mecánicos." **⏳ EN DISEÑO A PRIORI** (ver sección 14)
 - **Por qué dos escalas:** una sola temporada no permite análisis por circuito (n=1 por circuito) ni tendencias; el histórico completo exige normalizar sistemas de puntuación. El foco de temporada da frescura y el contexto histórico permite decir si 2023 es anómala (referencias externas: tasa de no-finalización no técnica 27% en 1992 vs 7% en 2023; fiabilidad moderna ~95%).
 - **Foco de temporada:** 2023 (alternativa considerada: 2024).
 - **Ideas descartadas durante la exploración** (por si se reabren): pole→victoria, ¿piloto o coche?, estrategia de boxes, reglamento 2022 y adelantamientos, efecto GP en casa, lluvia, sprints, punto de vuelta rápida (2019-2024, eliminado en 2025).
@@ -253,7 +253,7 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 - Criterios formales definidos y verificados para H1, H2 y H3
 
 ### ⏳ Pendiente
-- **H4 (temporada 2023):** Calcular puntos perdidos por tipo de abandono
+- **H4 (temporada 2023):** ejecutar el diseño de la sección 14 — pendiente: verificación de `archive/lap_times.csv` en VS Code (cobertura 2023 + coherencia última vuelta vs `laps`), ratificar criterios, crear `notebooks/hipotesis 4.ipynb`
 - **Cálculos en VS Code (en cola):** sensibilidad Retired exacta con el mapeo del informe; cuota agregada 2020-2023; conteos exactos A y M 2020-2023 para test binomial exacto; opcional MM5 ventanas 3/7; cuota 2020 a 4 decimales en escenario Suspension
 - **Cambios de notebook pendientes (repo):** `hipotesis 2.ipynb`: sustituir "H2 se REFUTA" por la formulación oficial "no se confirma"; añadir print de la serie MM5 (celda 13) + comentario NaN 1990-93; comentario de equivalencia cuota tasas↔conteos (celda 7). `hipotesis 3.ipynb`: ✅ bins corregidos y pit lane unificado (verificado: gradiente 1.52, criterio 3 CUMPLE), numeración unificada, pit lane declarado, cruce exploratorio añadido (heatmap + gráfico de barras apiladas); ✅ `labels` definido en la celda de zona antes de su primer uso y notebook re-ejecutado de arriba abajo sin errores (commit 8c777ab; verificado en remoto: 13/219, 20/221, gradiente 1.52, criterio 3 CUMPLE) → **H3 CERRADA** (3 nov 2026)
 - **Subir `informe_retired_statusId31.md` al repo** (p. ej. `docs/`) y referenciarlo
@@ -366,3 +366,34 @@ EDA_F1/
   - Conclusión: "Los accidentes de 2023 no muestran concentración estadísticamente significativa (p=0.9661) ni top-3 dominante (48.5%), pero sí un gradiente de parrilla: la mitad trasera sufrió un 52% más (gradiente 1.52, en el filo del umbral)."
   - Limitaciones y decisiones a documentar: chi-cuadrado con n=33 y esperados ~3.3 por equipo (poca potencia, aproximación al límite — declarado a priori); salidas desde pit lane (5 casos) asignadas a la mitad trasera (`replace(0,20)`, unificado en accidentes y salidas); corrección de los bins de zonas y su efecto en el criterio 3 (1.30→1.52); cruce exploratorio equipo×zona (ya en el notebook: equipos de zona habitual 1 se accidentan en Z1-Z2; zona habitual 3 concentra 13/15 en Z3-Z4 → descriptivamente, manda la parrilla)
 - **Fuentes:** Ergast/Kaggle, Wikipedia, Autosport, Crash.net, Motorsport Week, Grandprix.com, RaceFans, BBC (para la auditoría de estados).
+
+## 14. H4 — diseño a priori (acordado con Vibe, 4 nov 2026)
+
+**Enunciado formal:** "En 2023, los abandonos por accidente costaron más puntos (y por tanto más dinero de premio) que los fallos mecánicos."
+
+**Marco conceptual:** un abandono vale 0 puntos; "puntos perdidos" es un CONTRAFACTUAL estimado. Los puntos son la divisa medible; el dinero es su traducción (puntos → posiciones del campeonato → ~£7M por posición). Decisión metodológica: el enunciado pre-registrado (puntos) NO se modifica a posteriori para meter euros; la capa económica es complementaria, no criterio.
+
+**Contrafactual principal (Opción A — posición real):**
+- Fuente: `archive/lap_times.csv` (archivo local SIN limpiar, mismo dataset Kaggle): `raceId, driverId, lap, position, time, milliseconds` → posición en carrera al final de cada vuelta.
+- Puntos perdidos por abandono = puntos de la posición que ocupaba el piloto en su ÚLTIMA VUELTA COMPLETADA (tabla 2023: 25-18-15-12-10-8-6-4-2-1).
+- **Fallback declarado a priori:** abandonos con 0 vueltas completadas (accidentes en vuelta 1) → posición de parrilla (`grid`).
+- **Punto de vuelta rápida excluido** del contrafactual (incognoscible — declarado). Limitación declarada: banderas rojas (ej. Australia 2023) pueden distorsionar; la posición congelada no garantiza resultado final — es estimación.
+- ⚠️ PENDIENTE (VS Code, lo hace el usuario): verificar cobertura de 2023 completa (algunas versiones del dataset se cortan en 2021-22) y que para los que abandonaron, la última vuelta registrada coincida con `laps` de `results_23.csv`.
+
+**Contrafactual B (sensibilidad — rendimiento medio):** media de puntos del piloto cuando terminó en 2023; si un piloto tiene <3 carreras terminadas → media del EQUIPO (nunca excluir casos silenciosamente — declarado). Captura la fuerza del coche (el accidente de Pérez cuesta más que el de Sargeant).
+
+**Criterios de aceptación PROPUESTOS (pendientes de ratificar por el usuario ANTES de calcular):**
+> H4 se confirma si:
+> 1. Puntos esperados perdidos por `Accident` > perdidos por `Mechanical issue` en 2023 (contrafactual A, con fallbacks declarados).
+> 2. Con margen: pérdida por accidentes ≥ 1.5× la mecánica (evita empate técnico como H2).
+> 3. Consistente en ≥2 de 3 sensibilidades: (a) contrafactual B, (b) conteo simple de abandonos, (c) `Retired` mapeado como en H2 (F→Mecánico, D→Accidente, O→fuera).
+
+**Capa económica complementaria (NO es criterio de la hipótesis):**
+- **Factura de daños por accidente 2023** (estimación del informe Sports Illustrated, recogida por GiveMeSport/SportsWorldNews): total parrilla ~41.3 M$ (otras versiones citan 39.42 M$ — discrepancia menor entre medios, declarar). Por equipo: Williams 7.12 M$ (el más castigado), Mercedes 1.55 M$ (el más bajo). Por piloto (top): Sargeant 4.33 M$ (>4× su salario ~1 M$, que NO cuenta en el cost cap pero los daños sí), Sainz 3.64, Pérez 3.22, Ocon 2.99, Stroll 2.83, Albon 2.78, Magnussen 2.57, Gasly 2.42, Piastri 2.27, Leclerc 1.91 … Verstappen 0.35 (el más barato). Lista completa de 20 pilotos en la conversación Vibe (4 nov 2026).
+- **Gráfico:** el usuario tiene guardada la imagen "damage cost per driver.jpg" (gráfico de r/F1DataAnalysis construido sobre los datos SI; anotación "Over 4 times his salary!" sobre Sargeant). Cita correcta: datos SI, visualización r/F1DataAnalysis. Para el notebook, regenerar el gráfico desde la tabla en estilo propio; usar la imagen en presentación/memoria como referencia.
+- **Usos previstos:** cierre narrativo de la presentación ("el accidente cuesta dos veces: el cheque que no cobras y la factura que sí pagas") + **validación externa de `statusGeneric`**: correlación nº de `Accident` (datos propios) vs factura de daños por equipo (SI) — si correlacionan, la clasificación es externamente consistente (Williams y Alpine a la cabeza en ambas) + conversión puntos→posiciones→£M.
+- NOTA: las cifras de daños son estimaciones periodísticas; ninguna fuente pública tiene cifras oficiales de daños. Declararlo en memoria.
+
+**Dinero: las tres piezas (no mezclar):** (1) dejado de ganar = puntos perdidos→posiciones→£M [núcleo de H4]; (2) gastado en reparaciones = factura SI [capa complementaria]; (3) coste de oportunidad del presupuesto (carbono roto vs upgrades) [solo narrativa].
+
+**Estado:** diseño acordado; falta verificación de lap_times y ratificación de criterios → luego notebook.
