@@ -44,6 +44,7 @@ EDA sobre el coste de los abandonos en F1 ("el coste de romperse"): fiabilidad m
   - `status.csv`: tabla de status con columna `statusGeneric`
   - `constructors_23.csv`: constructores de 2023
   - `drivers_23.csv`: pilotos de 2023
+  - `lap_times_23.csv`: vueltas de la temporada 2023 (24,386 filas; `raceId, driverId, lap, position, time, milliseconds`), generado filtrando `archive/lap_times.csv` (589,081 filas) a las 22 carreras de 2023 — ⚠️ pendiente documentar su generación en un notebook
 - **Período de análisis:** 1990–2023 (137 statusId distintos en el dataset completo, 112 statusId diferentes aparecen en los datos del usuario para este período).
 - **Cuidado:** la API Ergast cerró a finales de 2024 — no usar la API; los CSVs del dataset siguen siendo válidos. Sucesores si se necesita API: Jolpica-F1 (sucesora directa), OpenF1 (telemetría, JSON/CSV), FastF1 (librería Python).
 - **Notebooks:**
@@ -51,6 +52,7 @@ EDA sobre el coste de los abandonos en F1 ("el coste de romperse"): fiabilidad m
   - `hipotesis 1.ipynb`: análisis completo de H1. **✅ COMPLETADO**
   - `hipotesis 2.ipynb`: análisis completo de H2. **✅ COMPLETADO**
   - `hipotesis 3.ipynb`: análisis completo de H3 (33 accidentes analizados). **✅ COMPLETADO Y REPRODUCIBLE** (Restart & Run All verificado)
+  - `hipotesis 4.ipynb`: análisis completo de H4 (58 abandonos; contrafactuales A y B + 3 sensibilidades, criterios 1-3 evaluados). **✅ COMPLETADO Y REPRODUCIBLE** (Restart & Run All verificado, 4 nov 2026)
 - **Trampas de calidad conocidas:** el sistema de puntuación cambió (9-6-4 → 10-6-4 → 25-18-15 desde 2010) → normalizar a "proporción de puntos posibles" o restringir; el campo `laps` permite validar "+N Laps"; regla del 90%: hay pilotos retirados que figuran como clasificados.
 
 ## 4. Clasificación de estados (COMPLETADA y auditada)
@@ -249,13 +251,13 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 **Diseño a priori:** KNOWLEDGE.md sección 14 (4 nov 2026)
 
 **Metodología aplicada:**
-1. **Contrafactual A (principal):** Posición en la última vuelta completada del piloto antes de abandonar (de `archive/lap_times.csv`)
-2. **Fallback declarado:** Posición de parrilla (`grid`) para abandonos en vuelta 1 sin datos en lap_times
+1. **Contrafactual A (principal):** Posición en la última vuelta completada del piloto antes de abandonar (de `data/lap_times_23.csv`, derivado de `archive/lap_times.csv`)
+2. **Fallback declarado:** Posición de parrilla (`grid`) para abandonos con 0 vueltas completadas — verificado (celda 8): los 9 fallbacks son exactamente los 9 abandonos con `laps=0` y sin datos en lap_times, es decir, el fallback se aplicó según lo declarado a priori
 3. **Contrafactual B (sensibilidad):** Media de puntos del piloto cuando terminó en 2023 (o del equipo si <3 carreras terminadas)
 4. **Conteo simple (sensibilidad):** Número de abandonos por tipo
 
 **Datos de entrada:**
-- `archive/lap_times.csv`: 589,081 filas, cubre raceIds 1098-1120 (temporada 2023)
+- `data/lap_times_23.csv`: 24,386 filas de vueltas de la temporada 2023 (derivado de `archive/lap_times.csv`, 589,081 filas); cobertura 2023 COMPLETA verificada en el notebook (celda 4)
 - `data/results_23.csv`: 440 resultados con `statusGeneric`
 - Total abandonos con causa en 2023: **58** (33 Accidentes, 25 Mecánicos)
 
@@ -271,11 +273,12 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 - ✅ **Criterio 1:** Contrafactual A - 65 > 28
 - ✅ **Criterio 2:** Contrafactual A - 65 >= 1.5 × 28 (42)
 
-**Conclusión final:** **H4 SE CONFIRMA ✅** (Contrafactual A, método principal, cumple ambos criterios definidos a priori)
+**Conclusión final:** **H4 SE CONFIRMA ✅** (los 3 criterios definidos a priori se cumplen: Contrafactual A cumple criterios 1 y 2; criterio 3 con 3/3 sensibilidades en dirección Acc > Mec)
 
 **Notas:**
 - Cobertura lap_times: 49/58 abandonos (84.5%) con datos de última vuelta; 9/58 (15.5%) usando fallback (grid)
 - Contrafactual B y conteo simple son análisis de sensibilidad: ambos cumplen criterio 1 (Acc > Mec) pero no el 2 (ratio < 1.5x)
+- Sensibilidad (c) Retired mapeado (según `informe_retired_statusId31.md`): 3 casos Retired en 2023 (2 O → fuera del reparto, 1 F → Mecánico) → 33 vs 26 abandonos, ratio 1.27x: dirección Acc > Mec ✅ (criterio 3: 3/3 sensibilidades)
 - El veredicto de H4 se basa en el Contrafactual A como método principal acordado a priori
 - **Flecos resueltos en el notebook (según auditoría externa):**
   - Criterio 3 evaluado explícitamente (3/3 sensibilidades cumplen Acc > Mec: Contrafactual B ✅, conteo simple ✅, Retired mapeado ✅)
@@ -337,18 +340,20 @@ EDA_F1/
 │   ├── results_90_23.csv
 │   ├── status.csv
 │   ├── constructors_23.csv
-│   └── drivers_23.csv
+│   ├── drivers_23.csv
+│   └── lap_times_23.csv
 │
 ├── notebooks/
 │   ├── exploracion y limpieza.ipynb  # ✅ COMPLETADO: limpieza + statusGeneric
 │   ├── hipotesis 1.ipynb             # ✅ COMPLETADO: análisis H1
 │   ├── hipotesis 2.ipynb             # ✅ COMPLETADO: análisis H2
-│   └── hipotesis 3.ipynb             # ✅ COMPLETADO: análisis H3 (33 accidentes en 2023)
+│   ├── hipotesis 3.ipynb             # ✅ COMPLETADO: análisis H3 (33 accidentes en 2023)
+│   └── hipotesis 4.ipynb             # ✅ COMPLETADO: análisis H4 (58 abandonos, contrafactuales)
 │
 └── KNOWLEDGE.md          # Este documento
 ```
 
-**Repo remoto (GitHub):** github.com/BorjaBG/EDA_F1 (acceso concedido a la IA vía GitHub App, 2 nov 2026; con permiso de ESCRITURA). Estado remoto: `.gitignore`, `KNOWLEDGE.md`, `README.md` (vacío) y `notebooks/` con los 4 notebooks. Los CSVs no se suben (correcto: el enunciado prohíbe archivos pesados).
+**Repo remoto (GitHub):** github.com/BorjaBG/EDA_F1 (acceso concedido a la IA vía GitHub App, 2 nov 2026; con permiso de ESCRITURA). Estado remoto: `.gitignore`, `KNOWLEDGE.md`, `README.md` (vacío) y `notebooks/` con los 5 notebooks. Los CSVs no se suben (correcto: el enunciado prohíbe archivos pesados).
 
 ## 11. Decisiones tomadas y documentadas
 
@@ -432,7 +437,7 @@ EDA_F1/
 - Puntos perdidos por abandono = puntos de la posición que ocupaba el piloto en su ÚLTIMA VUELTA COMPLETADA (tabla 2023: 25-18-15-12-10-8-6-4-2-1).
 - **Fallback declarado a priori:** abandonos con 0 vueltas completadas (accidentes en vuelta 1) → posición de parrilla (`grid`).
 - **Punto de vuelta rápida excluido** del contrafactual (incognoscible — declarado). Limitación declarada: banderas rojas (ej. Australia 2023) pueden distorsionar; la posición congelada no garantiza resultado final — es estimación.
-- ⚠️ PENDIENTE (VS Code, lo hace el usuario): verificar cobertura de 2023 completa (algunas versiones del dataset se cortan en 2021-22) y que para los que abandonaron, la última vuelta registrada coincida con `laps` de `results_23.csv`.
+- ✅ Verificado (notebook `hipotesis 4.ipynb`, 4 nov 2026): cobertura 2023 COMPLETA; última vuelta registrada == `laps` en 49/58 abandonos; los 9 restantes tienen `laps=0` (sin datos en lap_times) → fallback aplicado exactamente según lo declarado a priori.
 
 **Contrafactual B (sensibilidad — rendimiento medio):** media de puntos del piloto cuando terminó en 2023; si un piloto tiene <3 carreras terminadas → media del EQUIPO (nunca excluir casos silenciosamente — declarado). Captura la fuerza del coche (el accidente de Pérez cuesta más que el de Sargeant).
 
@@ -450,4 +455,4 @@ EDA_F1/
 
 **Dinero: las tres piezas (no mezclar):** (1) dejado de ganar = puntos perdidos→posiciones→£M [núcleo de H4]; (2) gastado en reparaciones = factura SI [capa complementaria]; (3) coste de oportunidad del presupuesto (carbono roto vs upgrades) [solo narrativa].
 
-**Estado:** diseño acordado; falta verificación de lap_times y ratificación de criterios → luego notebook.
+**Estado:** ✅ CERRADA (4 nov 2026). Criterios ratificados e implementados en `notebooks/hipotesis 4.ipynb` (Restart & Run All verificado) → **H4 SE CONFIRMA** (ver sección 7.5).
