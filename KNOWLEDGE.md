@@ -285,6 +285,14 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
   - Verificación lap_times implementada (cell 8: compara número de última vuelta vs `laps` de results_23)
   - Verificación NaN en Contrafactual B implementada (cell 13: confirma 0 NaN en `puntos_contrafactual_B`)
 
+**Gráficos para la presentación (diseñados e implementados en el notebook, 4 nov 2026):**
+- **Opción 1 ("El Golpe Directo"):** Gráfico de barras limpio comparando Puntos Perdidos (Accidentes 65 pts en rojo vs Mecánicos 28 pts en azul oscuro) con llave superior destacando el ratio clave `2.32× (+132% más puntos)`.
+- **Opción 2 ("Volumen vs Daño Real"):** Gráfico de 2 paneles lado a lado:
+  - Panel 1: Nº de abandonos (33 vs 25, ratio 1.32x, +32%).
+  - Panel 2: Puntos perdidos (65 vs 28, ratio 2.32x, +132%).
+  - Demuestra al instante que el coste se dispara porque los accidentes ocurrieron rodando en posiciones de puntos.
+- Se mantienen ambas opciones disponibles en el notebook; pendiente de decidir posibles ampliaciones antes del cierre final.
+
 
 ## 8. Estado actual y siguientes pasos
 
@@ -297,6 +305,11 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 - Análisis y validación de H4 (notebook `hipotesis 4.ipynb` - Contrafactual A: 65 vs 28 pts, ratio 2.32x; flecos resueltos: criterio 3 evaluado, verificación lap_times, verificación NaN en Contrafactual B)
 - Datos limpiados guardados en `data/`
 - Criterios formales definidos y verificados para H1, H2, H3 y H4
+- **Selección y armonización de gráficas de presentación (H1 a H4 - 4 nov 2026):**
+  - **H1:** Seleccionada gráfica definitiva (puntos anuales reales + media móvil de 5 años con sombreado bajo la curva, arrancando en 1994).
+  - **H2:** Gráfica definitiva de tendencias cruzadas (media móvil de 5 años). Corregido en el notebook el parámetro `min_periods=1` para que arranque en 1994, garantizando plena coherencia metodológica y visual con H1.
+  - **H3:** Corregida escala en celda 11 (`ylim(0, 25)` y retirada de la línea confusa del 50%) para mostrar la distribución por equipos (entre 6% y 18%). Seleccionada la combinación de 2 gráficas: distribución por equipos + tasa mitad de parrilla (Delantera 5.9% vs Trasera 9.0% con umbral 1.5x).
+  - **H4:** Implementadas dos alternativas gráficas en el notebook (Opción 1: barras 65 vs 28 pts; Opción 2: 2 paneles Volumen vs Daño Real).
 
 ### ⏳ Pendiente
 - **Cálculos en VS Code (en cola):** sensibilidad Retired exacta con el mapeo del informe; cuota agregada 2020-2023; conteos exactos A y M 2020-2023 para test binomial exacto; opcional MM5 ventanas 3/7; cuota 2020 a 4 decimales en escenario Suspension
@@ -307,7 +320,7 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 - **Memoria:** Documentar proceso, resultados y dificultades
 
 ### 📊 Próximos pasos inmediatos
-1. **H4:** ✅ Análisis completado (`notebooks/hipotesis 4.ipynb` - Contrafactual A: 65 vs 28 pts, ratio 2.32x)
+1. **H4:** ✅ Análisis completado y 2 opciones gráficas creadas; pendiente de valorar ampliación puntual de análisis en el notebook antes del cierre definitivo de diapositivas.
 2. **Repo:** Redactar README y migrar a estructura `src/` exigida por el centro
 
 ## 9. Hilo narrativo de la presentación (borrador)
@@ -315,6 +328,12 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 "F1 reparte ~1.200M$ según una tabla de puntos → cada bandera a cuadros que no ves es un cheque que no cobras → históricamente los coches se rompían; hoy casi nunca → entonces ¿quién quema dinero ahora y por qué? → pero en 2023 el accidente fue democrático: se repartió entre los equipos de forma estadísticamente indistinguible del azar, aunque la mitad trasera de la parrilla sufrió un 52% más (gradiente 1.52, en el filo del umbral) → plan de acción: gestionar el riesgo deportivo (parrilla trasera) más que invertir en fiabilidad". 
 
 Empezar con empatía (afición del autor por la F1). Cerrar con números de impacto. Sin código ni jerga; la correlación se explica como "cuando uno sube, ¿sube el otro?".
+
+**Visualizaciones clave seleccionadas para las diapositivas (sesión 4 nov 2026):**
+- **Slide H1:** Puntos anuales reales + curva suavizada de media móvil a 5 años con sombreado (desplome del 77% en fallos mecánicos de 1990 a 2023).
+- **Slide H2:** Cruce de curvas de tendencia a 5 años (accidente plano ~7-10% vs mecánica desplomándose hasta converger en paridad técnica ~7-8%).
+- **Slide H3:** Doble perspectiva: distribución por equipo (reparto homogéneo 6-18%, sin equipo culpable) + mitad de parrilla (foco en el pelotón trasero: 9.0% vs 5.9%, gradiente 1.52x).
+- **Slide H4:** Comparativa de coste en puntos (Opción 1: barras directas 65 vs 28 pts / Opción 2: panel doble volumen 33 vs 25 frente a puntos 65 vs 28).
 
 **Resultados para incluir:**
 - **H1:** "La tasa de abandono mecánico se redujo de 30.2% en los 90 a solo 7% en la actualidad, una mejora del 77% que confirma que los coches son mucho más fiables"
