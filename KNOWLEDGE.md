@@ -277,6 +277,10 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 - Cobertura lap_times: 49/58 abandonos (84.5%) con datos de última vuelta; 9/58 (15.5%) usando fallback (grid)
 - Contrafactual B y conteo simple son análisis de sensibilidad: ambos cumplen criterio 1 (Acc > Mec) pero no el 2 (ratio < 1.5x)
 - El veredicto de H4 se basa en el Contrafactual A como método principal acordado a priori
+- **Flecos resueltos en el notebook (según auditoría externa):**
+  - Criterio 3 evaluado explícitamente (3/3 sensibilidades cumplen Acc > Mec: Contrafactual B ✅, conteo simple ✅, Retired mapeado ✅)
+  - Verificación lap_times implementada (cell 8: compara número de última vuelta vs `laps` de results_23)
+  - Verificación NaN en Contrafactual B implementada (cell 13: confirma 0 NaN en `puntos_contrafactual_B`)
 
 
 ## 8. Estado actual y siguientes pasos
@@ -287,7 +291,7 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 - Análisis y validación de H1
 - Análisis y validación de H2
 - Análisis y validación de H3 (notebook `hipotesis 3.ipynb` con 33 accidentes analizados)
-- Análisis y validación de H4 (notebook `hipotesis 4.ipynb` - Contrafactual A: 65 vs 28 pts, ratio 2.32x)
+- Análisis y validación de H4 (notebook `hipotesis 4.ipynb` - Contrafactual A: 65 vs 28 pts, ratio 2.32x; flecos resueltos: criterio 3 evaluado, verificación lap_times, verificación NaN en Contrafactual B)
 - Datos limpiados guardados en `data/`
 - Criterios formales definidos y verificados para H1, H2, H3 y H4
 
@@ -313,7 +317,7 @@ Empezar con empatía (afición del autor por la F1). Cerrar con números de impa
 - **H1:** "La tasa de abandono mecánico se redujo de 30.2% en los 90 a solo 7% en la actualidad, una mejora del 77% que confirma que los coches son mucho más fiables"
 - **H2:** "Aunque la cuota de accidentes ha crecido de 37% a 53%, no domina de forma sostenida en los últimos 4 años. El cambio de tendencia es real pero aún no es definitivo."
 - **H3:** "Los accidentes de 2023 fueron democráticos entre equipos (top-3 = 48.5%, p=0.9661: indistinguible del azar), pero la mitad trasera sufrió un 52% más (gradiente 1.52). H3 no se confirma porque exige los 3 criterios a la vez."
-- **H4:** (pendiente) "Los accidentes costaron Z millones más que los fallos mecánicos en 2023"
+- **H4:** "Los accidentes costaron 65 puntos vs 28 puntos de los fallos mecánicos en 2023 (ratio 2.32x) — los accidentes costaron más"
 
 ## 10. Estructura actual del repositorio
 
@@ -373,6 +377,13 @@ EDA_F1/
 - ✅ Metodología: Zonas de parrilla (cuartos), chi-cuadrado de bondad, gradiente trasera/delantera
 - ✅ Resultado: **H3 NO SE CONFIRMA** (criterios 1 y 2 caen: top-3=48.5%<50%, p=0.9661>>0.05; criterio 3 CUMPLE: gradiente=1.52≥1.5, trasera 9.05% vs delantera 5.94%)
 
+
+### Análisis H4
+- ✅ Diseño a priori: Contrafactual A (posición en última vuelta de `archive/lap_times.csv` con fallback a `grid`), Contrafactual B (media piloto/equipo), conteo simple
+- ✅ Criterios de aceptación definidos A PRIORI: 1) Contrafactual A - Acc > Mec; 2) ratio Acc/Mec ≥ 1.5x; 3) consistencia en ≥2 de 3 sensibilidades (a: Contrafactual B, b: conteo simple, c: Retired mapeado)
+- ✅ Metodología aplicada: Contrafactual A con fallback; cobertura lap_times: 49/58 abandonos (84.5%); 9/58 (15.5%) usando fallback
+- ✅ Resultado: **H4 SE CONFIRMA ✅** (Contrafactual A: 65 vs 28 pts, ratio 2.32x; criterios 1 y 2 CUMPLEN; criterio 3 CUMPLE: 3/3 sensibilidades cumplen Acc > Mec)
+- ✅ Flecos resueltos: verificación lap_times (cell 8), verificación NaN en Contrafactual B (cell 13, 0 NaN), criterio 3 evaluado explícitamente
 ### Datos
 - ✅ Datos originales de Ergast en `archive/`
 - ✅ Datos limpiados con `statusGeneric` en `data/`
@@ -404,6 +415,11 @@ EDA_F1/
   - Conclusión: "Los accidentes de 2023 no muestran concentración estadísticamente significativa (p=0.9661) ni top-3 dominante (48.5%), pero sí un gradiente de parrilla: la mitad trasera sufrió un 52% más (gradiente 1.52, en el filo del umbral)."
   - Limitaciones y decisiones a documentar: chi-cuadrado con n=33 y esperados ~3.3 por equipo (poca potencia, aproximación al límite — declarado a priori); salidas desde pit lane (5 casos) asignadas a la mitad trasera (`replace(0,20)`, unificado en accidentes y salidas); corrección de los bins de zonas y su efecto en el criterio 3 (1.30→1.52); cruce exploratorio equipo×zona (ya en el notebook: equipos de zona habitual 1 se accidentan en Z1-Z2; zona habitual 3 concentra 13/15 en Z3-Z4 → descriptivamente, manda la parrilla)
 - **Fuentes:** Ergast/Kaggle, Wikipedia, Autosport, Crash.net, Motorsport Week, Grandprix.com, RaceFans, BBC (para la auditoría de estados).
+- **Resultados H4:**
+  - Tabla de resultados por método: Contrafactual A (principal): 65 vs 28 pts, ratio 2.32x; Contrafactual B (sensibilidad): 133.4 vs 93.9 pts, ratio 1.42x; conteo simple: 33 vs 25 abandonos, ratio 1.32x; Retired mapeado: 33 vs 26 abandonos, ratio 1.27x
+  - Análisis de criterios: Contrafactual A cumple criterios 1 y 2; Contrafactual B y conteo simple cumplen criterio 1 pero no el 2; criterio 3 cumple (3/3 sensibilidades con Acc > Mec)
+  - Conclusión: "Los accidentes costaron 65 puntos vs 28 puntos de los fallos mecánicos en 2023 (ratio 2.32x) — los accidentes costaron más."
+  - Flecos metodológicos resueltos: verificación lap_times (cell 8), verificación NaN en Contrafactual B (cell 13), evaluación explícita del criterio 3
 
 ## 14. H4 — diseño a priori (acordado con Vibe, 4 nov 2026)
 
