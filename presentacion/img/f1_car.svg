@@ -1,0 +1,57 @@
+<svg viewBox="0 0 240 60" width="240" height="60" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="trailGrad" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#E10600" stop-opacity="0"/>
+      <stop offset="60%" stop-color="#E10600" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#E10600" stop-opacity="1"/>
+    </linearGradient>
+    <linearGradient id="carBody" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#15151E"/>
+      <stop offset="40%" stop-color="#222230"/>
+      <stop offset="70%" stop-color="#E10600"/>
+      <stop offset="100%" stop-color="#FF1801"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Speed trails behind car -->
+  <line x1="5" y1="32" x2="70" y2="32" stroke="url(#trailGrad)" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+  <line x1="20" y1="36" x2="65" y2="36" stroke="url(#trailGrad)" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+  <line x1="35" y1="40" x2="75" y2="40" stroke="url(#trailGrad)" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+
+  <!-- Rear Wing -->
+  <path d="M 65 14 L 80 14 L 75 28 L 63 28 Z" fill="#E10600"/>
+  <rect x="60" y="12" width="22" height="4" rx="1" fill="#FFFFFF"/>
+  <line x1="73" y1="18" x2="73" y2="32" stroke="#8E92A4" stroke-width="2.5"/>
+
+  <!-- Engine Cover and Shark Fin -->
+  <path d="M 82 28 Q 100 12 120 18 Q 135 22 145 28 Z" fill="#E10600"/>
+  
+  <!-- Main Chassis / Sidepod / Nose -->
+  <path d="M 72 32 L 85 30 L 105 27 L 130 27 L 155 31 L 180 34 L 205 38 L 220 39 L 220 42 L 200 42 L 185 41 L 155 42 L 120 42 L 72 40 Z" fill="url(#carBody)"/>
+  
+  <!-- Cockpit and Halo -->
+  <path d="M 125 24 Q 132 17 142 22 L 146 27 L 128 27 Z" fill="#111118"/>
+  <!-- Driver Helmet -->
+  <circle cx="134" cy="22" r="4" fill="#FFCC00"/>
+  <!-- Halo bar -->
+  <path d="M 124 25 C 130 19 140 20 146 25" stroke="#8E92A4" stroke-width="2" fill="none"/>
+
+  <!-- Front Wing -->
+  <path d="M 205 38 L 230 40 L 232 44 L 208 43 Z" fill="#E10600"/>
+  <path d="M 224 35 L 232 35 L 232 45 L 224 45 Z" fill="#FFFFFF"/>
+
+  <!-- Rear Wheel -->
+  <circle cx="88" cy="38" r="12" fill="#151515" stroke="#2D2D3E" stroke-width="1.5"/>
+  <circle cx="88" cy="38" r="7" fill="#E10600"/>
+  <circle cx="88" cy="38" r="3" fill="#FFFFFF"/>
+
+  <!-- Front Wheel -->
+  <circle cx="195" cy="38" r="11" fill="#151515" stroke="#2D2D3E" stroke-width="1.5"/>
+  <circle cx="195" cy="38" r="6.5" fill="#E10600"/>
+  <circle cx="195" cy="38" r="3" fill="#FFFFFF"/>
+  
+  <!-- Underfloor sparks -->
+  <circle cx="75" cy="42" r="1" fill="#FFE880" opacity="0.8"/>
+  <circle cx="68" cy="43" r="1.5" fill="#FFAA33" opacity="0.6"/>
+</svg>
+
