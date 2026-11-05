@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>¿Cuánto cuesta no ver la bandera a cuadros? | F1 EDA</title>
+  <!-- Preload high-fidelity historical F1 cutouts to guarantee instant render -->
+  <link rel="preload" as="image" href="img/williams_fw14b_cutout.png">
+  <link rel="preload" as="image" href="img/renault_r25_cutout.png">
+  <link rel="preload" as="image" href="img/mercedes_w10_right.png">
+  <link rel="preload" as="image" href="img/aston_martin_amr23_cutout.png">
   <style>
     :root {
       --f1-red: #E10600;
@@ -316,6 +321,132 @@
       box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
       height: 100%;
       max-height: 520px;
+      position: relative;
+      cursor: zoom-in;
+      transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+    }
+
+    .chart-container:hover {
+      border-color: rgba(225, 6, 0, 0.55);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(225, 6, 0, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .chart-container::after {
+      content: '🔍 Ampliar gráfica';
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: rgba(21, 21, 30, 0.88);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #E2E2E8;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      padding: 5px 12px;
+      border-radius: 6px;
+      opacity: 0;
+      transform: translateY(-4px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      pointer-events: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .chart-container:hover::after {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Modal Lightbox for High-Res Chart Zoom */
+    .chart-lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.25s;
+    }
+
+    .chart-lightbox.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .lightbox-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(10, 10, 16, 0.92);
+      backdrop-filter: blur(10px);
+      cursor: zoom-out;
+    }
+
+    .lightbox-content {
+      position: relative;
+      z-index: 1002;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 94vw;
+      max-height: 92vh;
+      transform: scale(0.93);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .chart-lightbox.active .lightbox-content {
+      transform: scale(1);
+    }
+
+    .lightbox-img {
+      max-width: 90vw;
+      max-height: 82vh;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: 12px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.12);
+      background: var(--f1-card);
+      cursor: zoom-out;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: -16px;
+      right: -16px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--f1-card);
+      border: 1px solid var(--f1-card-border);
+      color: #FFFFFF;
+      font-size: 18px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+      transition: background 0.2s, transform 0.2s, border-color 0.2s;
+      z-index: 1005;
+    }
+
+    .lightbox-close:hover {
+      background: var(--f1-red);
+      border-color: var(--f1-red);
+      transform: scale(1.1);
+    }
+
+    .lightbox-hint {
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--f1-muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-weight: 600;
+      user-select: none;
     }
 
     .chart-container img {
@@ -534,13 +665,14 @@
     }
 
     .badge-not-confirm {
-      background: rgba(239, 68, 68, 0.15);
-      color: #f87171;
-      border: 1px solid rgba(239, 68, 68, 0.3);
+      background: rgba(148, 163, 184, 0.15);
+      color: #cbd5e1;
+      border: 1px solid rgba(148, 163, 184, 0.35);
       padding: 5px 14px;
       border-radius: 6px;
       font-size: 15px;
       font-weight: 800;
+      letter-spacing: 0.5px;
     }
   </style>
 </head>
@@ -574,17 +706,17 @@
     <section class="slide" data-slide="2">
       <div class="slide-tag">El Negocio de la F1</div>
       <h2 class="slide-title">La F1 se corre en el asfalto, pero se gana en cheques</h2>
-      <p class="slide-subtitle">La Fórmula 1 no solo reparte trofeos: reparte más de 1.200 M$ en premios por estricto orden de puntos.</p>
+      <p class="slide-subtitle">La Fórmula 1 no solo reparte trofeos: reparte más de 1.100 M€ en premios por estricto orden de puntos.</p>
       
       <div class="split-layout">
         <div class="info-panel" style="gap:20px;">
           <div class="stat-card">
-            <div class="stat-number red">~1.200 M$</div>
+            <div class="stat-number red">~1.100 M€</div>
             <div class="stat-label">Bolsa anual de premios del Mundial de Constructores</div>
-            <div class="stat-desc">Una sola posición en el mundial a final de temporada equivale a una diferencia de entre 8 M$ y 12 M$.</div>
+            <div class="stat-desc">Una sola posición en el mundial a final de temporada equivale a una diferencia de entre 7 M€ y 11 M€.</div>
           </div>
           <div class="stat-card cyan">
-            <div class="stat-number cyan">Cost Cap: 135 M$</div>
+            <div class="stat-number cyan">Cost Cap: ~125 M€</div>
             <div class="stat-label">Límite presupuestario estricto por reglamento</div>
             <div class="stat-desc">Cada euro gastado en reparar piezas rotas por accidente es dinero que se resta directamente del desarrollo del coche.</div>
           </div>
@@ -642,9 +774,9 @@
         </div>
         <div class="info-panel">
           <div class="stat-card">
-            <div class="stat-number red">~7.5% vs ~7.5%</div>
-            <div class="stat-label">Convergencia en los años 2020</div>
-            <div class="stat-desc">La tasa de accidentes se ha mantenido históricamente plana (8%-12%). Lo que ha cambiado es que la mecánica cayó hasta encontrarse con ella.</div>
+            <div class="stat-number red">7.6% vs 7.0%</div>
+            <div class="stat-label">Tasas en 2020–2023 (Accidentes vs Averías)</div>
+            <div class="stat-desc">La tasa de accidentes también cayó (de <strong>17.8%</strong> en los 90 a <strong>7.6%</strong>), pero lleva una década estabilizada en ~7.5%. La mecánica se desplomó hasta encontrarse con ella.</div>
           </div>
           <div class="stat-card">
             <div class="stat-number" style="font-size:34px; color:var(--f1-silver);">2 de 4 temporadas > 50%</div>
@@ -671,11 +803,11 @@
           <div class="stat-card">
             <div class="stat-number red">48.5%</div>
             <div class="stat-label">Top-3 equipos (Alpine 6, Williams 6, Haas 4)</div>
-            <div class="stat-desc">No alcanzan el umbral del 50%. Ningún equipo acapara los choques: hasta Ferrari y Mercedes sufrieron 3 accidentes cada uno.</div>
+            <div class="stat-desc">No alcanzan el umbral del 50%. Ningún equipo acapara los choques: incluso escuderías punteras sufrieron accidentes (Ferrari 3, Mercedes 2, Red Bull 2).</div>
           </div>
           <div class="stat-card cyan">
             <div class="stat-number cyan">p = 0.9661</div>
-            <div class="stat-label">Test Chi-cuadrado de independencia</div>
+            <div class="stat-label">Test Chi-cuadrado de bondad de ajuste</div>
             <div class="stat-desc">Lejos del umbral significativo (p &lt; 0.05). Estadísticamente, la probabilidad de sufrir un accidente es democrática entre escuderías.</div>
           </div>
         </div>
@@ -730,7 +862,7 @@
           <div class="stat-card cyan">
             <div class="stat-number cyan">2.32x (+132%)</div>
             <div class="stat-label">Ratio contrafactual (Umbral ≥ 1.5x cumplido)</div>
-            <div class="stat-desc">Los accidentes dolieron el doble porque ocurrieron con pilotos rodando en posiciones de puntos. La rotura mecánica ocurrió más atrás.</div>
+            <div class="stat-desc">Los accidentes dolieron más del doble porque ocurrieron con pilotos en zona de puntos; las averías mecánicas tendieron a pillarlos rodando más atrás (<strong>1.97 vs 1.12</strong> pts esperados por DNF).</div>
           </div>
         </div>
       </div>
@@ -750,16 +882,16 @@
             <div class="stat-desc">En la zona media de 2023, la diferencia entre ser 4º o ser 5º (McLaren vs Aston Martin) fue de solo 22 puntos. 65 puntos cambian el destino de un equipo.</div>
           </div>
           <div class="stat-card cyan">
-            <div class="stat-number cyan">~40 M$ en Reparaciones</div>
-            <div class="stat-label">La factura de daños materiales (Sports Illustrated / F1)</div>
-            <div class="stat-desc">Williams superó los 7 M$ en chapa y pintura; Alpine los 4.5 M$. Fondos consumidos del techo de 135 M$ sin aportar ni una décima de segundo en pista.</div>
+            <div class="stat-number cyan">~37 M€ en Daños</div>
+            <div class="stat-label">Factura de daños materiales en 2023 (Sports Illustrated / F1)</div>
+            <div class="stat-desc">Williams superó los 6,5 M€ en chapa y pintura; Alpine los 4 M€. Fondos consumidos del techo de ~125 M€ sin aportar ni una décima de segundo en pista.</div>
           </div>
         </div>
         <div class="info-panel">
           <div class="stat-card" style="border-left-color:#FFFFFF;">
             <div class="stat-number" style="font-size:28px; margin-bottom:10px;">Coste de Oportunidad</div>
             <div class="stat-desc" style="font-size:21px; color:var(--f1-silver); line-height:1.55;">
-              Fabricar un alerón delantero de repuesto cuesta unos <strong>150.000 $</strong>. Fabricar un suelo nuevo cuesta cerca de <strong>300.000 $</strong>.<br><br>
+              Fabricar un alerón delantero de repuesto cuesta unos <strong>140.000 €</strong>. Fabricar un suelo nuevo cuesta cerca de <strong>275.000 €</strong>.<br><br>
               El dinero invertido en rehacer piezas destruidas es dinero que un equipo <strong>no puede invertir en evoluciones aerodinámicas</strong> en el túnel de viento.
             </div>
           </div>
@@ -789,7 +921,7 @@
         <div class="stat-card" style="height: 100%;">
           <div class="stat-number" style="font-size: 30px; color: #FFFFFF; margin-bottom: 12px;">3. Gestión del Riesgo</div>
           <div class="stat-label">Los accidentes son el verdadero coste</div>
-          <div class="stat-desc">En 2023, los choques costaron el 70% de los puntos perdidos y ~40 M$ en daños. La disciplina en pista rinde más beneficios que nunca.</div>
+          <div class="stat-desc">En 2023, los choques costaron el 70% de los puntos perdidos y ~37 M€ en daños. La disciplina en pista rinde más beneficios que nunca.</div>
         </div>
       </div>
     </section>
@@ -806,6 +938,16 @@
       </div>
     </section>
 
+  </div>
+
+  <!-- Modal Lightbox for Fullscreen Chart Zoom -->
+  <div class="chart-lightbox" id="chartLightbox" aria-hidden="true">
+    <div class="lightbox-backdrop" id="lightboxBackdrop"></div>
+    <div class="lightbox-content">
+      <button class="lightbox-close" id="lightboxClose" title="Cerrar (Esc)">✕</button>
+      <img src="" id="lightboxImg" alt="Gráfica Ampliada" class="lightbox-img">
+      <div class="lightbox-hint">Pulsa en cualquier lugar o presiona Esc para cerrar</div>
+    </div>
   </div>
 
   <!-- Ambient Historical F1 Track at the bottom -->
@@ -888,7 +1030,53 @@
     }
 
     // Keyboard navigation
+    // === Modal Lightbox para Ampliar Gráficas ===
+    const chartLightbox = document.getElementById('chartLightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const lightboxClose = document.getElementById('lightboxClose');
+    const lightboxBackdrop = document.getElementById('lightboxBackdrop');
+
+    function openLightbox(imgSrc, imgAlt) {
+      if (!chartLightbox || !lightboxImg) return;
+      lightboxImg.src = imgSrc;
+      lightboxImg.alt = imgAlt || 'Gráfica ampliada';
+      chartLightbox.classList.add('active');
+      chartLightbox.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeLightbox() {
+      if (!chartLightbox) return;
+      chartLightbox.classList.remove('active');
+      chartLightbox.setAttribute('aria-hidden', 'true');
+      setTimeout(() => {
+        if (!chartLightbox.classList.contains('active')) {
+          lightboxImg.src = '';
+        }
+      }, 250);
+    }
+
+    document.querySelectorAll('.chart-container').forEach(container => {
+      container.addEventListener('click', () => {
+        const img = container.querySelector('img');
+        if (img) {
+          openLightbox(img.src, img.alt);
+        }
+      });
+    });
+
+    if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
+    if (lightboxBackdrop) lightboxBackdrop.addEventListener('click', closeLightbox);
+    if (lightboxImg) lightboxImg.addEventListener('click', closeLightbox);
+
     window.addEventListener('keydown', (e) => {
+      // Si el visor de gráfica está abierto, Esc lo cierra
+      if (chartLightbox && chartLightbox.classList.contains('active')) {
+        if (e.key === 'Escape') {
+          closeLightbox();
+          return;
+        }
+      }
+
       if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
         nextSlide();
       } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
@@ -944,17 +1132,55 @@
       }
     ];
 
+    // Pre-cargar y decodificar en memoria todos los coches para que NUNCA falte la imagen
+    const preloadedCarBitmaps = {};
+    historicalEras.forEach(era => {
+      const img = new Image();
+      img.src = era.svg;
+      if (img.decode) {
+        img.decode().then(() => {
+          preloadedCarBitmaps[era.svg] = true;
+        }).catch(() => {});
+      }
+    });
+
     let currentEraIdx = 0;
     const bottomCarEl = document.getElementById('bottomF1Car');
     const bottomImgEl = document.getElementById('bottomF1Img');
     const bottomTrailEl = document.getElementById('bottomF1Trail');
 
-    function launchHistoricalCar() {
-      if (!bottomCarEl) return;
+    async function launchHistoricalCar() {
+      if (!bottomCarEl || !bottomImgEl) return;
       const era = historicalEras[currentEraIdx];
       
+      // Ocultar estela temporalmente hasta que el coche esté verificado en pantalla
+      bottomTrailEl.style.opacity = '0';
       bottomImgEl.src = era.svg;
       bottomTrailEl.style.background = `linear-gradient(to right, transparent, ${era.color}66, ${era.color})`;
+
+      // Esperar activamente a que la imagen esté 100% decodificada en memoria
+      try {
+        if (bottomImgEl.decode) {
+          await bottomImgEl.decode();
+        }
+      } catch (e) {
+        // En caso de que ya esté en caché
+      }
+
+      // Verificación de seguridad: si la imagen aún no tiene ancho real, esperar al evento load
+      if (bottomImgEl.naturalWidth === 0) {
+        bottomImgEl.onload = () => {
+          triggerCarPass();
+        };
+        return;
+      }
+
+      triggerCarPass();
+    }
+
+    function triggerCarPass() {
+      // Activar estela ahora que el coche está 100% visible y renderizado
+      bottomTrailEl.style.opacity = '1';
 
       bottomCarEl.classList.remove('animating');
       void bottomCarEl.offsetWidth; // Forzar reflow para reiniciar animación
@@ -963,11 +1189,28 @@
       currentEraIdx = (currentEraIdx + 1) % historicalEras.length;
     }
 
-    // Primer monoplaza a los 3 segundos, luego pasa uno nuevo cada 20 segundos
+    // Primer monoplaza a los 2.5 segundos, luego uno nuevo cada 20 segundos
+    let paradeInterval = null;
+    function startParadeTimer() {
+      if (paradeInterval) clearInterval(paradeInterval);
+      paradeInterval = setInterval(() => {
+        if (document.visibilityState === 'visible') {
+          launchHistoricalCar();
+        }
+      }, 20000);
+    }
+
     setTimeout(() => {
       launchHistoricalCar();
-      setInterval(launchHistoricalCar, 20000);
-    }, 3000);
+      startParadeTimer();
+    }, 2500);
+
+    // Si el usuario cambia de pestaña y vuelve, sincronizar el intervalo
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        startParadeTimer();
+      }
+    });
   </script>
 </body>
 </html>

@@ -61,16 +61,18 @@ Variable creada: `statusGeneric` con 5 categorías aplicadas a todos los statusI
 
 ### Listas finales aplicadas (celda 15 de `exploracion y limpieza.ipynb`)
 
-| statusGeneric | Nº estados | Casos principales | StatusIds destacados |
-| --- | --- | --- | --- |
-| **Finished** | 17 | `Finished` y todos los `+N Laps` | 1, 11, 12, 13, 14, 17, 18, 19, 45, 50, 55, 58, 88, 111, 128 |
-| **Mechanical issue** | 63 | Componentes/sistemas explícitos | 5, 6, 7, 8, 9, 10, 21, 22, 23, 24, 25, 26, 27, 28, 30, 32, 34, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 48, 60, 61, 63, 65, 66, 67, 69, 70, 71, 72, 74, 75, 76, 79, 80, 84, 85, 86, 87, 91, 93, 94, 95, 98, 99, 101, 102, 103, 106, 108, 109, 110, 121, 126, 129, 131, 132, 135 |
-| **Accident** | 14 | Accident, Collision, Spun off, daños | 3, 4, 20, 29, 33, 41, 49, 59, 83, 130, 136, 137, 138, 140 |
-| **Retired** | 1 | Estado genérico sin causa | 31 |
-| **Other** | 17 | Administrativos y condición del piloto | 2, 35, 54, 62, 64, 68, 73, 77, 78, 81, 82, 89, 90, 92, 96, 97, 139 |
+| statusGeneric        | Nº estados | Casos principales                      | StatusIds destacados                                                                                                                                                                                                                                                           |
+| -------------------- | ---------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Finished**         | 17         | `Finished` y todos los `+N Laps`       | 1, 11, 12, 13, 14, 17, 18, 19, 45, 50, 55, 58, 88, 111, 128                                                                                                                                                                                                                    |
+| **Mechanical issue** | 63         | Componentes/sistemas explícitos        | 5, 6, 7, 8, 9, 10, 21, 22, 23, 24, 25, 26, 27, 28, 30, 32, 34, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 48, 60, 61, 63, 65, 66, 67, 69, 70, 71, 72, 74, 75, 76, 79, 80, 84, 85, 86, 87, 91, 93, 94, 95, 98, 99, 101, 102, 103, 106, 108, 109, 110, 121, 126, 129, 131, 132, 135 |
+| **Accident**         | 14         | Accident, Collision, Spun off, daños   | 3, 4, 20, 29, 33, 41, 49, 59, 83, 130, 136, 137, 138, 140                                                                                                                                                                                                                      |
+| **Retired**          | 1          | Estado genérico sin causa              | 31                                                                                                                                                                                                                                                                             |
+| **Other**            | 17         | Administrativos y condición del piloto | 2, 35, 54, 62, 64, 68, 73, 77, 78, 81, 82, 89, 90, 92, 96, 97, 139                                                                                                                                                                                                             |
 
 ### Cambios clave aplicados tras auditoría
+
 **De Mechanical issue a Accident:**
+
 - `29: Puncture` → Accident (73% de los casos documentados son daño por debris/colisión)
 - `59: Tyre puncture` → Accident (por consistencia con 29)
 - `33: Front wing` → Accident (daño por contacto, ej: Pérez Bakú 2017)
@@ -79,15 +81,18 @@ Variable creada: `statusGeneric` con 5 categorías aplicadas a todos los statusI
 - `140: Undertray` → Accident (daño por contacto, ej: Alonso USA 2023)
 
 **De Mechanical issue a Other:**
+
 - `35: Refuelling` → Other (problema administrativo, ej: Albers Francia 2007)
 - `64: Handling` → Other (problema de configuración, no fallo mecánico)
 
 **Mantenidos en Mechanical issue con nota de ambigüedad:**
+
 - `22: Suspension` (142 casos: ~34% de los documentados son daño, ~50% sin causa)
 - `27: Tyre` (21 casos: 87% de los documentados son blowouts/fallos reales)
 - `65: Rear wing` (10 casos: 83% fallos estructurales verificados)
 
 **Metodología de la auditoría:**
+
 - 3 rondas de verificación
 - 112 statusId auditados (todos los que aparecen en los datos del usuario para 1990-2023)
 - 202 casos verificados individualmente (de los 6 estados más ambiguos)
@@ -97,17 +102,21 @@ Variable creada: `statusGeneric` con 5 categorías aplicadas a todos los statusI
 ## 5. Análisis completado: H1 ✅
 
 ### Hipótesis H1
+
 **Enunciado:** "La tasa de abandono mecánico ha caído de forma sostenida (1990-2023)"
 
 **Criterio de aceptación definido (celda 1 de `hipotesis 1.ipynb`):**
+
 > H1 se confirma si la tasa media de los 2020s es menos de un tercio de la de los 1990s
 
 **Metodología aplicada:**
+
 1. Excluidos del denominador: statusId 81 (DNQ), 97 (DNPQ), 77 (107% Rule), 54 (Withdrew) → coches que no salieron a pista
 2. Cálculo: `(statusGeneric == 'Mechanical issue').mean() * 100` por año
 3. Filtro: solo coches que salieron efectivamente
 
 **Resultados obtenidos:**
+
 - Tasa media años 90 (1990-1999): **30.2%**
 - Tasa media años 2020 (2020-2023): **7%**
 - Diferencia absoluta: **23 puntos porcentuales**
@@ -121,15 +130,19 @@ Variable creada: `statusGeneric` con 5 categorías aplicadas a todos los statusI
 ## 6. Análisis completado: H2
 
 ### Hipótesis H2
+
 **Enunciado:** "Los accidentes, no los fallos, dominan ya los abandonos (1990-2023)"
 
 **Criterio de aceptación definido (celda 1 de `hipotesis 2.ipynb`):**
+
 > H2 se confirma si:
+>
 > 1. La proporción `Accident / (Accident + Mechanical issue)` supera el 50% en la media de 2020-2023
 > 2. Esto ocurre en **al menos 3 de las 4 temporadas** (2020, 2021, 2022, 2023)
 > 3. Esa proporción media es superior a la de 1990-1999
 
 **Metodología aplicada:**
+
 1. Carga de `results_90_23.csv` y `races_90_23.csv`
 2. Merge con año y filtro de coches que salieron (excluir DNQ, DNPQ, 107% Rule, Withdrew)
 3. Cálculo de cuota: `Accident / (Accident + Mechanical issue)` por año
@@ -138,30 +151,33 @@ Variable creada: `statusGeneric` con 5 categorías aplicadas a todos los statusI
 
 **Resultados obtenidos:**
 
-| Década | Cuota A/(A+M) | Accidentes | Mecánicos |
-|--------|----------------|-------------|-----------|
-| 1990-1999 | 37.09% | 17.8% | 30.2% |
-| 2000-2009 | 40.48% | 11.7% | 18.9% |
-| 2010-2019 | 42.45% | 7.6% | 10.5% |
-| 2020-2023 | **52.60%** | 7.6% | 7.0% |
+| Década    | Cuota A/(A+M) | Accidentes | Mecánicos |
+| --------- | ------------- | ---------- | --------- |
+| 1990-1999 | 37.09%        | 17.8%      | 30.2%     |
+| 2000-2009 | 40.48%        | 11.7%      | 18.9%     |
+| 2010-2019 | 42.45%        | 7.6%       | 10.5%     |
+| 2020-2023 | **52.60%**    | 7.6%       | 7.0%      |
 
 | Temporada | Cuota A/(A+M) | ¿Supera 50%? |
-|-----------|----------------|--------------|
-| 2020 | 48.1% | ❌ NO |
-| 2021 | 57.4% | ✅ SÍ |
-| 2022 | 47.9% | ❌ NO |
-| 2023 | 56.9% | ✅ SÍ |
+| --------- | ------------- | ------------ |
+| 2020      | 48.1%         | ❌ NO        |
+| 2021      | 57.4%         | ✅ SÍ        |
+| 2022      | 47.9%         | ❌ NO        |
+| 2023      | 56.9%         | ✅ SÍ        |
 
 **Verificación de criterios:**
+
 - ✅ **Criterio 1:** Media 2020-2023 (52.60%) > 50%
 - ❌ **Criterio 2:** Solo 2 de 4 temporadas superan el 50% (2021 y 2023)
 - ✅ **Criterio 3:** 52.60% > 37.09% (media 1990-1999)
 
 **Análisis de sensibilidad (Suspension como Accident):**
+
 - Media 1990-1999: 40.24%; media 2020-2023: **54.33%**; temporadas > 50%: **2/4** (sigue sin cumplirse la consistencia anual)
 - Rol metodológico: es la COTA MÁXIMA favorable a los accidentes; al no salvar H2 ni siquiera este escenario, los escenarios intermedios quedan descartados por diseño
 
 **Auditoría `Retired` (statusId 31) — censo completo (informe `informe_retired_statusId31.md`, nov 2026):**
+
 - 67/67 casos verificados con fuentes externas, 0 sin datos: **46 F (68.7%), 16 D (23.9%), 5 O (7.5%)**
 - **Cero casos 1990-2004**: la etiqueta solo existe desde ~2005 (cambio administrativo del cronometraje FIA: retiradas en boxes pasan a anunciarse como "Retired" en vez de con su avería específica) → la comparación histórica del criterio 3 queda intacta
 - Impacto en la ventana crítica 2020-2023 (7 casos: 3 F, 1 D, 3 O): con el mapeo F→Mechanical, D→Accident, O→fuera del reparto, entran +1 accidente y +3 mecánicos → la cuota moderna baja ligeramente (~51-52%, estimado) → **la sensibilidad Retired REFUERZA la no-confirmación**
@@ -173,11 +189,13 @@ Variable creada: `statusGeneric` con 5 categorías aplicadas a todos los statusI
 El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1%) y 2022 (47.9%) están ligeramente por debajo del umbral, a pesar de que la media de la década sí supera el 50%.
 
 **Terminología oficial (revisión 2-3 nov 2026):** el término correcto es **"no se confirma"**, no "se refuta": con los datos no cabe afirmar ni que los accidentes dominan ni que no dominan. Con n≈240 abandonos con causa en 2020-2023, una cuota de 52.6% frente a un empate 50/50 da p≈0.56 (estimado con conteos aproximados; pendiente test binomial exacto) → **paridad estadística**. Formulación oficial:
+
 > "H2 no se confirma: los datos de 2020-2023 muestran paridad entre accidentes y fallos mecánicos (52.6% vs 47.4%), con una tendencia estructural al alza desde los 90 (37%). La afirmación 'los accidentes dominan ya' no está soportada; la correcta es 'los accidentes alcanzaron y rozan el dominio, pero no lo consolidan'."
 
 ⚠️ Pendiente en el notebook: la celda de conclusión aún dice "H2 se REFUTA con los datos actuales" — sustituir por la formulación oficial.
 
 **Media móvil de la cuota (análisis complementario, 2 nov 2026):**
+
 - La cuota suavizada (ventana de 5 años) cruza el 50% solo **dos veces** en 34 años: **2012** (51.3%, transitorio: volvió a caer hasta ~38% en 2018) y **2023** (51.5%)
 - El pico de 2008-2009 (59.3%/54.7% anual) nunca superó el 50% suavizado (máx. 49.1% en 2009)
 - **Interpretación:** el cambio es real pero reciente y con retrocesos; el cruce de 2023 es una observación de frontera (incluye 2019, solo 4 temporadas modernas) — confirmarlo requiere datos futuros
@@ -185,6 +203,7 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 - Blindaje opcional: MM5 con ventanas 3 y 7 (confirmar que 2012 es transitorio en todas y que 2023 solo cruza con ventana 5)
 
 **Cierre metodológico (revisión punto por punto de H2, 2-3 nov 2026):**
+
 - El enunciado admite dos lecturas — (a) dominio por temporada, (b) dominio en conjunto — y el criterio exige ambas a la vez más el ancla histórica: hipótesis deliberadamente "dura" (si el fenómeno es real, debe verse claro, no con diferencia mínima)
 - La ventana 2020-2023 se fijó a priori como "las últimas 4 temporadas" (evita grados de libertad del investigador / cherry-picking); 2020 es temporada COVID atípica pero no se excluye post-hoc
 - El criterio de consistencia anual exige mayoría de TEMPORADAS (3/4), no mayoría del total — añade consistencia año a año que la media no tiene
@@ -195,6 +214,7 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 "Aunque la cuota de accidentes ha crecido de 37% a 53%, no domina de forma sostenida en los últimos 4 años. El cambio es real, pero aún no es definitivo."
 
 **Visualizaciones generadas:**
+
 - Celda 8: Gráfico de barras por década (cuota A/(A+M))
 - Celda 12: Gráfico de líneas con tasas absolutas anuales + media móvil de 5 años
 - Celda 13: Gráfico de la cuota A/(A+M) — cuota anual (scatter), media móvil de 5 años y umbral del 50% marcado
@@ -202,16 +222,20 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 ## 7. Análisis completado: H3 ✅
 
 ### Hipótesis H3
+
 **Enunciado:** "Los accidentes de 2023 no se repartieron al azar: se concentran en pocos equipos, y esa concentración se relaciona con la zona de salida (mitad de parrilla hacia atrás)."
 
 **Criterio de aceptación definido (3 nov 2026, A PRIORI):**
+
 > H3 se confirma si:
+>
 > 1. Top-3 equipos acumulan ≥ 50% de los accidentes (el azar daría ~30% con 10 equipos).
 > 2. Chi-cuadrado de bondad (p < 0.05): Los accidentes NO se reparten al azar.
 > 3. Gradiente: Tasa de la mitad trasera (11-20) ≥ 1.5× la de la delantera (1-10).
-> **H3 se confirma solo si los 3 criterios se cumplen simultáneamente.**
+>    **H3 se confirma solo si los 3 criterios se cumplen simultáneamente.**
 
 **Metodología aplicada:**
+
 1. Datos: `results_23.csv` con `statusGeneric == 'Accident'` (33 accidentes en 2023).
 2. Merge con `constructors_23.csv` para obtener el equipo de cada piloto.
 3. Zonas de parrilla: Cuartos (1-5, 6-10, 11-15, 16-20); ~110 salidas por zona en 2023.
@@ -219,6 +243,7 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 5. Gradiente: Tasa trasera / tasa delantera.
 
 **Notas metodológicas y revisión (Vibe, 3 nov 2026):**
+
 - **Marco conceptual:** H3 es una "radiografía" del accidente de 2023: quién se accidenta, desde dónde sale, y si el "quién" es real o solo el eco del "dónde" (variable de confusión: los equipos peores clasifican atrás).
 - **Ángulo exploratorio declarado a priori (cruce equipo×zona):** comparar la zona habitual del equipo (su media de clasificación 2023) con la posición concreta del día del accidente. Si dentro de una misma zona todos los equipos se accidentan parecido → manda la parrilla; si hay equipos que destacan controlando la zona → manda el equipo. ✅ **Implementado en el notebook** (heatmap de contingencia + gráfico de barras apiladas por equipo/zona); con n=33 en casillas 10×zonas es puramente descriptivo (no confirma ni tumba H3, como se declaró a priori).
 - **Salidas desde pit lane (`grid=0`):** en 2023 hay 5 casos; el notebook los cuenta en la mitad trasera. ✅ **Declarado en el notebook** (celda de markdown después del cálculo del top-3): decisión razonable (pit lane = último, ya que los coches salen después de que el resto haya recibido la señal de inicio).
@@ -228,6 +253,7 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 - **Limitación declarada a priori:** con n=33 y esperados ~3.3 accidentes por equipo, el chi-cuadrado tiene poca potencia y sus esperados < 5 (aproximación al límite); debe llegar a la memoria. Nota: el chi-cuadrado aplicado evalúa tasas por equipo, no solo conteos.
 
 **Resultados obtenidos:**
+
 - **Top-3 equipos**: Alpine F1 Team (6 accidentes, 18.2%), Williams (6 accidentes, 18.2%), Haas F1 Team (4 accidentes, 12.1%) → **48.5%** (❌ NO CUMPLE criterio 1: 48.5% < 50%).
 - **Chi-cuadrado**: p-value = **0.9661** (❌ NO CUMPLE criterio 2: p >> 0.05; distribución estadísticamente indistinguible del azar).
 - **Gradiente**: **1.52** (trasera: 20/221 salidas = 9.05% vs delantera: 13/219 = 5.94%) (✅ **CUMPLE** criterio 3: 1.52 ≥ 1.5).
@@ -235,9 +261,11 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 **Conclusión final:** **H3 NO SE CONFIRMA ❌** (exige 3/3; caen los criterios 1 y 2, pero el criterio 3 SÍ se cumple: gradiente 1.52 ≥ 1.5).
 
 **Material para presentación:**
-> *"Los accidentes de 2023 fueron democráticos entre equipos (top-3 = 48.5%, p=0.9661: indistinguible del azar), pero no respecto a la parrilla: la mitad trasera sufrió un 52% más de accidentes (gradiente 1.52). Al no cumplirse los 3 criterios a la vez, H3 no se confirma — aunque sí emerge un gradiente de parrilla."*
+
+> _"Los accidentes de 2023 fueron democráticos entre equipos (top-3 = 48.5%, p=0.9661: indistinguible del azar), pero no respecto a la parrilla: la mitad trasera sufrió un 52% más de accidentes (gradiente 1.52). Al no cumplirse los 3 criterios a la vez, H3 no se confirma — aunque sí emerge un gradiente de parrilla."_
 
 **Visualizaciones generadas:**
+
 - Gráfico de barras por equipo (con anotación del top-3: 48.5%).
 - Gráfico de tarta por zona de parrilla.
 - Gráfico de comparación delantera vs. trasera (con umbral del 1.5× marcado).
@@ -246,36 +274,41 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 ## 7.5 Análisis completado: H4 ✅
 
 ### Hipótesis H4
+
 **Enunciado formal:** "En 2023, los abandonos por accidente costaron más puntos (y por tanto más dinero de premio) que los fallos mecánicos."
 
 **Diseño a priori:** KNOWLEDGE.md sección 14 (4 nov 2026)
 
 **Metodología aplicada:**
+
 1. **Contrafactual A (principal):** Posición en la última vuelta completada del piloto antes de abandonar (de `data/lap_times_23.csv`, derivado de `archive/lap_times.csv`)
 2. **Fallback declarado:** Posición de parrilla (`grid`) para abandonos con 0 vueltas completadas — verificado (celda 8): los 9 fallbacks son exactamente los 9 abandonos con `laps=0` y sin datos en lap_times, es decir, el fallback se aplicó según lo declarado a priori
 3. **Contrafactual B (sensibilidad):** Media de puntos del piloto cuando terminó en 2023 (o del equipo si <3 carreras terminadas)
 4. **Conteo simple (sensibilidad):** Número de abandonos por tipo
 
 **Datos de entrada:**
+
 - `data/lap_times_23.csv`: 24,386 filas de vueltas de la temporada 2023 (derivado de `archive/lap_times.csv`, 589,081 filas); cobertura 2023 COMPLETA verificada en el notebook (celda 4)
 - `data/results_23.csv`: 440 resultados con `statusGeneric`
 - Total abandonos con causa en 2023: **58** (33 Accidentes, 25 Mecánicos)
 
 **Resultados obtenidos:**
 
-| Método | Accidentes | Mecánicos | Ratio | Criterio 1 | Criterio 2 |
-|--------|------------|-----------|-------|------------|------------|
-| **Contrafactual A** (principal) | 65 pts | 28 pts | **2.32x** | ✅ CUMPLE | ✅ CUMPLE |
-| Contrafactual B (sensibilidad) | 133.4 pts | 93.9 pts | 1.42x | ✅ CUMPLE | ❌ NO CUMPLE |
-| Conteo simple (sensibilidad) | 33 abandonos | 25 abandonos | 1.32x | ✅ CUMPLE | ❌ NO CUMPLE |
+| Método                          | Accidentes   | Mecánicos    | Ratio     | Criterio 1 | Criterio 2   |
+| ------------------------------- | ------------ | ------------ | --------- | ---------- | ------------ |
+| **Contrafactual A** (principal) | 65 pts       | 28 pts       | **2.32x** | ✅ CUMPLE  | ✅ CUMPLE    |
+| Contrafactual B (sensibilidad)  | 133.4 pts    | 93.9 pts     | 1.42x     | ✅ CUMPLE  | ❌ NO CUMPLE |
+| Conteo simple (sensibilidad)    | 33 abandonos | 25 abandonos | 1.32x     | ✅ CUMPLE  | ❌ NO CUMPLE |
 
 **Verificación de criterios (A PRIORI):**
+
 - ✅ **Criterio 1:** Contrafactual A - 65 > 28
 - ✅ **Criterio 2:** Contrafactual A - 65 >= 1.5 × 28 (42)
 
 **Conclusión final:** **H4 SE CONFIRMA ✅** (los 3 criterios definidos a priori se cumplen: Contrafactual A cumple criterios 1 y 2; criterio 3 con 3/3 sensibilidades en dirección Acc > Mec)
 
 **Notas:**
+
 - Cobertura lap_times: 49/58 abandonos (84.5%) con datos de última vuelta; 9/58 (15.5%) usando fallback (grid)
 - Contrafactual B y conteo simple son análisis de sensibilidad: ambos cumplen criterio 1 (Acc > Mec) pero no el 2 (ratio < 1.5x)
 - Sensibilidad (c) Retired mapeado (según `informe_retired_statusId31.md`): 3 casos Retired en 2023 (2 O → fuera del reparto, 1 F → Mecánico) → 33 vs 26 abandonos, ratio 1.27x: dirección Acc > Mec ✅ (criterio 3: 3/3 sensibilidades)
@@ -286,6 +319,7 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
   - Verificación NaN en Contrafactual B implementada (cell 13: confirma 0 NaN en `puntos_contrafactual_B`)
 
 **Gráficos para la presentación (diseñados e implementados en el notebook, 4 nov 2026):**
+
 - **Opción 1 ("El Golpe Directo"):** Gráfico de barras limpio comparando Puntos Perdidos (Accidentes 65 pts en rojo vs Mecánicos 28 pts en azul oscuro) con llave superior destacando el ratio clave `2.32× (+132% más puntos)`.
 - **Opción 2 ("Volumen vs Daño Real"):** Gráfico de 2 paneles lado a lado:
   - Panel 1: Nº de abandonos (33 vs 25, ratio 1.32x, +32%).
@@ -293,10 +327,10 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
   - Demuestra al instante que el coste se dispara porque los accidentes ocurrieron rodando en posiciones de puntos.
 - Se mantienen ambas opciones disponibles en el notebook; pendiente de decidir posibles ampliaciones antes del cierre final.
 
-
 ## 8. Estado actual y siguientes pasos
 
 ### ✅ Completo
+
 - Limpieza de datos y creación de `statusGeneric`
 - Auditoria exhaustiva de la clasificación de estados
 - Análisis y validación de H1
@@ -312,32 +346,36 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
   - **H4:** Implementadas dos alternativas gráficas en el notebook (Opción 1: barras 65 vs 28 pts; Opción 2: 2 paneles Volumen vs Daño Real).
 
 ### ⏳ Pendiente
+
 - **Cálculos en VS Code (en cola):** sensibilidad Retired exacta con el mapeo del informe; cuota agregada 2020-2023; conteos exactos A y M 2020-2023 para test binomial exacto; opcional MM5 ventanas 3/7; cuota 2020 a 4 decimales en escenario Suspension
 - **Cambios de notebook pendientes (repo):** `hipotesis 2.ipynb`: sustituir "H2 se REFUTA" por la formulación oficial "no se confirma"; añadir print de la serie MM5 (celda 13) + comentario NaN 1990-93; comentario de equivalencia cuota tasas↔conteos (celda 7). `hipotesis 3.ipynb`: ✅ bins corregidos y pit lane unificado (verificado: gradiente 1.52, criterio 3 CUMPLE), numeración unificada, pit lane declarado, cruce exploratorio añadido (heatmap + gráfico de barras apiladas); ✅ `labels` definido en la celda de zona antes de su primer uso y notebook re-ejecutado de arriba abajo sin errores (commit 8c777ab; verificado en remoto: 13/219, 20/221, gradiente 1.52, criterio 3 CUMPLE) → **H3 CERRADA** (3 nov 2026)
 - **Subir `informe_retired_statusId31.md` al repo** (p. ej. `docs/`) y referenciarlo
 - **Estructura final del repo:** Crear estructura `src/data`, `src/notebooks`, `src/utils`, `src/main.ipynb` según exigencias del centro
 - **README:** Redactar (actualmente solo contiene el título "# EDA_F1")
 - **Memoria:** Documentar proceso, resultados y dificultades
-- **Presentación Web Interactiva (`presentacion/index.html`):** 🟡 En revisión y pulido con el usuario (diseño visual F1 Broadcast, desfile con 4 monoplazas reales y escala a 20 px completados; pendiente de repaso final por parte del usuario).
+- **Presentación Web Interactiva (`presentacion/index.html`):** 🟡 En revisión con el usuario (probada en navegador con éxito; zoom interactivo modal, 4 coches reales recortados, escala tipográfica a 20 px, conversión a euros y correcciones metodológicas de H2/H3/H4 incorporadas; pendiente de dar nuevas vueltas o retoques antes del cierre definitivo).
 
 ### 📊 Próximos pasos inmediatos
+
 1. **H4:** ✅ Análisis completado y 2 opciones gráficas creadas; pendiente de valorar ampliación puntual de análisis en el notebook antes del cierre definitivo de diapositivas.
-2. **Presentación Web:** Dar la vuelta final de revisión con el usuario para cerrar el deck definitivo.
-3. **Repo & Memoria:** Migrar a estructura `src/` exigida por el centro, redactar `README.md` y redactar la memoria ejecutiva de 10 páginas.
+3. **Presentación Web:** Continuar la revisión y pulido con el usuario para dar las vueltas que considere necesarias antes de cerrar el deck definitivo.
+4. **Repo & Memoria:** Migrar a estructura `src/` exigida por el centro, redactar `README.md` y redactar la memoria ejecutiva de 10 páginas.
 
 ## 9. Hilo narrativo de la presentación (borrador)
 
-"F1 reparte ~1.200M$ según una tabla de puntos → cada bandera a cuadros que no ves es un cheque que no cobras → históricamente los coches se rompían; hoy casi nunca → entonces ¿quién quema dinero ahora y por qué? → pero en 2023 el accidente fue democrático: se repartió entre los equipos de forma estadísticamente indistinguible del azar, aunque la mitad trasera de la parrilla sufrió un 52% más (gradiente 1.52, en el filo del umbral) → plan de acción: gestionar el riesgo deportivo (parrilla trasera) más que invertir en fiabilidad". 
+"F1 reparte ~1.200M$ según una tabla de puntos → cada bandera a cuadros que no ves es un cheque que no cobras → históricamente los coches se rompían; hoy casi nunca → entonces ¿quién quema dinero ahora y por qué? → pero en 2023 el accidente fue democrático: se repartió entre los equipos de forma estadísticamente indistinguible del azar, aunque la mitad trasera de la parrilla sufrió un 52% más (gradiente 1.52, en el filo del umbral) → plan de acción: gestionar el riesgo deportivo (parrilla trasera) más que invertir en fiabilidad".
 
 Empezar con empatía (afición del autor por la F1). Cerrar con números de impacto. Sin código ni jerga; la correlación se explica como "cuando uno sube, ¿sube el otro?".
 
 **Visualizaciones clave seleccionadas para las diapositivas (sesión 4 nov 2026):**
+
 - **Slide H1:** Puntos anuales reales + curva suavizada de media móvil a 5 años con sombreado (desplome del 77% en fallos mecánicos de 1990 a 2023).
 - **Slide H2:** Cruce de curvas de tendencia a 5 años (accidente plano ~7-10% vs mecánica desplomándose hasta converger en paridad técnica ~7-8%).
 - **Slide H3:** Doble perspectiva: distribución por equipo (reparto homogéneo 6-18%, sin equipo culpable) + mitad de parrilla (foco en el pelotón trasero: 9.0% vs 5.9%, gradiente 1.52x).
 - **Slide H4:** Comparativa de coste en puntos (Opción 1: barras directas 65 vs 28 pts / Opción 2: panel doble volumen 33 vs 25 frente a puntos 65 vs 28).
 
 **Resultados para incluir:**
+
 - **H1:** "La tasa de abandono mecánico se redujo de 30.2% en los 90 a solo 7% en la actualidad, una mejora del 77% que confirma que los coches son mucho más fiables"
 - **H2:** "Aunque la cuota de accidentes ha crecido de 37% a 53%, no domina de forma sostenida en los últimos 4 años. El cambio de tendencia es real pero aún no es definitivo."
 - **H3:** "Los accidentes de 2023 fueron democráticos entre equipos (top-3 = 48.5%, p=0.9661: indistinguible del azar), pero la mitad trasera sufrió un 52% más (gradiente 1.52). H3 no se confirma porque exige los 3 criterios a la vez."
@@ -393,17 +431,20 @@ EDA_F1/
 ## 11. Decisiones tomadas y documentadas
 
 ### Clasificación de estados
+
 - ✅ Todos los statusId que aparecen en los datos del usuario (1990-2023) están clasificados en `statusGeneric`
 - ✅ Auditoria completa con verificación externa de casos ambiguos
 - ✅ Cambios aplicados: 7 statusId movidos de Mechanical a Accident, 2 movidos de Mechanical a Other
 
 ### Análisis H1
+
 - ✅ Criterio de aceptación definido A PRIORI
 - ✅ Población de análisis: excluidos DNQ, DNPQ, 107% Rule, Withdrew
 - ✅ Métrica: tasa de abandono mecánico = (abandonos mecánicos / coches que salieron) × 100
 - ✅ Resultado: **H1 se CONFIRMA**
 
 ### Análisis H2
+
 - ✅ Criterio de aceptación definido A PRIORI (3 condiciones con cuota A/(A+M))
 - ✅ Metodología: proporción de statusGeneric por año usando cuota `Accident / (Accident + Mechanical)`
 - ✅ Sensibilidad aplicada: reclasificación de Suspension (statusId 22) como Accident (cota máxima pro-accidentes)
@@ -413,28 +454,40 @@ EDA_F1/
 - ✅ Resultado: **H2 NO SE CONFIRMA** (criterio 2 no se cumple: solo 2/4 temporadas > 50%)
 
 ### Análisis H3
+
 - ✅ Enunciado reformulado y criterio de aceptación definidos A PRIORI (3 nov 2026, ver sección 7)
 - ✅ Metodología: Zonas de parrilla (cuartos), chi-cuadrado de bondad, gradiente trasera/delantera
 - ✅ Resultado: **H3 NO SE CONFIRMA** (criterios 1 y 2 caen: top-3=48.5%<50%, p=0.9661>>0.05; criterio 3 CUMPLE: gradiente=1.52≥1.5, trasera 9.05% vs delantera 5.94%)
 
-
 ### Análisis H4
+
 - ✅ Diseño a priori: Contrafactual A (posición en última vuelta de `archive/lap_times.csv` con fallback a `grid`), Contrafactual B (media piloto/equipo), conteo simple
 - ✅ Criterios de aceptación definidos A PRIORI: 1) Contrafactual A - Acc > Mec; 2) ratio Acc/Mec ≥ 1.5x; 3) consistencia en ≥2 de 3 sensibilidades (a: Contrafactual B, b: conteo simple, c: Retired mapeado)
 - ✅ Metodología aplicada: Contrafactual A con fallback; cobertura lap_times: 49/58 abandonos (84.5%); 9/58 (15.5%) usando fallback
 - ✅ Resultado: **H4 SE CONFIRMA ✅** (Contrafactual A: 65 vs 28 pts, ratio 2.32x; criterios 1 y 2 CUMPLEN; criterio 3 CUMPLE: 3/3 sensibilidades cumplen Acc > Mec)
 - ✅ Flecos resueltos: verificación lap_times (cell 8), verificación NaN en Contrafactual B (cell 13, 0 NaN), criterio 3 evaluado explícitamente
+
 ### Datos
+
 - ✅ Datos originales de Ergast en `archive/`
 - ✅ Datos limpiados con `statusGeneric` en `data/`
 - ✅ Notebooks separados por fase: limpieza vs análisis
 
 ### Presentación Web y Diseño Visual (5 nov 2026)
+
 - ✅ **Sustitución de siluetas genéricas por monoplazas reales:** Integrados recortes fotográficos de estudio de alta fidelidad con transparencia alfa perfecta para las 4 épocas: Williams FW14B (1990s), Renault R25 (2000s), Mercedes-AMG W10 (2010s) y Aston Martin AMR23 (2020s).
 - ✅ **Descarte del Red Bull RB19:** Descartada la imagen en pista por ruido de asfalto y pianos; sustituida por el Aston Martin AMR23 en estudio neutro.
 - ✅ **Unificación del sentido de marcha:** Volteado horizontal del Mercedes-AMG W10 para que los 4 monoplazas apunten hacia la derecha (`morro ->`) en la dirección de crucero.
 - ✅ **Optimización de tipografía para proyector (escala 20 px):** Texto base a 20px, títulos de tarjeta a 21px y números a 44px, con distribución `.split-layout` ajustada a `1.15fr 1fr` para garantizar máxima legibilidad en proyección sin saturar la pantalla.
 - ✅ **Ritmo del desfile ambiental:** Duración ajustada a 4,0 segundos continuos (`linear`) cada 20 segundos de intervalo.
+- ✅ **Unidad monetaria en Euros (€ / M€):** Todas las cifras financieras de la presentación se han convertido de dólares a euros (tipo de cambio 2023 ~0.92 €/$): fondo de premios a ~1.100 M€ (1.200 M$), Cost Cap a ~125 M€ (135 M$), factura de daños de la parrilla a ~37 M€ (40 M$), impacto de Williams a > 6,5 M€ y Alpine a 4 M€, y repuestos clave (alerón 140.000 €, suelo 275.000 €).
+- ✅ **Zoom interactivo de gráficas (Modal Lightbox):** Implementado visor modal a pantalla completa (90vw / 82vh) con `backdrop-filter: blur(10px)` al hacer clic sobre cualquiera de las 5 gráficas (`.chart-container`). Permite examinar detalles en directo ante el público y se cierra mediante `Escape`, clic de fondo o botón `✕`. Incluye pill de ayuda flotante `🔍 Ampliar gráfica`.
+- ✅ **Sincronización robusta coche-estela (Preload & Decode API):** Eliminado el artefacto de estelas huérfanas mediante `<link rel="preload">` en `<head>`, predecodificación GPU con `img.decode()`, comprobación de `naturalWidth > 0` antes de iniciar la animación y control con la Page Visibility API (`visibilitychange`).
+- ✅ **Corrección y rigor estadístico en diapositivas:**
+  - _H2 (Slide 4):_ Corrección de la narrativa histórica: la tasa de accidentes cayó del 17.8% en los 90 al 7.6% actual (plana en ~7.5% en la última década 2010-2023). El empate técnico 2020-2023 se muestra con las tasas exactas del análisis: **7.6% (accidentes) vs 7.0% (mecánicos)**.
+  - _H3 (Slide 5):_ Denominación metodológica exacta: **Test Chi-cuadrado de bondad de ajuste** (_goodness-of-fit_, no de independencia). Verificación del censo de accidentes 2023: Alpine 6, Williams 6, Haas 4 (Top-3 48.5%); Ferrari 3, AlphaTauri 3, Aston Martin 3; Mercedes 2, Red Bull 2, McLaren 2, Alfa Romeo 2 (corregido dato de Mercedes de 3 a 2).
+  - _H4 (Slide 7):_ Matiz analítico suavizado en la inferencia: las averías mecánicas _tendieron a pillar a los pilotos rodando más atrás_ (1.97 pts esperados/DNF por accidente vs 1.12 por avería).
+  - _Semántica de Badges:_ Badge `NO SE CONFIRMA` configurado en tono neutro pizarra/plata (`#cbd5e1`) para no asociarlo a error técnico y reservar el rojo exclusivamente para la categoría de accidentes y la identidad F1.
 
 ## 12. Preferencias de trabajo
 
@@ -475,6 +528,7 @@ EDA_F1/
 **Marco conceptual:** un abandono vale 0 puntos; "puntos perdidos" es un CONTRAFACTUAL estimado. Los puntos son la divisa medible; el dinero es su traducción (puntos → posiciones del campeonato → ~£7M por posición). Decisión metodológica: el enunciado pre-registrado (puntos) NO se modifica a posteriori para meter euros; la capa económica es complementaria, no criterio.
 
 **Contrafactual principal (Opción A — posición real):**
+
 - Fuente: `archive/lap_times.csv` (archivo local SIN limpiar, mismo dataset Kaggle): `raceId, driverId, lap, position, time, milliseconds` → posición en carrera al final de cada vuelta.
 - Puntos perdidos por abandono = puntos de la posición que ocupaba el piloto en su ÚLTIMA VUELTA COMPLETADA (tabla 2023: 25-18-15-12-10-8-6-4-2-1).
 - **Fallback declarado a priori:** abandonos con 0 vueltas completadas (accidentes en vuelta 1) → posición de parrilla (`grid`).
@@ -484,12 +538,15 @@ EDA_F1/
 **Contrafactual B (sensibilidad — rendimiento medio):** media de puntos del piloto cuando terminó en 2023; si un piloto tiene <3 carreras terminadas → media del EQUIPO (nunca excluir casos silenciosamente — declarado). Captura la fuerza del coche (el accidente de Pérez cuesta más que el de Sargeant).
 
 **Criterios de aceptación PROPUESTOS (pendientes de ratificar por el usuario ANTES de calcular):**
+
 > H4 se confirma si:
+>
 > 1. Puntos esperados perdidos por `Accident` > perdidos por `Mechanical issue` en 2023 (contrafactual A, con fallbacks declarados).
 > 2. Con margen: pérdida por accidentes ≥ 1.5× la mecánica (evita empate técnico como H2).
 > 3. Consistente en ≥2 de 3 sensibilidades: (a) contrafactual B, (b) conteo simple de abandonos, (c) `Retired` mapeado como en H2 (F→Mecánico, D→Accidente, O→fuera).
 
 **Capa económica complementaria (NO es criterio de la hipótesis):**
+
 - **Factura de daños por accidente 2023** (estimación del informe Sports Illustrated, recogida por GiveMeSport/SportsWorldNews): total parrilla ~41.3 M$ (otras versiones citan 39.42 M$ — discrepancia menor entre medios, declarar). Por equipo: Williams 7.12 M$ (el más castigado), Mercedes 1.55 M$ (el más bajo). Por piloto (top): Sargeant 4.33 M$ (>4× su salario ~1 M$, que NO cuenta en el cost cap pero los daños sí), Sainz 3.64, Pérez 3.22, Ocon 2.99, Stroll 2.83, Albon 2.78, Magnussen 2.57, Gasly 2.42, Piastri 2.27, Leclerc 1.91 … Verstappen 0.35 (el más barato). Lista completa de 20 pilotos en la conversación Vibe (4 nov 2026).
 - **Gráfico:** el usuario tiene guardada la imagen "damage cost per driver.jpg" (gráfico de r/F1DataAnalysis construido sobre los datos SI; anotación "Over 4 times his salary!" sobre Sargeant). Cita correcta: datos SI, visualización r/F1DataAnalysis. Para el notebook, regenerar el gráfico desde la tabla en estilo propio; usar la imagen en presentación/memoria como referencia.
 - **Usos previstos:** cierre narrativo de la presentación ("el accidente cuesta dos veces: el cheque que no cobras y la factura que sí pagas") + **validación externa de `statusGeneric`**: correlación nº de `Accident` (datos propios) vs factura de daños por equipo (SI) — si correlacionan, la clasificación es externamente consistente (Williams y Alpine a la cabeza en ambas) + conversión puntos→posiciones→£M.
@@ -503,18 +560,19 @@ EDA_F1/
 
 **Paleta de colores COMÚN para todos los notebooks y gráficos** — colores oficiales de Fórmula 1:
 
-| Uso | Color | Código |
-| --- | --- | --- |
-| Accidente / riesgo / línea protagonista (MM5) | Rojo F1 | `#E10600` |
-| Mecánico / contraste / umbrales de criterio | Negro-carbón F1 | `#15151E` |
-| Datos crudos (puntos anuales, delantera, categorías neutras) | Gris | `#9CA3AF` |
-| Grid y fondos | Gris claro | `#E5E5E5` |
+| Uso                                                          | Color           | Código    |
+| ------------------------------------------------------------ | --------------- | --------- |
+| Accidente / riesgo / línea protagonista (MM5)                | Rojo F1         | `#E10600` |
+| Mecánico / contraste / umbrales de criterio                  | Negro-carbón F1 | `#15151E` |
+| Datos crudos (puntos anuales, delantera, categorías neutras) | Gris            | `#9CA3AF` |
+| Grid y fondos                                                | Gris claro      | `#E5E5E5` |
 
 **Regla semántica transversal:** rojo = accidente/peligro/tendencia protagonista; negro = mecánico/contraste; gris = dato crudo. Los umbrales de criterio (50%, 1.5×) SIEMPRE en negro discontinuo (`umbral_criterio(ax, y, etiqueta)`), para distinguir "regla" de "dato".
 
 **Implementación acordada:** celda de estilo idéntica y autocontenida al inicio de cada notebook (sin imports externos ni módulos compartidos), con las constantes `ROJO_F1`, `NEGRO_F1`, `GRIS_F1`, `CLARO_F1`, `PALETA_F1`, un `plt.rcParams.update()` común (títulos bold 14, grid claro, sin marco de leyenda) y la función helper `umbral_criterio`. Tipografía: sans-serif; opcional Titillium Web (fuente oficial de F1, gratuita en Google Fonts) si está instalada.
 
 **Cambios previstos por notebook (solo color, cero lógica):**
+
 - **H1:** puntos anuales → gris; MM5 → rojo F1
 - **H2:** accidentes/mecánicos → `#E10600`/`#15151E`; `#FF6B35`→rojo F1, `#1F77B4`→negro F1; scatter cuota anual → gris, MM cuota → rojo F1; umbral 50% → `umbral_criterio` (negro discontinuo, ya no rojo punteado)
 - **H3:** pastel `#ff9999`/`#66b3ff` → rojo F1/negro F1; mitades de parrilla: delantera → gris, trasera → rojo F1 (sustituye `#4CAF50`/`#FF5722` y `green`/`orange`); umbral 1.5× → `umbral_criterio`; heatmap y pie descriptivos pueden mantenerse (no van a diapositivas) o pasar a `cmap='Reds'`
@@ -537,6 +595,7 @@ EDA_F1/
   - `h3_parrilla.png`: Gradiente de riesgo por tercio de parrilla (frente / media / fondo).
   - `h4_puntos_perdidos.png`: Puntos perdidos contrafactuales (65 por accidentes vs 28 por averías).
 - **Diseño visual F1 Broadcast:**
+  - **Zoom interactivo de gráficas (Modal Lightbox):** Al hacer clic sobre cualquier gráfica de la presentación (`.chart-container`), esta se abre en un visor modal a pantalla casi completa (90vw / 82vh) sobre un fondo oscuro desenfocado (`backdrop-filter: blur(10px)`). Permite al presentador entrar en detalle durante la exposición y volver al diseño dividido pulsando `Esc`, haciendo clic en cualquier parte de la pantalla o mediante el botón de cierre en la esquina superior.
   - **Tipografía optimizada para proyección (escala 20 px):** Textos de tarjetas y recuadros explicativos escalados para máxima legibilidad desde la distancia en proyector:
     - Cifras clave (`.stat-number`): 44px (peso 800, alto impacto visual).
     - Títulos de tarjeta (`.stat-label`): 21px (peso 700, color `#EDEDF4`).
@@ -554,4 +613,15 @@ EDA_F1/
     3. `2010s • Mercedes-AMG W10 (Lewis Hamilton 2019)`: `img/mercedes_w10_right.png` (flecha plateada #44, estela `#00D2BE`, recorte perfeccionado sin restos blancos, orientado a la derecha).
     4. `2020s • Aston Martin AMR23 (Fernando Alonso 2023)`: `img/aston_martin_amr23_cutout.png` (verde británico #14, llantas de 18" completas, estela `#00594F`).
   - **Aceleración por GPU (Hardware Compositor):** Todas las animaciones cinemáticas se ejecutan mediante `transform: translate3d(...)` a lo largo de `100vw` completo. El desfile inferior utiliza aceleración `linear` continua (4s) con `image-rendering: crisp-edges` y sin sombras desenfocadas, eliminando por completo microtirones y rasterizaciones borrosas para lograr 60/120 FPS nativos y nítidos.
-- **Estado:** 🟡 EN REVISIÓN Y PULIDO CON EL USUARIO (diseño visual, desfile con 4 monoplazas reales y escala de 20 px completados; pendiente de repaso final por parte del usuario).
+  - **Sincronización robusta coche-estela (Preload & Decode API):** Se eliminó el problema de estelas huérfanas mediante:
+    1. `<link rel="preload">` en `<head>` de los 4 PNGs de monoplazas.
+    2. Predecodificación en memoria al arrancar la página vía `img.decode()`.
+    3. Bloqueo asíncrono en `launchHistoricalCar()` (`await bottomImgEl.decode()` y comprobación de `naturalWidth > 0`) antes de disparar la animación, con estela en `opacity: 0` hasta que el coche esté 100% pintado.
+    4. Sincronización con la Page Visibility API (`visibilitychange`) para evitar colas de animaciones al cambiar de pestaña en el navegador.
+  - **Unidad monetaria unificada en Euros (€ / M€):** Fondo de premios ~1.100 M€, salto por posición 7-11 M€, Cost Cap ~125 M€, daños de parrilla ~37 M€ (Williams >6,5 M€, Alpine 4 M€) y piezas clave (alerón 140.000 €, fondo plano 275.000 €).
+  - **Corrección y rigor estadístico en diapositivas:**
+    - Diapositiva 4 (H2): Tasa histórica de accidentes cayó de 17.8% a 7.6% (plana en ~7.5% en la última década); paridad técnica 2020-2023 indicada con los valores exactos (7.6% vs 7.0%).
+    - Diapositiva 5 (H3): Test denominado exactamente _Test Chi-cuadrado de bondad de ajuste_; desglose de accidentes por escudería contrastado (Alpine 6, Williams 6, Haas 4; Ferrari 3, AlphaTauri 3, Aston Martin 3; Mercedes 2, Red Bull 2, McLaren 2, Alfa Romeo 2).
+    - Diapositiva 7 (H4): Inferencia contrafactual suavizada ("las averías mecánicas tendieron a pillar a los pilotos rodando más atrás", 1.97 vs 1.12 pts esperados/DNF).
+    - Badges: `NO SE CONFIRMA` en tono pizarra neutro (`#cbd5e1`) para evitar lecturas erróneas como "fallo" y reservar el color rojo exclusivamente para accidentes y la identidad de marca F1.
+- **Estado:** 🟡 EN REVISIÓN CON EL USUARIO (probada en navegador con éxito; zoom modal, desfile con 4 monoplazas sincronizados, escala a 20 px, euros y correcciones estadísticas aplicadas; pendiente de dar nuevas vueltas o retoques antes del cierre definitivo).
