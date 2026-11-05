@@ -318,10 +318,12 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
 - **Estructura final del repo:** Crear estructura `src/data`, `src/notebooks`, `src/utils`, `src/main.ipynb` según exigencias del centro
 - **README:** Redactar (actualmente solo contiene el título "# EDA_F1")
 - **Memoria:** Documentar proceso, resultados y dificultades
+- **Presentación Web Interactiva (`presentacion/index.html`):** 🟡 En revisión y pulido con el usuario (diseño visual F1 Broadcast, desfile con 4 monoplazas reales y escala a 20 px completados; pendiente de repaso final por parte del usuario).
 
 ### 📊 Próximos pasos inmediatos
 1. **H4:** ✅ Análisis completado y 2 opciones gráficas creadas; pendiente de valorar ampliación puntual de análisis en el notebook antes del cierre definitivo de diapositivas.
-2. **Repo:** Redactar README y migrar a estructura `src/` exigida por el centro
+2. **Presentación Web:** Dar la vuelta final de revisión con el usuario para cerrar el deck definitivo.
+3. **Repo & Memoria:** Migrar a estructura `src/` exigida por el centro, redactar `README.md` y redactar la memoria ejecutiva de 10 páginas.
 
 ## 9. Hilo narrativo de la presentación (borrador)
 
@@ -369,6 +371,20 @@ EDA_F1/
 │   ├── hipotesis 3.ipynb             # ✅ COMPLETADO: análisis H3 (33 accidentes en 2023)
 │   └── hipotesis 4.ipynb             # ✅ COMPLETADO: análisis H4 (58 abandonos, contrafactuales)
 │
+├── presentacion/
+│   ├── index.html                    # Deck interactivo F1 Broadcast (10 diapositivas)
+│   └── img/                          # Gráficas H1-H4 + siluetas y recortes de monoplazas
+│       ├── f1_car.svg                # Animación cinemática de titular
+│       ├── williams_fw14b_cutout.png # 1990s: Williams FW14B (Nigel Mansell 1992)
+│       ├── renault_r25_cutout.png    # 2000s: Renault R25 (Fernando Alonso 2005)
+│       ├── mercedes_w10_right.png    # 2010s: Mercedes-AMG W10 (Lewis Hamilton 2019)
+│       ├── aston_martin_amr23_cutout.png # 2020s: Aston Martin AMR23 (Fernando Alonso 2023)
+│       ├── h1_tasa_mecanica.png
+│       ├── h2_cruce_tendencias.png
+│       ├── h3_equipos.png
+│       ├── h3_parrilla.png
+│       └── h4_puntos_perdidos.png
+│
 └── KNOWLEDGE.md          # Este documento
 ```
 
@@ -412,6 +428,13 @@ EDA_F1/
 - ✅ Datos originales de Ergast en `archive/`
 - ✅ Datos limpiados con `statusGeneric` en `data/`
 - ✅ Notebooks separados por fase: limpieza vs análisis
+
+### Presentación Web y Diseño Visual (5 nov 2026)
+- ✅ **Sustitución de siluetas genéricas por monoplazas reales:** Integrados recortes fotográficos de estudio de alta fidelidad con transparencia alfa perfecta para las 4 épocas: Williams FW14B (1990s), Renault R25 (2000s), Mercedes-AMG W10 (2010s) y Aston Martin AMR23 (2020s).
+- ✅ **Descarte del Red Bull RB19:** Descartada la imagen en pista por ruido de asfalto y pianos; sustituida por el Aston Martin AMR23 en estudio neutro.
+- ✅ **Unificación del sentido de marcha:** Volteado horizontal del Mercedes-AMG W10 para que los 4 monoplazas apunten hacia la derecha (`morro ->`) en la dirección de crucero.
+- ✅ **Optimización de tipografía para proyector (escala 20 px):** Texto base a 20px, títulos de tarjeta a 21px y números a 44px, con distribución `.split-layout` ajustada a `1.15fr 1fr` para garantizar máxima legibilidad en proyección sin saturar la pantalla.
+- ✅ **Ritmo del desfile ambiental:** Duración ajustada a 4,0 segundos continuos (`linear`) cada 20 segundos de intervalo.
 
 ## 12. Preferencias de trabajo
 
@@ -499,4 +522,36 @@ EDA_F1/
 
 **Al aplicar los cambios:** ejecutar Restart & Run All en cada notebook para que los outputs guardados muestren la paleta nueva (los .ipynb guardan las imágenes antiguas si no se re-ejecutan).
 
-**Estado:** ⚠️ PENDIENTE de aplicar en VS Code (usuario); tras subirlo, Vibe verifica y cierra esta sección.
+**Estado:** ✅ COMPLETADO Y VERIFICADO (4 nov 2026). Estilo F1 Dark Mode + Bahnschrift aplicado y pre-renderizado en todos los notebooks (H1 celda 10, H2 celda 13, H3 celdas 12 y 17, H4 celdas 18 y 19), 100% aislados con plt.rc_context sin alterar las celdas exploratorias.
+
+---
+
+## 16. Presentación Web Interactiva (`presentacion/index.html`)
+
+- **Formato:** Diapositivas web interactivas en HTML5 + CSS3 moderno + JavaScript Vanilla (sin dependencias externas pesadas, funciona offline o en local).
+- **Estructura:** 10 diapositivas que cubren portada, contexto de negocio, marco conceptual, H1 a H4, síntesis de hallazgos y cierre.
+- **Gráficas integradas (`presentacion/img/`):**
+  - `h1_tasa_mecanica.png`: Evolución histórica y reducción del -77% en fallos mecánicos.
+  - `h2_cruce_tendencias.png`: Evolución de cuota accidentes vs mecánicos (medias móviles 5 años, sin ruido anual).
+  - `h3_equipos.png`: Tasa de abandono por equipo en 2023.
+  - `h3_parrilla.png`: Gradiente de riesgo por tercio de parrilla (frente / media / fondo).
+  - `h4_puntos_perdidos.png`: Puntos perdidos contrafactuales (65 por accidentes vs 28 por averías).
+- **Diseño visual F1 Broadcast:**
+  - **Tipografía optimizada para proyección (escala 20 px):** Textos de tarjetas y recuadros explicativos escalados para máxima legibilidad desde la distancia en proyector:
+    - Cifras clave (`.stat-number`): 44px (peso 800, alto impacto visual).
+    - Títulos de tarjeta (`.stat-label`): 21px (peso 700, color `#EDEDF4`).
+    - Explicaciones y descripciones (`.stat-desc`): 20px (interlineado 1.45, color `#B8B8CC`, negritas en `#FFFFFF`).
+    - Recuadros especiales (Regla de Oro, Coste de Oportunidad): 34px título / 21-22px texto.
+    - Conclusiones (3 columnas): 30px títulos / 21px etiquetas / 20px descripciones.
+    - Distribución `.split-layout` ajustada a `1.15fr 1fr` con padding reforzado de 20x24px para acomodar la escala de 20px con total comodidad en proyector.
+  - Barra superior: Logo F1 en rojo a la izquierda y contador central estilo F1 TV timing tower: `LAP 01 / 10`.
+  - Barra inferior limpia: solo botones de control discretos (←, →, ⛶ pantalla completa) alineados a la derecha; barra de progreso eliminada por redundancia con el contador de vueltas superior.
+  - Navegación por teclado: Flechas `←`/`→`, Barra espaciadora, `F` (pantalla completa), `Home`/`End`.
+  - **Animación cinemática de titular:** Al cambiar de diapositiva, un monoplaza de F1 (`presentacion/img/f1_car.svg`) cruza a ritmo pausado y apreciable (1.15s) de izquierda a derecha con estela de luz roja (`#E10600`), y justo tras su paso (delay 0.75s) el titular se desvela con un efecto de nitidez e impacto, seguido de la aparición suave del subtítulo (delay 1.05s).
+  - **Monoplazas reales históricos ambientales (zona inferior):** Cada 20 segundos cruza con ritmo pausado de crucero (4 segundos) por la parte inferior de la pantalla la silueta recortada en PNG transparente de 4 monoplazas reales de alta fidelidad:
+    1. `1990s • Williams FW14B (Nigel Mansell 1992)`: `img/williams_fw14b_cutout.png` (azul/amarillo Canon Camel, estela `#0055DD`).
+    2. `2000s • Renault R25 (Fernando Alonso 2005)`: `img/renault_r25_cutout.png` (Mild Seven azul/amarillo, estela `#0082CA`).
+    3. `2010s • Mercedes-AMG W10 (Lewis Hamilton 2019)`: `img/mercedes_w10_right.png` (flecha plateada #44, estela `#00D2BE`, recorte perfeccionado sin restos blancos, orientado a la derecha).
+    4. `2020s • Aston Martin AMR23 (Fernando Alonso 2023)`: `img/aston_martin_amr23_cutout.png` (verde británico #14, llantas de 18" completas, estela `#00594F`).
+  - **Aceleración por GPU (Hardware Compositor):** Todas las animaciones cinemáticas se ejecutan mediante `transform: translate3d(...)` a lo largo de `100vw` completo. El desfile inferior utiliza aceleración `linear` continua (4s) con `image-rendering: crisp-edges` y sin sombras desenfocadas, eliminando por completo microtirones y rasterizaciones borrosas para lograr 60/120 FPS nativos y nítidos.
+- **Estado:** 🟡 EN REVISIÓN Y PULIDO CON EL USUARIO (diseño visual, desfile con 4 monoplazas reales y escala de 20 px completados; pendiente de repaso final por parte del usuario).
