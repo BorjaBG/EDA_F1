@@ -45,6 +45,7 @@ EDA sobre el coste de los abandonos en F1 ("el coste de romperse"): fiabilidad m
   - `constructors_23.csv`: constructores de 2023
   - `drivers_23.csv`: pilotos de 2023
   - `lap_times_23.csv`: vueltas de la temporada 2023 (24,386 filas; `raceId, driverId, lap, position, time, milliseconds`), generado filtrando `archive/lap_times.csv` (589,081 filas) a las 22 carreras de 2023 — ⚠️ pendiente documentar su generación en un notebook
+  - `damage_cost_2023.csv`: estimación de costes de reparación por daños en 2023 por piloto (fuente: Formula Data Analysis / SI), con código, nombre, escudería, coste en dólares (`damage_cost_usd`) y en euros (`damage_cost_eur`, tipo de cambio 0.92 €/$)
 - **Período de análisis:** 1990–2023 (137 statusId distintos en el dataset completo, 112 statusId diferentes aparecen en los datos del usuario para este período).
 - **Cuidado:** la API Ergast cerró a finales de 2024 — no usar la API; los CSVs del dataset siguen siendo válidos. Sucesores si se necesita API: Jolpica-F1 (sucesora directa), OpenF1 (telemetría, JSON/CSV), FastF1 (librería Python).
 - **Notebooks:**
@@ -400,7 +401,8 @@ EDA_F1/
 │   ├── status.csv
 │   ├── constructors_23.csv
 │   ├── drivers_23.csv
-│   └── lap_times_23.csv
+│   ├── lap_times_23.csv
+│   └── damage_cost_2023.csv
 │
 ├── notebooks/
 │   ├── exploracion y limpieza.ipynb  # ✅ COMPLETADO: limpieza + statusGeneric
@@ -421,7 +423,9 @@ EDA_F1/
 │       ├── h2_cruce_tendencias.png
 │       ├── h3_equipos.png
 │       ├── h3_parrilla.png
-│       └── h4_puntos_perdidos.png
+│       ├── h4_puntos_perdidos.png
+│       ├── top5_danos_pilotos.png
+│       └── accidente_sargeant.gif
 │
 └── KNOWLEDGE.md          # Este documento
 ```
@@ -488,6 +492,32 @@ EDA_F1/
   - _H3 (Slide 5):_ Denominación metodológica exacta: **Test Chi-cuadrado de bondad de ajuste** (_goodness-of-fit_, no de independencia). Verificación del censo de accidentes 2023: Alpine 6, Williams 6, Haas 4 (Top-3 48.5%); Ferrari 3, AlphaTauri 3, Aston Martin 3; Mercedes 2, Red Bull 2, McLaren 2, Alfa Romeo 2 (corregido dato de Mercedes de 3 a 2).
   - _H4 (Slide 7):_ Matiz analítico suavizado en la inferencia: las averías mecánicas _tendieron a pillar a los pilotos rodando más atrás_ (1.97 pts esperados/DNF por accidente vs 1.12 por avería).
   - _Semántica de Badges:_ Badge `NO SE CONFIRMA` configurado en tono neutro pizarra/plata (`#cbd5e1`) para no asociarlo a error técnico y reservar el rojo exclusivamente para la categoría de accidentes y la identidad F1.
+
+### Actualizaciones de la Presentación Deck (6 nov 2026)
+
+- ✅ **Reducción del mazo a exactamente 10 diapositivas:** Eliminada la diapositiva final de agradecimiento ("Gracias / Turno de preguntas"). La presentación cierra ahora con precisión deportiva en la vuelta 10 (`LAP 10 / 10`).
+- ✅ **Bandera a cuadros animada:** Al alcanzar la última diapositiva, se despliega dinámicamente un icono SVG ondeante de la bandera a cuadros a la derecha del contador de vueltas superior.
+- ✅ **Slide 8 simplificada (Impacto en el Campeonato):** Foco exclusivo en los dos grandes duelos deportivos de 2023 decididos por abandonos:
+  - *Ferrari vs Mercedes (P2 vs P3):* 11 pts de diferencia (~10 M€ en juego). La avería de Leclerc en Baréin (+15 pts) habría dado a Ferrari el subcampeonato mundial.
+  - *Aston Martin vs McLaren (P4 vs P5):* Empate a 266 puntos resuelto por podios. En Contrafactual B, Aston Martin ganaba por 302 vs 293 pts (+9 M€).
+  - Eliminados los dos recuadros inferiores para maximizar la legibilidad y contundencia.
+- ✅ **Slide 9 optimizada (La Factura del Taller):**
+  - Gráfica `top5_danos_pilotos.png`: Logan Sargeant destacado en rojo F1 (`#E10600`, 3.99 M€ / 4.33 M$), resto de pilotos (Sainz, Pérez, Ocon, Stroll) en gris pizarra (`#484B5C`). Eliminada la anotación del salario.
+  - Tarjeta *"El Precio de Romperse"* con precios de piezas clave (alerón delantero ~140.000 €, fondo plano ~275.000 €, suspensión/caja de cambios ~150.000 € – 350.000 €).
+  - GIF animado integrado (`accidente_sargeant.gif`, 480x270, 260px de alto, extraído del GP de los Países Bajos 2023 min 0:42–0:48) perfectamente enrasado con la base de la gráfica.
+  - Corrección de centrado vertical: encapsulación de cabecera en `<div>` y normalización a `align-items: center` para evitar desplazamiento hacia arriba o vacíos descompensados en pantalla completa.
+- ✅ **Slide 10 (Conclusiones y Líneas de Futuro):**
+  - Veredicto final con la cuadrícula 2x2 de hipótesis (H1 confirmada, H2 no se confirma, H3 no se confirma con gradiente 1.52x, H4 confirmada 2.32x).
+  - Panel inferior integrado de *Líneas de Futuro / Próximos Pasos* con 2 preguntas de investigación planteadas por el usuario:
+    1. *¿Suelo estructural en los fallos mecánicos?:* Analizar si las averías han alcanzado un suelo natural asintótico (~7%) donde ganar más fiabilidad exigiría pesos excesivos o costes inviables.
+    2. *Influencia y efecto del piloto en el accidente:* Modelar estadísticamente el factor humano (agresividad en salida, gestión de tráfico y experiencia).
+- ✅ **Easter Egg del Safety Car — Rayo McQueen (#95):**
+  - Recorte de alta fidelidad con transparencia alfa (`presentacion/img/rayo_mcqueen_sc.png`, orientado a la derecha `morro ->`).
+  - Convoy en pista: Rayo McQueen lidera en cabeza de carrera, los 4 monoplazas le siguen en formación de pelotón compacto (`gap: 22px`), y el monoplaza perseguidor directo (Williams FW14B) mantiene un margen reglamentario amplio (`margin-left: 110px`).
+  - Estelas luminosas desactivadas durante el régimen de SC para simular velocidad reducida y marcha limpia.
+  - Velocidad pausada ajustada a 10.0 segundos de pasada continua por pantalla.
+  - Probabilidad de salida automática calibrada al 10% (cada 20s), manteniendo la tecla `S` para forzar su despliegue manual en cualquier momento.
+  - F1 Timing Tower: badge cambia de `LAP` (rojo) a `SC` (amarillo `#FFD100` con destello intermitente *beacon flash* y resplandor dorado en el marco).
 
 ## 12. Preferencias de trabajo
 
@@ -587,13 +617,35 @@ EDA_F1/
 ## 16. Presentación Web Interactiva (`presentacion/index.html`)
 
 - **Formato:** Diapositivas web interactivas en HTML5 + CSS3 moderno + JavaScript Vanilla (sin dependencias externas pesadas, funciona offline o en local).
-- **Estructura:** 10 diapositivas que cubren portada, contexto de negocio, marco conceptual, H1 a H4, síntesis de hallazgos y cierre.
+- **Estructura:** 10 diapositivas que cubren portada, contexto de negocio, marco conceptual, H1 a H4, impacto deportivo en constructores, factura de taller vs Cost Cap y veredicto final:
+  1. Portada (*¿Cuánto cuesta no ver la bandera a cuadros?*)
+  2. Contexto de Negocio (*La F1 se corre en el asfalto, pero se gana en cheques*)
+  3. H1 (*La revolución de la fiabilidad: caída del 77%*)
+  4. H2 (*¿Dominan los accidentes? No: empate técnico*)
+  5. H3 Parte A (*Mito derribado: no existen los "equipos gafes"*)
+  6. H3 Parte B (*El verdadero culpable: el embudo de la mitad trasera*)
+  7. H4 (*Un choque cuesta más del doble de puntos que una avería: 65 vs 28 pts*)
+  8. **Impacto en el Campeonato (*¿Quién perdió millones por no ver la bandera a cuadros?*):** Foco exclusivo en los dos grandes duelos decididos por abandonos:
+     - *Ferrari vs Mercedes (P2 vs P3):* 11 pts de diferencia (~10 M€ en juego). La rotura de motor de Leclerc en Baréin (+15 pts) habría dado a Ferrari el subcampeonato mundial. En Contrafactual B, Ferrari superaba a Mercedes (423.5 vs 423.2 pts).
+     - *Aston Martin vs McLaren (P4 vs P5):* Empate a 266 puntos resuelto por desempate de podios. En Contrafactual B, Aston Martin lograba 302 vs 293 pts (+9 M€).
+  9. La Factura del Taller (*El verdadero coste: Daños vs Tope Presupuestario*): Gráfica de barras horizontales del Top 5 de pilotos con mayor factura de daños (Sargeant destacado en rojo F1 con 3.99 M€; Sainz, Pérez, Ocon y Stroll en gris neutro) + panel *"El Precio de Romperse"* con precios de piezas clave (alerón ~140.000 €, suelo ~275.000 €) y GIF animado del accidente de Logan Sargeant (Zandvoort 2023) integrado. Estructura flex unificada (`<div>` contenedor de cabecera y `align-items: center`) para garantizar un centrado vertical armónico y sin vacíos inferiores en modo pantalla completa.
+  10. **Veredicto Final: Las 4 Hipótesis del EDA (Conclusiones y Líneas de Futuro):**
+      - **Cuadrícula 2x2 de hipótesis:**
+        - *H1 (1990–2023):* **CONFIRMADA ✅** (30.2% → 7.0%, -77% de reducción).
+        - *H2 (1990–2023):* **NO SE CONFIRMA ⚪** (Paridad técnica 7.6% vs 7.0%, solo 2/4 temporadas > 50%).
+        - *H3 (Temporada 2023):* **NO SE CONFIRMA ⚪** (Distribución democrática p=0.9661 azar, pero **gradiente confirmado de 1.52x** en la mitad trasera).
+        - *H4 (Temporada 2023):* **CONFIRMADA ✅** (65 pts vs 28 pts contrafactuales, ratio 2.32x).
+      - **Panel inferior de Líneas de Futuro / Próximos Pasos (2 columnas):**
+        1. *¿Suelo estructural en los fallos mecánicos?:* Analizar si se ha alcanzado un suelo natural en los abandonos por avería (~7%), donde reducir más fallos exigiría monoplazas demasiado pesados o costes prohibitivos.
+        2. *Influencia y efecto del piloto en el accidente:* Aislar estadísticamente cómo influye el factor humano de cada piloto en el riesgo de choque (agresividad en salida, gestión de tráfico y experiencia).
 - **Gráficas integradas (`presentacion/img/`):**
   - `h1_tasa_mecanica.png`: Evolución histórica y reducción del -77% en fallos mecánicos.
   - `h2_cruce_tendencias.png`: Evolución de cuota accidentes vs mecánicos (medias móviles 5 años, sin ruido anual).
   - `h3_equipos.png`: Tasa de abandono por equipo en 2023.
   - `h3_parrilla.png`: Gradiente de riesgo por tercio de parrilla (frente / media / fondo).
   - `h4_puntos_perdidos.png`: Puntos perdidos contrafactuales (65 por accidentes vs 28 por averías).
+  - `top5_danos_pilotos.png`: Top 5 de pilotos con mayor coste estimado de reparación por accidente en 2023.
+  - `accidente_sargeant.gif`: Clip animado (00:42 - 00:48) del accidente de Logan Sargeant en el GP de los Países Bajos 2023.
 - **Diseño visual F1 Broadcast:**
   - **Zoom interactivo de gráficas (Modal Lightbox):** Al hacer clic sobre cualquier gráfica de la presentación (`.chart-container`), esta se abre en un visor modal a pantalla casi completa (90vw / 82vh) sobre un fondo oscuro desenfocado (`backdrop-filter: blur(10px)`). Permite al presentador entrar en detalle durante la exposición y volver al diseño dividido pulsando `Esc`, haciendo clic en cualquier parte de la pantalla o mediante el botón de cierre en la esquina superior.
   - **Tipografía optimizada para proyección (escala 20 px):** Textos de tarjetas y recuadros explicativos escalados para máxima legibilidad desde la distancia en proyector:
@@ -603,15 +655,24 @@ EDA_F1/
     - Recuadros especiales (Regla de Oro, Coste de Oportunidad): 34px título / 21-22px texto.
     - Conclusiones (3 columnas): 30px títulos / 21px etiquetas / 20px descripciones.
     - Distribución `.split-layout` ajustada a `1.15fr 1fr` con padding reforzado de 20x24px para acomodar la escala de 20px con total comodidad en proyector.
-  - Barra superior: Logo F1 en rojo a la izquierda y contador central estilo F1 TV timing tower: `LAP 01 / 10`.
+  - Barra superior: Logo F1 en rojo a la izquierda y contador central estilo F1 TV timing tower: `LAP 01 / 10`. Al alcanzar la última diapositiva (`LAP 10 / 10`), se despliega dinámicamente a la derecha del contador una **bandera a cuadros vectorial ondeante** en alusión directa al título del proyecto.
   - Barra inferior limpia: solo botones de control discretos (←, →, ⛶ pantalla completa) alineados a la derecha; barra de progreso eliminada por redundancia con el contador de vueltas superior.
   - Navegación por teclado: Flechas `←`/`→`, Barra espaciadora, `F` (pantalla completa), `Home`/`End`.
   - **Animación cinemática de titular:** Al cambiar de diapositiva, un monoplaza de F1 (`presentacion/img/f1_car.svg`) cruza a ritmo pausado y apreciable (1.15s) de izquierda a derecha con estela de luz roja (`#E10600`), y justo tras su paso (delay 0.75s) el titular se desvela con un efecto de nitidez e impacto, seguido de la aparición suave del subtítulo (delay 1.05s).
-  - **Monoplazas reales históricos ambientales (zona inferior):** Cada 20 segundos cruza con ritmo pausado de crucero (4 segundos) por la parte inferior de la pantalla la silueta recortada en PNG transparente de 4 monoplazas reales de alta fidelidad:
+  - **Monoplazas reales históricos ambientales (zona inferior):** Cada 20 segundos cruza con ritmo pausado de crucero (4 segundos) por la parte inferior de la pantalla la silueta recortada en PNG transparente de monoplazas reales de alta fidelidad:
     1. `1990s • Williams FW14B (Nigel Mansell 1992)`: `img/williams_fw14b_cutout.png` (azul/amarillo Canon Camel, estela `#0055DD`).
     2. `2000s • Renault R25 (Fernando Alonso 2005)`: `img/renault_r25_cutout.png` (Mild Seven azul/amarillo, estela `#0082CA`).
     3. `2010s • Mercedes-AMG W10 (Lewis Hamilton 2019)`: `img/mercedes_w10_right.png` (flecha plateada #44, estela `#00D2BE`, recorte perfeccionado sin restos blancos, orientado a la derecha).
     4. `2020s • Aston Martin AMR23 (Fernando Alonso 2023)`: `img/aston_martin_amr23_cutout.png` (verde británico #14, llantas de 18" completas, estela `#00594F`).
+  - **Easter Egg — Safety Car con Rayo McQueen (#95):**
+    - **Asset recortado:** `img/rayo_mcqueen_sc.png` (recorte de alta definición con canal alfa transparente, orientado a la derecha `morro ->`).
+    - **Dinámica de carrera:** Cada 20 segundos hay un 10% de probabilidad aleatoria de que se despliegue el Safety Car (o se puede forzar en cualquier momento pulsando la tecla `S`).
+    - **Comportamiento en pista:** Rayo McQueen sale liderando la carrera en cabeza (`morro ->`), respetando la reglamentación F1:
+      - Sin estelas luminosas durante el régimen de SC (velocidad reducida de neutralización, visual limpia y realista).
+      - Los 4 monoplazas van agrupados de forma muy compacta en pelotón (`gap: 22px`).
+      - El monoplaza que persigue directamente al Safety Car (Williams FW14B) deja un margen de seguridad amplio reglamentario (`margin-left: 110px`) respecto a Rayo McQueen.
+      - Ritmo pausado de coche de seguridad: 10.0 segundos de pasada completa de pantalla.
+    - **Indicador F1 TV Broadcast:** Al salir el Safety Car, el contador de vueltas superior (`.lap-counter`) activa el modo SC: el badge cambia de `LAP` (rojo) a `SC` (amarillo `#FFD100` parpadeante / intermitente) y el borde del panel adquiere un resplandor dorado. Al completar el paso del convoy, el badge regresa automáticamente a `LAP` en rojo F1.
   - **Aceleración por GPU (Hardware Compositor):** Todas las animaciones cinemáticas se ejecutan mediante `transform: translate3d(...)` a lo largo de `100vw` completo. El desfile inferior utiliza aceleración `linear` continua (4s) con `image-rendering: crisp-edges` y sin sombras desenfocadas, eliminando por completo microtirones y rasterizaciones borrosas para lograr 60/120 FPS nativos y nítidos.
   - **Sincronización robusta coche-estela (Preload & Decode API):** Se eliminó el problema de estelas huérfanas mediante:
     1. `<link rel="preload">` en `<head>` de los 4 PNGs de monoplazas.
