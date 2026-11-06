@@ -9,6 +9,7 @@
   <link rel="preload" as="image" href="img/renault_r25_cutout.png">
   <link rel="preload" as="image" href="img/mercedes_w10_right.png">
   <link rel="preload" as="image" href="img/aston_martin_amr23_cutout.png">
+  <link rel="preload" as="image" href="img/rayo_mcqueen_sc.png">
   <style>
     :root {
       --f1-red: #E10600;
@@ -104,6 +105,113 @@
       letter-spacing: 2px;
       padding: 4px 12px;
       font-variant-numeric: tabular-nums;
+    }
+
+    .chequered-flag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      max-width: 0;
+      padding: 0;
+      border-left: 0 solid var(--f1-card-border);
+      background: rgba(255, 255, 255, 0.08);
+      opacity: 0;
+      transform: scale(0.6) rotate(-10deg);
+      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
+                  transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                  max-width 0.35s ease, 
+                  padding 0.35s ease, 
+                  border-left 0.35s ease;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .chequered-flag.visible {
+      opacity: 1;
+      max-width: 54px;
+      padding: 0 10px;
+      border-left: 1px solid var(--f1-card-border);
+      transform: scale(1) rotate(0deg);
+    }
+
+    /* Safety Car Mode in Top Bar */
+    .lap-counter.sc-active {
+      border-color: #FFD100;
+      box-shadow: 0 0 16px rgba(255, 209, 0, 0.45);
+    }
+
+    .lap-counter.sc-active .lap-badge {
+      background-color: #FFD100;
+      color: #15151E;
+      font-weight: 900;
+      animation: scBeaconFlash 0.75s infinite alternate ease-in-out;
+    }
+
+    @keyframes scBeaconFlash {
+      0% {
+        background-color: #FFD100;
+        color: #15151E;
+        box-shadow: 0 0 8px rgba(255, 209, 0, 0.5);
+      }
+      100% {
+        background-color: #FF9500;
+        color: #000000;
+        box-shadow: 0 0 18px rgba(255, 149, 0, 0.9);
+      }
+    }
+
+    /* Safety Car Convoy with Rayo McQueen leading */
+    .sc-convoy {
+      position: absolute;
+      bottom: 2px;
+      left: 0;
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      transform: translate3d(-950px, 0, 0);
+      pointer-events: none;
+      will-change: transform, opacity;
+      backface-visibility: hidden;
+      transform-style: preserve-3d;
+      opacity: 0;
+    }
+
+    .convoy-car {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    /* Margen de seguridad reglamentario entre el Safety Car y el coche perseguidor */
+    .convoy-car.safety-car-lead {
+      margin-left: 110px;
+    }
+
+    /* Sin estelas en periodo de Safety Car (velocidad de precaución) */
+    .convoy-car .bottom-f1-trail {
+      display: none;
+    }
+
+    .sc-convoy.animating {
+      animation: scConvoyPass 10.0s linear forwards;
+    }
+
+    @keyframes scConvoyPass {
+      0% {
+        transform: translate3d(-950px, 0, 0);
+        opacity: 0;
+      }
+      1.5% {
+        opacity: 1;
+      }
+      98% {
+        opacity: 1;
+      }
+      100% {
+        transform: translate3d(calc(100vw + 100px), 0, 0);
+        opacity: 0;
+      }
     }
 
     /* Presentation Deck */
@@ -683,9 +791,23 @@
     <div class="brand">
       <span class="f1-badge">F1</span>
     </div>
-    <div class="lap-counter">
-      <span class="lap-badge">LAP</span>
+    <div class="lap-counter" id="lapCounter">
+      <span class="lap-badge" id="lapBadge">LAP</span>
       <span class="lap-numbers" id="slideNum">01 / 10</span>
+      <span class="chequered-flag" id="chequeredFlag" title="¡Bandera a Cuadros! Final de Carrera">
+        <svg width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="1.5" y1="1" x2="1.5" y2="15" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+          <g transform="translate(3, 1)">
+            <rect width="18" height="11" rx="1.5" fill="#FFFFFF"/>
+            <rect x="0" y="0" width="4.5" height="3.67" fill="#15151E"/>
+            <rect x="9" y="0" width="4.5" height="3.67" fill="#15151E"/>
+            <rect x="4.5" y="3.67" width="4.5" height="3.67" fill="#15151E"/>
+            <rect x="13.5" y="3.67" width="4.5" height="3.67" fill="#15151E"/>
+            <rect x="0" y="7.34" width="4.5" height="3.66" fill="#15151E"/>
+            <rect x="9" y="7.34" width="4.5" height="3.66" fill="#15151E"/>
+          </g>
+        </svg>
+      </span>
     </div>
   </div>
 
@@ -868,72 +990,156 @@
       </div>
     </section>
 
-    <!-- SLIDE 8: LA FACTURA COMPLETA -->
+        <!-- SLIDE 8: IMPACTO EN EL CAMPEONATO -->
     <section class="slide" data-slide="8">
-      <div class="slide-tag">La Factura Completa de 2023</div>
-      <h2 class="slide-title">El doble impacto: puntos perdidos y chapa rota</h2>
-      <p class="slide-subtitle">En la era del límite presupuestario (Cost Cap), el accidente te castiga dos veces.</p>
+      <div>
+        <div class="slide-tag">El Coste Deportivo en el Campeonato</div>
+        <h2 class="slide-title">¿Quién perdió millones por no ver la bandera a cuadros?</h2>
+        <p class="slide-subtitle">Los puntos perdidos no son abstractos: en 2023 decidieron el subcampeonato mundial y empates millonarios.</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px;">
+        <div class="stat-card" style="padding: 28px 32px; display: flex; flex-direction: column; justify-content: center;">
+          <div class="stat-number red" style="font-size: 44px; margin-bottom: 12px;">~10 M€ en Juego</div>
+          <div class="stat-label" style="font-size: 22px; margin-bottom: 12px;">Ferrari vs Mercedes: El motor de Leclerc (P2 vs P3)</div>
+          <div class="stat-desc" style="font-size: 20px; line-height: 1.55;">
+            Mercedes terminó 2º (<strong>374 pts</strong>) y Ferrari 3º (<strong>363 pts</strong>): solo <strong>11 puntos</strong> de margen.<br><br>
+            En Baréin, el motor de Leclerc se rompió rodando en P3 (+15 pts). Sin esa avería mecánica, Ferrari era <strong>Subcampeón del Mundo</strong>.<br><br>
+            En el contrafactual de rendimiento medio (B), Ferrari superaba a Mercedes (<strong>423.5 vs 423.2 pts</strong>).
+          </div>
+        </div>
+
+        <div class="stat-card cyan" style="padding: 28px 32px; display: flex; flex-direction: column; justify-content: center;">
+          <div class="stat-number cyan" style="font-size: 44px; margin-bottom: 12px;">Empate a 266 pts</div>
+          <div class="stat-label" style="font-size: 22px; margin-bottom: 12px;">Aston Martin vs McLaren: La P4 decidida por desempate</div>
+          <div class="stat-desc" style="font-size: 20px; line-height: 1.55;">
+            Terminaron empatados a puntos; McLaren ganó el 4º puesto por número de mejores posiciones en carrera.<br><br>
+            En el contrafactual de rendimiento medio (B), Aston Martin alcanzaba <strong>302 pts vs 293 pts</strong> de McLaren.<br><br>
+            Los abandonos rompieron el desempate a favor de McLaren, costándole a Aston Martin una posición de <strong>~9 M€</strong>.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: LA FACTURA DEL TALLER -->
+    <section class="slide" data-slide="9">
+      <div>
+        <div class="slide-tag">La Factura del Taller (Temporada 2023)</div>
+        <h2 class="slide-title">El verdadero coste: Daños vs Tope Presupuestario</h2>
+        <p class="slide-subtitle">En la era del límite presupuestario (Cost Cap), el accidente te castiga dos veces.</p>
+      </div>
 
       <div class="split-layout">
-        <div class="info-panel" style="gap:20px;">
-          <div class="stat-card">
-            <div class="stat-number red">65 Puntos Dejados de Ganar</div>
-            <div class="stat-label">El coste deportivo directo</div>
-            <div class="stat-desc">En la zona media de 2023, la diferencia entre ser 4º o ser 5º (McLaren vs Aston Martin) fue de solo 22 puntos. 65 puntos cambian el destino de un equipo.</div>
-          </div>
-          <div class="stat-card cyan">
-            <div class="stat-number cyan">~37 M€ en Daños</div>
-            <div class="stat-label">Factura de daños materiales en 2023 (Sports Illustrated / F1)</div>
-            <div class="stat-desc">Williams superó los 6,5 M€ en chapa y pintura; Alpine los 4 M€. Fondos consumidos del techo de ~125 M€ sin aportar ni una décima de segundo en pista.</div>
-          </div>
+        <div class="chart-container">
+          <img src="img/top5_danos_pilotos.png" alt="Top 5 Daños por Piloto en 2023">
         </div>
-        <div class="info-panel">
-          <div class="stat-card" style="border-left-color:#FFFFFF;">
-            <div class="stat-number" style="font-size:28px; margin-bottom:10px;">Coste de Oportunidad</div>
-            <div class="stat-desc" style="font-size:21px; color:var(--f1-silver); line-height:1.55;">
-              Fabricar un alerón delantero de repuesto cuesta unos <strong>140.000 €</strong>. Fabricar un suelo nuevo cuesta cerca de <strong>275.000 €</strong>.<br><br>
-              El dinero invertido en rehacer piezas destruidas es dinero que un equipo <strong>no puede invertir en evoluciones aerodinámicas</strong> en el túnel de viento.
+        <div class="info-panel" style="gap: 16px;">
+          <div class="stat-card" style="border-left-color: #FFFFFF; padding: 20px 24px;">
+            <div class="stat-number" style="font-size: 26px; margin-bottom: 10px;">El Precio de Romperse</div>
+            <div class="stat-desc" style="font-size: 20px; color: var(--f1-silver); line-height: 1.45;">
+              Reponer componentes destrozados por un choque resta presupuesto de desarrollo en fábrica:
+              <ul style="margin-top: 8px; margin-left: 20px; line-height: 1.55; font-size: 19px;">
+                <li><strong>Alerón delantero:</strong> ~140.000 €</li>
+                <li><strong>Fondo plano (suelo):</strong> ~275.000 €</li>
+                <li><strong>Caja de cambios / Suspensión:</strong> ~150.000 € – 350.000 €</li>
+              </ul>
             </div>
           </div>
+
+          <!-- GIF de accidente F1 con altura exacta para coincidir con la base de la gráfica sin desbordar abajo -->
+          <div class="gif-container" style="height: 260px; border-radius: 12px; overflow: hidden; border: 1px solid var(--f1-card-border); background: #000; box-shadow: 0 8px 24px rgba(0,0,0,0.4);">
+            <img src="img/accidente_sargeant.gif" alt="Accidente Logan Sargeant Zandvoort 2023" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- SLIDE 9: CONCLUSIONES -->
-    <section class="slide" data-slide="9">
-      <div class="slide-tag">Conclusiones del Análisis</div>
-      <h2 class="slide-title">Lo que los datos le dicen a un Jefe de Equipo</h2>
-      <p class="slide-subtitle">Tres aprendizajes clave para la gestión deportiva y técnica en la Fórmula 1 moderna.</p>
+        <!-- SLIDE 10: CONCLUSIONES - CONTRASTE DE HIPÓTESIS -->
+    <section class="slide" data-slide="10">
+      <div>
+        <div class="slide-tag">Conclusiones del Análisis</div>
+        <h2 class="slide-title">Veredicto Final: Las 4 Hipótesis del EDA</h2>
+        <p class="slide-subtitle">Dos escalas de análisis: la evolución histórica de la fiabilidad (1990–2023) y el impacto financiero en 2023.</p>
+      </div>
 
-      <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:20px; margin-top:20px;">
-        <div class="stat-card" style="height: 100%;">
-          <div class="stat-number" style="font-size: 30px; color: var(--f1-cyan); margin-bottom: 12px;">1. Rendimientos Decrecientes</div>
-          <div class="stat-label">La fiabilidad ya está resuelta</div>
-          <div class="stat-desc">Con un 93% de coches completando carrera, gastar millones extra en blindar el motor ofrece retornos marginales frente a los años 90.</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+        <!-- H1 -->
+        <div class="stat-card" style="border-left-color: #22c55e; padding: 14px 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 13px; font-weight: 800; color: var(--f1-silver); letter-spacing: 1px;">H1 • HISTÓRICO (1990–2023)</span>
+            <span class="badge-confirm">CONFIRMADA</span>
+          </div>
+          <div class="stat-label" style="font-size: 19px; margin-bottom: 4px;">Caída sostenida del fallo mecánico</div>
+          <div class="stat-number cyan" style="font-size: 30px; margin-bottom: 6px;">30.2% → 7.0% (-77%)</div>
+          <div class="stat-desc" style="font-size: 17px; line-height: 1.4;">
+            La tasa media de averías cayó más de dos tercios. La ingeniería moderna y las penalizaciones han blindado la fiabilidad de los motores.
+          </div>
         </div>
 
-        <div class="stat-card" style="height: 100%;">
-          <div class="stat-number red" style="font-size: 30px; margin-bottom: 12px;">2. Proteger el Sábado</div>
-          <div class="stat-label">La clasificación es tu mejor seguro</div>
-          <div class="stat-desc">Estar en el Top-10 reduce el riesgo de accidente un 52%. Salir en el pelotón trasero no solo cuesta tiempo: cuesta puntos y piezas de repuesto.</div>
+        <!-- H2 -->
+        <div class="stat-card" style="border-left-color: #94a3b8; padding: 14px 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 13px; font-weight: 800; color: var(--f1-silver); letter-spacing: 1px;">H2 • HISTÓRICO (1990–2023)</span>
+            <span class="badge-not-confirm">NO SE CONFIRMA</span>
+          </div>
+          <div class="stat-label" style="font-size: 19px; margin-bottom: 4px;">¿Dominio de los accidentes?</div>
+          <div class="stat-number" style="font-size: 30px; color: #cbd5e1; margin-bottom: 6px;">7.6% vs 7.0%</div>
+          <div class="stat-desc" style="font-size: 17px; line-height: 1.4;">
+            Existe <strong>paridad técnica</strong>, no dominio estructural: solo 2 de las últimas 4 temporadas superaron el 50% de cuota. Hay empate estadístico.
+          </div>
         </div>
 
-        <div class="stat-card" style="height: 100%;">
-          <div class="stat-number" style="font-size: 30px; color: #FFFFFF; margin-bottom: 12px;">3. Gestión del Riesgo</div>
-          <div class="stat-label">Los accidentes son el verdadero coste</div>
-          <div class="stat-desc">En 2023, los choques costaron el 70% de los puntos perdidos y ~37 M€ en daños. La disciplina en pista rinde más beneficios que nunca.</div>
+        <!-- H3 -->
+        <div class="stat-card" style="border-left-color: #94a3b8; padding: 14px 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 13px; font-weight: 800; color: var(--f1-silver); letter-spacing: 1px;">H3 • TEMPORADA 2023</span>
+            <span class="badge-not-confirm">NO SE CONFIRMA</span>
+          </div>
+          <div class="stat-label" style="font-size: 19px; margin-bottom: 4px;">Concentración por equipos y parrilla</div>
+          <div class="stat-number red" style="font-size: 30px; margin-bottom: 6px;">p = 0.9661 &nbsp;|&nbsp; 1.52x</div>
+          <div class="stat-desc" style="font-size: 17px; line-height: 1.4;">
+            Accidentes democráticos entre escuderías (Top-3 48.5%, azar). Pero <strong>sí emerge gradiente</strong>: la mitad trasera sufre un <strong>+52% de riesgo</strong>.
+          </div>
+        </div>
+
+        <!-- H4 -->
+        <div class="stat-card" style="border-left-color: #22c55e; padding: 14px 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 13px; font-weight: 800; color: var(--f1-silver); letter-spacing: 1px;">H4 • TEMPORADA 2023</span>
+            <span class="badge-confirm">CONFIRMADA</span>
+          </div>
+          <div class="stat-label" style="font-size: 19px; margin-bottom: 4px;">Coste deportivo: Choque vs Avería</div>
+          <div class="stat-number red" style="font-size: 30px; margin-bottom: 6px;">65 vs 28 pts (2.32x)</div>
+          <div class="stat-desc" style="font-size: 17px; line-height: 1.4;">
+            Los accidentes costaron más del doble de puntos contrafactuales que las averías mecánicas al ocurrir con pilotos en zona de puntos.
+          </div>
         </div>
       </div>
-    </section>
 
-    <!-- SLIDE 10: CIERRE -->
-    <section class="slide cover" data-slide="10">
-      <div class="cover-f1-stripe"></div>
-      <h1 class="cover-title">GRACIAS</h1>
-      <p class="cover-subtitle">"En la Fórmula 1 moderna, la bandera a cuadros no se le niega al motor: se le niega al tráfico."</p>
-      <div style="display:flex; gap:16px; margin-top:20px;">
-        <div class="cover-author">
-          <span style="color:var(--f1-red); font-weight:800;">TURNO DE PREGUNTAS</span>
+      <!-- Próximas Líneas de Investigación / Preguntas Abiertas -->
+      <div style="margin-top: 16px; background: rgba(21, 21, 30, 0.75); border: 1px solid var(--f1-card-border); border-left: 3px solid #FFD100; border-radius: 8px; padding: 12px 20px;">
+        <div style="font-size: 12px; font-weight: 800; color: #FFD100; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px;">
+          Líneas de Futuro / Próximos Pasos
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          <div style="display: flex; gap: 10px; align-items: flex-start;">
+            <span style="background: rgba(255, 209, 0, 0.15); color: #FFD100; font-weight: 900; font-size: 12px; padding: 2px 7px; border-radius: 4px; flex-shrink: 0; margin-top: 2px;">1</span>
+            <div>
+              <div style="font-size: 17px; font-weight: 700; color: #FFF; margin-bottom: 2px;">¿Suelo estructural en los fallos mecánicos?</div>
+              <div style="font-size: 15px; color: var(--f1-silver); line-height: 1.35;">
+                Analizar si se ha alcanzado un suelo natural en los abandonos por avería (~7%), donde reducir más fallos exigiría monoplazas demasiado pesados o costes prohibitivos.
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: flex-start;">
+            <span style="background: rgba(255, 209, 0, 0.15); color: #FFD100; font-weight: 900; font-size: 12px; padding: 2px 7px; border-radius: 4px; flex-shrink: 0; margin-top: 2px;">2</span>
+            <div>
+              <div style="font-size: 17px; font-weight: 700; color: #FFF; margin-bottom: 2px;">Influencia y efecto del piloto en el accidente</div>
+              <div style="font-size: 15px; color: var(--f1-silver); line-height: 1.35;">
+                Aislar estadísticamente cómo influye el factor humano de cada piloto en el riesgo de choque (agresividad en salida, gestión de tráfico y experiencia).
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -951,10 +1157,35 @@
   </div>
 
   <!-- Ambient Historical F1 Track at the bottom -->
-  <div class="bottom-f1-track">
+  <div class="bottom-f1-track" id="bottomF1Track">
+    <!-- Coche individual normal -->
     <div class="bottom-f1-car" id="bottomF1Car">
       <div class="bottom-f1-trail" id="bottomF1Trail"></div>
       <img src="img/williams_fw14b_cutout.png" id="bottomF1Img" alt="Historical F1" class="bottom-f1-img">
+    </div>
+
+    <!-- Convoy de Safety Car liderado por Rayo McQueen (Sin estelas) -->
+    <div class="sc-convoy" id="scConvoy">
+      <!-- 4. Aston Martin AMR23 (Cola del pelotón) -->
+      <div class="convoy-car">
+        <img src="img/aston_martin_amr23_cutout.png" class="bottom-f1-img" alt="Aston Martin AMR23">
+      </div>
+      <!-- 3. Mercedes-AMG W10 -->
+      <div class="convoy-car">
+        <img src="img/mercedes_w10_right.png" class="bottom-f1-img" alt="Mercedes W10">
+      </div>
+      <!-- 2. Renault R25 -->
+      <div class="convoy-car">
+        <img src="img/renault_r25_cutout.png" class="bottom-f1-img" alt="Renault R25">
+      </div>
+      <!-- 1. Williams FW14B (Líder del pelotón de monoplazas F1) -->
+      <div class="convoy-car">
+        <img src="img/williams_fw14b_cutout.png" class="bottom-f1-img" alt="Williams FW14B">
+      </div>
+      <!-- SAFETY CAR: Rayo McQueen #95 (En cabeza de carrera con margen de seguridad) -->
+      <div class="convoy-car safety-car-lead">
+        <img src="img/rayo_mcqueen_sc.png" class="bottom-f1-img" style="height: 32px;" alt="Safety Car Rayo McQueen">
+      </div>
     </div>
   </div>
 
@@ -1015,6 +1246,16 @@
       const formattedNum = String(index + 1).padStart(2, '0');
       const formattedTotal = String(totalSlides).padStart(2, '0');
       slideNumEl.textContent = `${formattedNum} / ${formattedTotal}`;
+
+      // Bandera a cuadros cuando se llega a la última vuelta (última diapositiva)
+      const flagEl = document.getElementById('chequeredFlag');
+      if (flagEl) {
+        if (index === totalSlides - 1) {
+          flagEl.classList.add('visible');
+        } else {
+          flagEl.classList.remove('visible');
+        }
+      }
     }
 
     function nextSlide() {
@@ -1189,13 +1430,58 @@
       currentEraIdx = (currentEraIdx + 1) % historicalEras.length;
     }
 
-    // Primer monoplaza a los 2.5 segundos, luego uno nuevo cada 20 segundos
+    // === Sistema de Safety Car con Rayo McQueen ===
+    const lapCounterEl = document.getElementById('lapCounter');
+    const lapBadgeEl = document.getElementById('lapBadge');
+    const scConvoyEl = document.getElementById('scConvoy');
+    let isSafetyCarActive = false;
+
+    // Precarga de Rayo McQueen
+    const mcqueenPreload = new Image();
+    mcqueenPreload.src = 'img/rayo_mcqueen_sc.png';
+
+    function launchSafetyCar() {
+      if (isSafetyCarActive || !scConvoyEl || !lapCounterEl || !lapBadgeEl) return;
+      isSafetyCarActive = true;
+
+      // Activar modo SC en el contador superior
+      lapCounterEl.classList.add('sc-active');
+      lapBadgeEl.textContent = 'SC';
+
+      // Lanzar animación del convoy
+      scConvoyEl.classList.remove('animating');
+      void scConvoyEl.offsetWidth; // Forzar reflow
+      scConvoyEl.classList.add('animating');
+
+      // Al terminar de cruzar la pantalla, restaurar el estado normal
+      scConvoyEl.addEventListener('animationend', () => {
+        scConvoyEl.classList.remove('animating');
+        lapCounterEl.classList.remove('sc-active');
+        lapBadgeEl.textContent = 'LAP';
+        isSafetyCarActive = false;
+      }, { once: true });
+    }
+
+    // Tecla 'S' para forzar la salida del Safety Car manualmente en directo
+    document.addEventListener('keydown', (e) => {
+      if (e.key.toLowerCase() === 's' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        launchSafetyCar();
+      }
+    });
+
+    // Desfile periódico: 30% de probabilidad de Safety Car, o monoplaza normal
     let paradeInterval = null;
     function startParadeTimer() {
       if (paradeInterval) clearInterval(paradeInterval);
       paradeInterval = setInterval(() => {
-        if (document.visibilityState === 'visible') {
-          launchHistoricalCar();
+        if (document.visibilityState === 'visible' && !isSafetyCarActive) {
+          // 10% probabilidad de Safety Car, 90% coche normal
+          const isSC = Math.random() < 0.10;
+          if (isSC) {
+            launchSafetyCar();
+          } else {
+            launchHistoricalCar();
+          }
         }
       }, 20000);
     }
