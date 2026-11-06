@@ -495,6 +495,9 @@ EDA_F1/
 
 ### Actualizaciones de la Presentación Deck (6 nov 2026)
 
+- ✅ **Slide 1 depurada:** Eliminada la coletilla "Bootcamp Data Science" del pie de portada, dejando una presentación profesional y limpia (`AUTOR: Borja Bueno`).
+- ✅ **Slide 2 simplificada y balanceada:** Eliminado el bloque de "La Regla de Oro". La diapositiva adopta un diseño simétrico de 2 tarjetas de alto impacto que contraponen las dos caras del negocio: la bolsa de premios (~1.100 M€ en rojo F1 a la izquierda) frente al límite presupuestario (Cost Cap ~125 M€ en cian a la derecha).
+- ✅ **Slide 5 humanizada (Sustitución del p-value por métrica intuitiva):** Sustituido el tecnicismo `p = 0.9661 (Test Chi-cuadrado)` por la métrica directa `3.3 por equipo` (*Media de colisiones en la temporada*), destacando que los 33 accidentes se repartieron homogéneamente entre las 10 escuderías (rango estrecho de 2 a 6), haciendo la diapositiva 100% inteligible para público no técnico.
 - ✅ **Reducción del mazo a exactamente 10 diapositivas:** Eliminada la diapositiva final de agradecimiento ("Gracias / Turno de preguntas"). La presentación cierra ahora con precisión deportiva en la vuelta 10 (`LAP 10 / 10`).
 - ✅ **Bandera a cuadros animada:** Al alcanzar la última diapositiva, se despliega dinámicamente un icono SVG ondeante de la bandera a cuadros a la derecha del contador de vueltas superior.
 - ✅ **Slide 8 simplificada (Impacto en el Campeonato):** Foco exclusivo en los dos grandes duelos deportivos de 2023 decididos por abandonos:
@@ -627,13 +630,13 @@ EDA_F1/
   7. H4 (*Un choque cuesta más del doble de puntos que una avería: 65 vs 28 pts*)
   8. **Impacto en el Campeonato (*¿Quién perdió millones por no ver la bandera a cuadros?*):** Foco exclusivo en los dos grandes duelos decididos por abandonos:
      - *Ferrari vs Mercedes (P2 vs P3):* 11 pts de diferencia (~10 M€ en juego). La rotura de motor de Leclerc en Baréin (+15 pts) habría dado a Ferrari el subcampeonato mundial. En Contrafactual B, Ferrari superaba a Mercedes (423.5 vs 423.2 pts).
-     - *Aston Martin vs McLaren (P4 vs P5):* Empate a 266 puntos resuelto por desempate de podios. En Contrafactual B, Aston Martin lograba 302 vs 293 pts (+9 M€).
+     - *Aston Martin vs McLaren (P4 vs P5):* Empate exacto a 266 puntos en carreras de Gran Premio (domingo). En Contrafactual B sin abandonos, Aston Martin superaba a McLaren (302 vs 293 pts), costándole los abandonos una posición y ~9 M€ de premio.
   9. La Factura del Taller (*El verdadero coste: Daños vs Tope Presupuestario*): Gráfica de barras horizontales del Top 5 de pilotos con mayor factura de daños (Sargeant destacado en rojo F1 con 3.99 M€; Sainz, Pérez, Ocon y Stroll en gris neutro) + panel *"El Precio de Romperse"* con precios de piezas clave (alerón ~140.000 €, suelo ~275.000 €) y GIF animado del accidente de Logan Sargeant (Zandvoort 2023) integrado. Estructura flex unificada (`<div>` contenedor de cabecera y `align-items: center`) para garantizar un centrado vertical armónico y sin vacíos inferiores en modo pantalla completa.
   10. **Veredicto Final: Las 4 Hipótesis del EDA (Conclusiones y Líneas de Futuro):**
       - **Cuadrícula 2x2 de hipótesis:**
         - *H1 (1990–2023):* **CONFIRMADA ✅** (30.2% → 7.0%, -77% de reducción).
         - *H2 (1990–2023):* **NO SE CONFIRMA ⚪** (Paridad técnica 7.6% vs 7.0%, solo 2/4 temporadas > 50%).
-        - *H3 (Temporada 2023):* **NO SE CONFIRMA ⚪** (Distribución democrática p=0.9661 azar, pero **gradiente confirmado de 1.52x** en la mitad trasera).
+        - *H3 (Temporada 2023):* **NO SE CONFIRMA ⚪** (Distribución democrática: media 3.3 choques/equipo, azar; pero **gradiente confirmado de 1.52x** en la mitad trasera).
         - *H4 (Temporada 2023):* **CONFIRMADA ✅** (65 pts vs 28 pts contrafactuales, ratio 2.32x).
       - **Panel inferior de Líneas de Futuro / Próximos Pasos (2 columnas):**
         1. *¿Suelo estructural en los fallos mecánicos?:* Analizar si se ha alcanzado un suelo natural en los abandonos por avería (~7%), donde reducir más fallos exigiría monoplazas demasiado pesados o costes prohibitivos.
