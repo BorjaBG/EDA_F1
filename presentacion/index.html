@@ -820,36 +820,33 @@
       <h1 class="cover-title">¿CUÁNTO CUESTA NO VER LA BANDERA A CUADROS?</h1>
       <p class="cover-subtitle">Impacto deportivo y financiero de los abandonos en la Fórmula 1: roturas mecánicas vs. accidentes</p>
       <div class="cover-author">
-        <span style="color:var(--f1-red); font-weight:800;">AUTOR:</span> Borja Bueno &nbsp;|&nbsp; Bootcamp Data Science
+        <span style="color:var(--f1-red); font-weight:800;">AUTOR:</span> Borja Bueno
       </div>
     </section>
 
     <!-- SLIDE 2: CONTEXTO DE NEGOCIO -->
     <section class="slide" data-slide="2">
-      <div class="slide-tag">El Negocio de la F1</div>
-      <h2 class="slide-title">La F1 se corre en el asfalto, pero se gana en cheques</h2>
-      <p class="slide-subtitle">La Fórmula 1 no solo reparte trofeos: reparte más de 1.100 M€ en premios por estricto orden de puntos.</p>
+      <div>
+        <div class="slide-tag">El Negocio de la F1</div>
+        <h2 class="slide-title">La F1 se corre en el asfalto, pero se gana en cheques</h2>
+        <p class="slide-subtitle">La Fórmula 1 no solo reparte trofeos: reparte más de 1.100 M€ en premios por estricto orden de puntos.</p>
+      </div>
       
-      <div class="split-layout">
-        <div class="info-panel" style="gap:20px;">
-          <div class="stat-card">
-            <div class="stat-number red">~1.100 M€</div>
-            <div class="stat-label">Bolsa anual de premios del Mundial de Constructores</div>
-            <div class="stat-desc">Una sola posición en el mundial a final de temporada equivale a una diferencia de entre 7 M€ y 11 M€.</div>
-          </div>
-          <div class="stat-card cyan">
-            <div class="stat-number cyan">Cost Cap: ~125 M€</div>
-            <div class="stat-label">Límite presupuestario estricto por reglamento</div>
-            <div class="stat-desc">Cada euro gastado en reparar piezas rotas por accidente es dinero que se resta directamente del desarrollo del coche.</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px;">
+        <div class="stat-card" style="padding: 28px 32px; display: flex; flex-direction: column; justify-content: center;">
+          <div class="stat-number red" style="font-size: 44px; margin-bottom: 12px;">~1.100 M€</div>
+          <div class="stat-label" style="font-size: 22px; margin-bottom: 12px;">Bolsa anual de premios del Mundial de Constructores</div>
+          <div class="stat-desc" style="font-size: 20px; line-height: 1.55;">
+            Una sola posición en el mundial a final de temporada equivale a una diferencia de entre <strong>7 M€ y 11 M€</strong>.<br><br>
+            Cada punto perdido por abandono puede significar caer un puesto en la clasificación de constructores.
           </div>
         </div>
-        <div class="info-panel">
-          <div class="stat-card" style="border-left-color: #FFFFFF;">
-            <div class="stat-number" style="font-size: 34px; margin-bottom: 12px;">La Regla de Oro</div>
-            <div class="stat-desc" style="font-size: 22px; color: var(--f1-silver); line-height: 1.55;">
-              "Para terminar primero, primero hay que terminar."<br><br>
-              Históricamente los monoplazas se rompían a menudo. Hoy, la fiabilidad es casi perfecta. <strong>¿Quién quema el dinero ahora y dónde está el verdadero peligro?</strong>
-            </div>
+        <div class="stat-card cyan" style="padding: 28px 32px; display: flex; flex-direction: column; justify-content: center;">
+          <div class="stat-number cyan" style="font-size: 44px; margin-bottom: 12px;">Cost Cap: ~125 M€</div>
+          <div class="stat-label" style="font-size: 22px; margin-bottom: 12px;">Límite presupuestario estricto por reglamento</div>
+          <div class="stat-desc" style="font-size: 20px; line-height: 1.55;">
+            Cada euro gastado en reparar piezas rotas por accidente es dinero que se resta directamente del desarrollo del coche en fábrica.<br><br>
+            En la F1 moderna, no terminar te castiga dos veces: en los puntos y en el presupuesto de evolución.
           </div>
         </div>
       </div>
@@ -928,9 +925,9 @@
             <div class="stat-desc">No alcanzan el umbral del 50%. Ningún equipo acapara los choques: incluso escuderías punteras sufrieron accidentes (Ferrari 3, Mercedes 2, Red Bull 2).</div>
           </div>
           <div class="stat-card cyan">
-            <div class="stat-number cyan">p = 0.9661</div>
-            <div class="stat-label">Test Chi-cuadrado de bondad de ajuste</div>
-            <div class="stat-desc">Lejos del umbral significativo (p &lt; 0.05). Estadísticamente, la probabilidad de sufrir un accidente es democrática entre escuderías.</div>
+            <div class="stat-number cyan">3.3 por equipo</div>
+            <div class="stat-label">Media de colisiones en la temporada</div>
+            <div class="stat-desc">Los 33 accidentes se repartieron de forma muy equilibrada entre las 10 escuderías (rango de 2 a 6). Estadísticamente, no hay concentración anómala.</div>
           </div>
         </div>
       </div>
@@ -1011,11 +1008,11 @@
 
         <div class="stat-card cyan" style="padding: 28px 32px; display: flex; flex-direction: column; justify-content: center;">
           <div class="stat-number cyan" style="font-size: 44px; margin-bottom: 12px;">Empate a 266 pts</div>
-          <div class="stat-label" style="font-size: 22px; margin-bottom: 12px;">Aston Martin vs McLaren: La P4 decidida por desempate</div>
+          <div class="stat-label" style="font-size: 22px; margin-bottom: 12px;">Aston Martin vs McLaren: La batalla por la P4</div>
           <div class="stat-desc" style="font-size: 20px; line-height: 1.55;">
-            Terminaron empatados a puntos; McLaren ganó el 4º puesto por número de mejores posiciones en carrera.<br><br>
-            En el contrafactual de rendimiento medio (B), Aston Martin alcanzaba <strong>302 pts vs 293 pts</strong> de McLaren.<br><br>
-            Los abandonos rompieron el desempate a favor de McLaren, costándole a Aston Martin una posición de <strong>~9 M€</strong>.
+            En carreras de Gran Premio (domingo), terminaron <strong>empatados exactamente a 266 puntos</strong> (el sprint abrió la brecha oficial a 302 vs 280 pts).<br><br>
+            En el contrafactual sin abandonos (B), Aston Martin alcanzaba <strong>302 pts vs 293 pts</strong> de McLaren.<br><br>
+            Los abandonos rompieron la igualdad a favor de McLaren, costándole a Aston Martin una posición y <strong>~9 M€</strong> de premio.
           </div>
         </div>
       </div>
@@ -1096,9 +1093,9 @@
             <span class="badge-not-confirm">NO SE CONFIRMA</span>
           </div>
           <div class="stat-label" style="font-size: 19px; margin-bottom: 4px;">Concentración por equipos y parrilla</div>
-          <div class="stat-number red" style="font-size: 30px; margin-bottom: 6px;">p = 0.9661 &nbsp;|&nbsp; 1.52x</div>
+          <div class="stat-number red" style="font-size: 30px; margin-bottom: 6px;">3.3 media &nbsp;|&nbsp; 1.52x</div>
           <div class="stat-desc" style="font-size: 17px; line-height: 1.4;">
-            Accidentes democráticos entre escuderías (Top-3 48.5%, azar). Pero <strong>sí emerge gradiente</strong>: la mitad trasera sufre un <strong>+52% de riesgo</strong>.
+            Accidentes democráticos entre escuderías (media 3.3, azar). Pero <strong>sí emerge gradiente</strong>: la mitad trasera sufre un <strong>+52% de riesgo</strong>.
           </div>
         </div>
 
