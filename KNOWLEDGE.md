@@ -429,7 +429,7 @@ EDA_F1/
 └── KNOWLEDGE.md                           # Este documento
 ```
 
-**Repo remoto (GitHub):** github.com/BorjaBG/EDA_F1 (acceso concedido a la IA vía GitHub App, 2 nov 2026; con permiso de ESCRITURA). Estado remoto actualizado al 11 nov 2026: `.github/workflows/deploy-pages.yml`, `.gitignore`, `KNOWLEDGE.md`, `README.md`, `requirements.txt`, `docs/`, `presentacion/` y `src/` (`data/README.md`, `utils/`, `notebooks/`, `main.ipynb`). Los CSVs pesados quedan excluidos del control de versiones. **Presentación desplegada vía GitHub Pages:** `https://borjabg.github.io/EDA_F1/`.
+**Repo remoto (GitHub):** github.com/BorjaBG/EDA_F1 (acceso concedido a la IA vía GitHub App, 2 nov 2026; con permiso de ESCRITURA). Estado remoto actualizado al 11 nov 2026: `.github/workflows/deploy-pages.yml`, `.gitignore`, `KNOWLEDGE.md`, `README.md`, `requirements.txt`, `docs/`, `presentacion/` y `src/` (`data/README.md`, `utils/`, `notebooks/`, `main.ipynb`). Los CSVs pesados quedan excluidos del control de versiones y están alojados para descarga directa en Google Drive (`https://drive.google.com/drive/folders/1FNLgKU6Nc4e3q0OKzD77TV9CnBllzs7g?usp=sharing`). **Presentación desplegada vía GitHub Pages:** `https://borjabg.github.io/EDA_F1/`.
 
 ## 11. Decisiones tomadas y documentadas
 

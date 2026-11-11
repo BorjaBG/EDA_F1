@@ -2,6 +2,8 @@
 
 Por tamaño y buenas prácticas de control de versiones, los archivos `.csv` están excluidos de Git mediante `.gitignore`. Este directorio contiene tanto los datos originales en `raw/` como los conjuntos limpios generados por [`00_exploracion_y_limpieza.ipynb`](../notebooks/00_exploracion_y_limpieza.ipynb).
 
+> **Descarga directa de los CSVs del proyecto:** todos los archivos CSV necesarios están disponibles en [esta carpeta de Google Drive](https://drive.google.com/drive/folders/1FNLgKU6Nc4e3q0OKzD77TV9CnBllzs7g?usp=sharing).
+
 ---
 
 ## 1. Datos originales (`src/data/raw/`)

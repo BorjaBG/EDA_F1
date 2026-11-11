@@ -79,15 +79,22 @@ EDA_F1/
 
 ## Cómo Reproducir el Análisis
 
-1. **Instalar dependencias:**
+1. **Clonar el repositorio e instalar dependencias:**
    ```bash
+   git clone https://github.com/BorjaBG/EDA_F1.git
+   cd EDA_F1
+   python -m venv .venv
+   # En Windows: .venv\Scripts\activate  |  En Linux/Mac: source .venv/bin/activate
    pip install -r requirements.txt
    ```
-2. **Preparar los datos:**
-   - Descarga los CSV originales del dataset **Formula 1 World Championship (Ergast)** en Kaggle y colócalos en `src/data/raw/` (detalle en [`src/data/README.md`](src/data/README.md)).
-   - Ejecuta [`src/notebooks/00_exploracion_y_limpieza.ipynb`](src/notebooks/00_exploracion_y_limpieza.ipynb) para generar los conjuntos limpios en `src/data/`.
+
+2. **Descargar los datos desde Google Drive:**
+   Accede a la [carpeta de CSVs en Google Drive](https://drive.google.com/drive/folders/1FNLgKU6Nc4e3q0OKzD77TV9CnBllzs7g?usp=sharing) (el catálogo completo de archivos está detallado en [`src/data/README.md`](src/data/README.md)). Tienes dos opciones según lo que quieras ejecutar:
+   - **Vía rápida (recomendada):** coloca los CSV ya limpios (`results_90_23.csv`, `results_23.csv`, `races_90_23.csv`, `races_23.csv`, `constructors_23.csv`, `drivers_23.csv`, `lap_times_23.csv`, `damage_cost_2023.csv` y `status.csv`) directamente dentro de `src/data/`.
+   - **Vía completa (desde cero):** coloca los CSV originales de Ergast en `src/data/raw/` y ejecuta primero [`00_exploracion_y_limpieza.ipynb`](src/notebooks/00_exploracion_y_limpieza.ipynb) para regenerar los archivos limpios en `src/data/`.
+
 3. **Ejecutar el análisis:**
-   - Para la visión ejecutiva completa, abre y ejecuta [`src/main.ipynb`](src/main.ipynb).
-   - Para el desarrollo estadístico paso a paso y análisis de sensibilidad, abre los cuadernos en `src/notebooks/`.
+   - **Resumen ejecutivo completo:** abre y ejecuta [`src/main.ipynb`](src/main.ipynb) (consume las funciones modulares de [`src/utils/`](src/utils/) y reproduce las métricas, tablas y gráficos finales de H1–H4).
+   - **Detalle estadístico y sensibilidades:** ejecuta individualmente los cuadernos [`01_hipotesis_1.ipynb`](src/notebooks/01_hipotesis_1.ipynb) a [`04_hipotesis_4.ipynb`](src/notebooks/04_hipotesis_4.ipynb) en `src/notebooks/`.
 
 ---
