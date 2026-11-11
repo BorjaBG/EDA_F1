@@ -1,0 +1,78 @@
+"""Paquete de utilidades compartidas para el proyecto EDA F1."""
+
+from .analysis import (
+    calcular_tasas_anuales,
+    evaluar_h1,
+    evaluar_h2,
+    evaluar_h3,
+    evaluar_h4,
+    mapear_puntos_posicion,
+)
+from .config import (
+    AX_COLOR,
+    AZUL_MEC,
+    BG_COLOR,
+    BLANCO_F1,
+    DATA_DIR,
+    DECADAS_ANALISIS,
+    DOCS_DIR,
+    GRID_COLOR,
+    GRIS_F1,
+    NEGRO_F1,
+    NON_STARTER_STATUS_IDS,
+    PALETA_F1,
+    PLATA_F1,
+    PRESENTACION_IMG_DIR,
+    PROJECT_ROOT,
+    PUNTOS_F1_2023,
+    RAW_DATA_DIR,
+    ROJO_F1,
+    SRC_DIR,
+    TIPO_CAMBIO_EUR_USD,
+)
+from .data_loader import (
+    cargar_datos_2023,
+    cargar_datos_historicos,
+    filtrar_coches_que_salieron,
+)
+from .plotting import (
+    estilizar_ejes_f1,
+    f1_dark_context,
+    umbral_criterio,
+)
+
+__all__ = [
+    "AX_COLOR",
+    "AZUL_MEC",
+    "BG_COLOR",
+    "BLANCO_F1",
+    "DATA_DIR",
+    "DECADAS_ANALISIS",
+    "DOCS_DIR",
+    "GRID_COLOR",
+    "GRIS_F1",
+    "NEGRO_F1",
+    "NON_STARTER_STATUS_IDS",
+    "PALETA_F1",
+    "PLATA_F1",
+    "PRESENTACION_IMG_DIR",
+    "PROJECT_ROOT",
+    "PUNTOS_F1_2023",
+    "RAW_DATA_DIR",
+    "ROJO_F1",
+    "SRC_DIR",
+    "TIPO_CAMBIO_EUR_USD",
+    "calcular_tasas_anuales",
+    "cargar_datos_2023",
+    "cargar_datos_historicos",
+    "estilizar_ejes_f1",
+    "evaluar_h1",
+    "evaluar_h2",
+    "evaluar_h3",
+    "evaluar_h4",
+    "f1_dark_context",
+    "filtrar_coches_que_salieron",
+    "mapear_puntos_posicion",
+    "umbral_criterio",
+]
+

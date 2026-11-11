@@ -1,0 +1,11 @@
+# Dependencias principales del proyecto EDA F1
+pandas>=2.0
+numpy>=1.26
+scipy>=1.11
+matplotlib>=3.8
+seaborn>=0.13
+
+# Entorno interactivo de notebooks
+ipykernel>=6.25
+jupyter>=1.0
+

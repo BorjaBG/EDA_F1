@@ -1,1500 +1,1570 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>¿Cuánto cuesta no ver la bandera a cuadros? | F1 EDA</title>
-  <!-- Preload high-fidelity historical F1 cutouts to guarantee instant render -->
-  <link rel="preload" as="image" href="img/williams_fw14b_cutout.png">
-  <link rel="preload" as="image" href="img/renault_r25_cutout.png">
-  <link rel="preload" as="image" href="img/mercedes_w10_right.png">
-  <link rel="preload" as="image" href="img/aston_martin_amr23_cutout.png">
-  <link rel="preload" as="image" href="img/rayo_mcqueen_sc.png">
-  <style>
-    :root {
-      --f1-red: #E10600;
-      --f1-dark: #15151E;
-      --f1-card: #1C1C26;
-      --f1-card-border: #2D2D3E;
-      --f1-cyan: #4CC9F0;
-      --f1-silver: #B0B0C0;
-      --f1-text: #FFFFFF;
-      --f1-muted: #8E92A4;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      background-color: var(--f1-dark);
-      color: var(--f1-text);
-      font-family: 'Bahnschrift', 'Titillium Web', -apple-system, BlinkMacSystemFont, sans-serif;
-      overflow: hidden;
-      height: 100vh;
-      width: 100vw;
-      user-select: none;
-    }
-
-    /* Top Bar */
-    .top-bar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 48px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 32px;
-      z-index: 100;
-      background: linear-gradient(to bottom, rgba(21, 21, 30, 0.95), transparent);
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 13px;
-      font-weight: bold;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--f1-silver);
-    }
-
-    .f1-badge {
-      background-color: var(--f1-red);
-      color: #fff;
-      font-size: 12px;
-      padding: 3px 10px;
-      border-radius: 4px;
-      font-weight: 900;
-      letter-spacing: 1.5px;
-      font-style: italic;
-    }
-
-    .lap-counter {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      display: inline-flex;
-      align-items: center;
-      background: var(--f1-card);
-      border: 1px solid var(--f1-card-border);
-      border-radius: 6px;
-      overflow: hidden;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-    }
-
-    .lap-badge {
-      background-color: var(--f1-red);
-      color: #fff;
-      font-size: 11px;
-      font-weight: 900;
-      letter-spacing: 1.5px;
-      padding: 4px 10px;
-      font-style: italic;
-    }
-
-    .lap-numbers {
-      font-size: 13px;
-      font-weight: 800;
-      color: var(--f1-text);
-      letter-spacing: 2px;
-      padding: 4px 12px;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .chequered-flag {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      max-width: 0;
-      padding: 0;
-      border-left: 0 solid var(--f1-card-border);
-      background: rgba(255, 255, 255, 0.08);
-      opacity: 0;
-      transform: scale(0.6) rotate(-10deg);
-      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
-                  transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-                  max-width 0.35s ease, 
-                  padding 0.35s ease, 
-                  border-left 0.35s ease;
-      overflow: hidden;
-      user-select: none;
-    }
-
-    .chequered-flag.visible {
-      opacity: 1;
-      max-width: 54px;
-      padding: 0 10px;
-      border-left: 1px solid var(--f1-card-border);
-      transform: scale(1) rotate(0deg);
-    }
-
-    /* Safety Car Mode in Top Bar */
-    .lap-counter.sc-active {
-      border-color: #FFD100;
-      box-shadow: 0 0 16px rgba(255, 209, 0, 0.45);
-    }
-
-    .lap-counter.sc-active .lap-badge {
-      background-color: #FFD100;
-      color: #15151E;
-      font-weight: 900;
-      animation: scBeaconFlash 0.75s infinite alternate ease-in-out;
-    }
-
-    @keyframes scBeaconFlash {
-      0% {
-        background-color: #FFD100;
-        color: #15151E;
-        box-shadow: 0 0 8px rgba(255, 209, 0, 0.5);
-      }
-      100% {
-        background-color: #FF9500;
-        color: #000000;
-        box-shadow: 0 0 18px rgba(255, 149, 0, 0.9);
-      }
-    }
-
-    /* Safety Car Convoy with Rayo McQueen leading */
-    .sc-convoy {
-      position: absolute;
-      bottom: 2px;
-      left: 0;
-      display: flex;
-      align-items: center;
-      gap: 22px;
-      transform: translate3d(-950px, 0, 0);
-      pointer-events: none;
-      will-change: transform, opacity;
-      backface-visibility: hidden;
-      transform-style: preserve-3d;
-      opacity: 0;
-    }
-
-    .convoy-car {
-      display: flex;
-      align-items: center;
-      flex-shrink: 0;
-    }
-
-    /* Margen de seguridad reglamentario entre el Safety Car y el coche perseguidor */
-    .convoy-car.safety-car-lead {
-      margin-left: 110px;
-    }
-
-    /* Sin estelas en periodo de Safety Car (velocidad de precaución) */
-    .convoy-car .bottom-f1-trail {
-      display: none;
-    }
-
-    .sc-convoy.animating {
-      animation: scConvoyPass 10.0s linear forwards;
-    }
-
-    @keyframes scConvoyPass {
-      0% {
-        transform: translate3d(-950px, 0, 0);
-        opacity: 0;
-      }
-      1.5% {
-        opacity: 1;
-      }
-      98% {
-        opacity: 1;
-      }
-      100% {
-        transform: translate3d(calc(100vw + 100px), 0, 0);
-        opacity: 0;
-      }
-    }
-
-    /* Presentation Deck */
-    .deck {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-    }
-
-    .slide {
-      position: absolute;
-      inset: 0;
-      padding: 64px 80px 48px 80px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      opacity: 0;
-      visibility: hidden;
-      transform: translateX(30px);
-      transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s;
-    }
-
-    .slide.active {
-      opacity: 1;
-      visibility: visible;
-      transform: translateX(0);
-    }
-
-    /* Typography & Components */
-    .slide-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--f1-red);
-      font-size: 13px;
-      font-weight: bold;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-
-    .slide-title {
-      font-size: 38px;
-      font-weight: bold;
-      line-height: 1.15;
-      margin-bottom: 12px;
-      letter-spacing: -0.5px;
-    }
-
-    .slide-subtitle {
-      font-size: 18px;
-      color: var(--f1-muted);
-      margin-bottom: 24px;
-      max-width: 900px;
-      line-height: 1.4;
-    }
-
-    /* F1 Car Title Animation */
-    .title-wrapper {
-      position: relative;
-      display: block;
-      width: 100%;
-      margin-bottom: 12px;
-      overflow: visible;
-    }
-
-    .cover .title-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      margin: 0 auto 16px auto;
-    }
-
-    .f1-car-track {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 5;
-      overflow: visible;
-    }
-
-    .f1-car-runner {
-      position: absolute;
-      top: 50%;
-      left: 0;
-      transform: translate3d(-320px, -50%, 0);
-      display: flex;
-      align-items: center;
-      opacity: 0;
-      pointer-events: none;
-      will-change: transform, opacity;
-      backface-visibility: hidden;
-      transform-style: preserve-3d;
-    }
-
-    .f1-car-trail {
-      width: 160px;
-      height: 3px;
-      background: linear-gradient(to right, transparent, rgba(225, 6, 0, 0.3), var(--f1-red) 70%, #FFF 100%);
-      box-shadow: 0 0 10px var(--f1-red), 0 0 3px #FFF;
-      margin-right: -20px;
-      border-radius: 2px;
-    }
-
-    .f1-car-img {
-      width: 145px;
-      height: 36px;
-      image-rendering: -webkit-optimize-contrast;
-      image-rendering: crisp-edges;
-      transform: translateZ(0);
-    }
-
-    /* Animation: Car sprint across title (Hardware-Accelerated) */
-    .slide.active .f1-car-runner {
-      animation: f1CarPass 1.15s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
-    }
-
-    @keyframes f1CarPass {
-      0% {
-        transform: translate3d(-320px, -50%, 0);
-        opacity: 0;
-      }
-      10% {
-        opacity: 1;
-      }
-      85% {
-        opacity: 1;
-      }
-      100% {
-        transform: translate3d(calc(100vw + 60px), -50%, 0);
-        opacity: 0;
-      }
-    }
-
-    /* Animation: Title reveals right after car passes */
-    .slide .slide-title,
-    .slide .cover-title {
-      opacity: 0;
-      transform: translateY(12px);
-      margin-bottom: 0;
-    }
-
-    .slide.active .slide-title,
-    .slide.active .cover-title {
-      animation: titleReveal 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.75s forwards;
-    }
-
-    @keyframes titleReveal {
-      0% {
-        opacity: 0;
-        transform: translateY(12px);
-        filter: blur(2px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0);
-        filter: blur(0);
-      }
-    }
-
-    /* Subtitle appears right after the title */
-    .slide .slide-subtitle,
-    .slide .cover-subtitle {
-      opacity: 0;
-      transform: translateY(8px);
-    }
-
-    .slide.active .slide-subtitle,
-    .slide.active .cover-subtitle {
-      animation: subtitleReveal 0.5s ease 1.05s forwards;
-    }
-
-    @keyframes subtitleReveal {
-      0% {
-        opacity: 0;
-        transform: translateY(8px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    /* Slide Content Layouts */
-    .split-layout {
-      display: grid;
-      grid-template-columns: 1.15fr 1fr;
-      gap: 32px;
-      align-items: center;
-      flex: 1;
-      min-height: 0;
-    }
-
-    .dual-charts {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      align-items: center;
-      flex: 1;
-    }
-
-    .chart-container {
-      background: var(--f1-card);
-      border: 1px solid var(--f1-card-border);
-      border-radius: 12px;
-      padding: 12px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
-      height: 100%;
-      max-height: 520px;
-      position: relative;
-      cursor: zoom-in;
-      transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
-    }
-
-    .chart-container:hover {
-      border-color: rgba(225, 6, 0, 0.55);
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(225, 6, 0, 0.2);
-      transform: translateY(-2px);
-    }
-
-    .chart-container::after {
-      content: '🔍 Ampliar gráfica';
-      position: absolute;
-      top: 14px;
-      right: 14px;
-      background: rgba(21, 21, 30, 0.88);
-      backdrop-filter: blur(6px);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      color: #E2E2E8;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      padding: 5px 12px;
-      border-radius: 6px;
-      opacity: 0;
-      transform: translateY(-4px);
-      transition: opacity 0.2s ease, transform 0.2s ease;
-      pointer-events: none;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    }
-
-    .chart-container:hover::after {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* Modal Lightbox for High-Res Chart Zoom */
-    .chart-lightbox {
-      position: fixed;
-      inset: 0;
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.25s;
-    }
-
-    .chart-lightbox.active {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .lightbox-backdrop {
-      position: absolute;
-      inset: 0;
-      background: rgba(10, 10, 16, 0.92);
-      backdrop-filter: blur(10px);
-      cursor: zoom-out;
-    }
-
-    .lightbox-content {
-      position: relative;
-      z-index: 1002;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      max-width: 94vw;
-      max-height: 92vh;
-      transform: scale(0.93);
-      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .chart-lightbox.active .lightbox-content {
-      transform: scale(1);
-    }
-
-    .lightbox-img {
-      max-width: 90vw;
-      max-height: 82vh;
-      width: auto;
-      height: auto;
-      object-fit: contain;
-      border-radius: 12px;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.12);
-      background: var(--f1-card);
-      cursor: zoom-out;
-    }
-
-    .lightbox-close {
-      position: absolute;
-      top: -16px;
-      right: -16px;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: var(--f1-card);
-      border: 1px solid var(--f1-card-border);
-      color: #FFFFFF;
-      font-size: 18px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
-      transition: background 0.2s, transform 0.2s, border-color 0.2s;
-      z-index: 1005;
-    }
-
-    .lightbox-close:hover {
-      background: var(--f1-red);
-      border-color: var(--f1-red);
-      transform: scale(1.1);
-    }
-
-    .lightbox-hint {
-      margin-top: 14px;
-      font-size: 13px;
-      color: var(--f1-muted);
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      font-weight: 600;
-      user-select: none;
-    }
-
-    .chart-container img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      border-radius: 6px;
-    }
-
-    .info-panel {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .stat-card {
-      background: var(--f1-card);
-      border: 1px solid var(--f1-card-border);
-      border-left: 5px solid var(--f1-red);
-      border-radius: 12px;
-      padding: 20px 24px;
-    }
-
-    .stat-card.cyan {
-      border-left-color: var(--f1-cyan);
-    }
-
-    .stat-number {
-      font-size: 44px;
-      font-weight: 800;
-      color: var(--f1-text);
-      line-height: 1.05;
-      margin-bottom: 8px;
-    }
-
-    .stat-number.red { color: var(--f1-red); }
-    .stat-number.cyan { color: var(--f1-cyan); }
-
-    .stat-label {
-      font-size: 21px;
-      color: #EDEDF4;
-      font-weight: 700;
-      margin-bottom: 8px;
-      line-height: 1.3;
-    }
-
-    .stat-desc {
-      font-size: 20px;
-      color: #B8B8CC;
-      line-height: 1.45;
-    }
-
-    .stat-desc strong {
-      color: #FFFFFF;
-      font-weight: 700;
-    }
-
-    /* Cover Slide */
-    .cover {
-      text-align: center;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .cover-f1-stripe {
-      width: 80px;
-      height: 6px;
-      background: var(--f1-red);
-      margin: 0 auto 24px auto;
-      border-radius: 3px;
-    }
-
-    .cover-title {
-      font-size: 56px;
-      font-weight: 900;
-      letter-spacing: -1px;
-      line-height: 1.1;
-      max-width: 950px;
-      margin-bottom: 16px;
-    }
-
-    .cover-subtitle {
-      font-size: 22px;
-      color: var(--f1-silver);
-      margin-bottom: 32px;
-      max-width: 800px;
-    }
-
-    .cover-author {
-      display: inline-flex;
-      align-items: center;
-      gap: 16px;
-      background: var(--f1-card);
-      border: 1px solid var(--f1-card-border);
-      padding: 12px 28px;
-      border-radius: 30px;
-      font-size: 15px;
-      color: var(--f1-silver);
-    }
-
-    /* Bottom Controls */
-    .bottom-bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 48px;
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      padding: 0 32px;
-      z-index: 100;
-      background: linear-gradient(to top, rgba(21, 21, 30, 0.95), transparent);
-    }
-
-    .controls {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .btn {
-      background: var(--f1-card);
-      border: 1px solid var(--f1-card-border);
-      color: var(--f1-text);
-      width: 34px;
-      height: 34px;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background 0.2s, border-color 0.2s;
-    }
-
-    .btn:hover {
-      background: var(--f1-red);
-      border-color: var(--f1-red);
-    }
-
-    /* Ambient Historical F1 Track at the bottom */
-    .bottom-f1-track {
-      position: fixed;
-      bottom: 6px;
-      left: 0;
-      right: 0;
-      height: 42px;
-      pointer-events: none;
-      z-index: 95;
-      overflow: hidden;
-    }
-
-    .bottom-f1-car {
-      position: absolute;
-      bottom: 2px;
-      left: 0;
-      transform: translate3d(-320px, 0, 0);
-      display: flex;
-      align-items: center;
-      pointer-events: none;
-      will-change: transform, opacity;
-      backface-visibility: hidden;
-      transform-style: preserve-3d;
-    }
-
-    .bottom-f1-trail {
-      width: 140px;
-      height: 2.5px;
-      background: linear-gradient(to right, transparent, rgba(225, 6, 0, 0.4), var(--f1-red));
-      margin-right: -15px;
-      border-radius: 1px;
-    }
-
-    .bottom-f1-img {
-      height: 30px;
-      width: auto;
-      max-width: 160px;
-      object-fit: contain;
-      image-rendering: -webkit-optimize-contrast;
-      image-rendering: crisp-edges;
-      transform: translateZ(0);
-    }
-
-    .bottom-f1-car.animating {
-      animation: bottomCarPass 4.0s linear forwards;
-    }
-
-    @keyframes bottomCarPass {
-      0% {
-        transform: translate3d(-320px, 0, 0);
-        opacity: 0;
-      }
-      4% {
-        opacity: 1;
-      }
-      94% {
-        opacity: 1;
-      }
-      100% {
-        transform: translate3d(calc(100vw + 60px), 0, 0);
-        opacity: 0;
-      }
-    }
-
-
-    /* Key visual tags */
-    .badge-confirm {
-      background: rgba(34, 197, 94, 0.15);
-      color: #4ade80;
-      border: 1px solid rgba(34, 197, 94, 0.3);
-      padding: 5px 14px;
-      border-radius: 6px;
-      font-size: 15px;
-      font-weight: 800;
-    }
-
-    .badge-not-confirm {
-      background: rgba(148, 163, 184, 0.15);
-      color: #cbd5e1;
-      border: 1px solid rgba(148, 163, 184, 0.35);
-      padding: 5px 14px;
-      border-radius: 6px;
-      font-size: 15px;
-      font-weight: 800;
-      letter-spacing: 0.5px;
-    }
-  </style>
-</head>
-<body>
-
-  <!-- Top bar -->
-  <div class="top-bar">
-    <div class="brand">
-      <span class="f1-badge">F1</span>
-    </div>
-    <div class="lap-counter" id="lapCounter">
-      <span class="lap-badge" id="lapBadge">LAP</span>
-      <span class="lap-numbers" id="slideNum">01 / 10</span>
-      <span class="chequered-flag" id="chequeredFlag" title="¡Bandera a Cuadros! Final de Carrera">
-        <svg width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <line x1="1.5" y1="1" x2="1.5" y2="15" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
-          <g transform="translate(3, 1)">
-            <rect width="18" height="11" rx="1.5" fill="#FFFFFF"/>
-            <rect x="0" y="0" width="4.5" height="3.67" fill="#15151E"/>
-            <rect x="9" y="0" width="4.5" height="3.67" fill="#15151E"/>
-            <rect x="4.5" y="3.67" width="4.5" height="3.67" fill="#15151E"/>
-            <rect x="13.5" y="3.67" width="4.5" height="3.67" fill="#15151E"/>
-            <rect x="0" y="7.34" width="4.5" height="3.66" fill="#15151E"/>
-            <rect x="9" y="7.34" width="4.5" height="3.66" fill="#15151E"/>
-          </g>
-        </svg>
-      </span>
-    </div>
-  </div>
-
-  <!-- Deck of Slides -->
-  <div class="deck">
-
-    <!-- SLIDE 1: PORTADA -->
-    <section class="slide cover" data-slide="1">
-      <div class="cover-f1-stripe"></div>
-      <h1 class="cover-title">¿CUÁNTO CUESTA NO VER LA BANDERA A CUADROS?</h1>
-      <p class="cover-subtitle">Impacto deportivo y financiero de los abandonos en la Fórmula 1: roturas mecánicas vs. accidentes</p>
-      <div class="cover-author">
-        <span style="color:var(--f1-red); font-weight:800;">AUTOR:</span> Borja Bueno
-      </div>
-    </section>
-
-    <!-- SLIDE 2: CONTEXTO DE NEGOCIO -->
-    <section class="slide" data-slide="2">
-      <div>
-        <div class="slide-tag">El Negocio de la F1</div>
-        <h2 class="slide-title">La F1 se corre en el asfalto, pero se gana en cheques</h2>
-        <p class="slide-subtitle">La Fórmula 1 no solo reparte trofeos: reparte más de 1.100 M€ en premios por estricto orden de puntos.</p>
-      </div>
-      
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px;">
-        <div class="stat-card" style="padding: 28px 32px; display: flex; flex-direction: column; justify-content: center;">
-          <div class="stat-number red" style="font-size: 44px; margin-bottom: 12px;">~1.100 M€</div>
-          <div class="stat-label" style="font-size: 22px; margin-bottom: 12px;">Bolsa anual de premios del Mundial de Constructores</div>
-          <div class="stat-desc" style="font-size: 20px; line-height: 1.55;">
-            Una sola posición en el mundial a final de temporada equivale a una diferencia de entre <strong>7 M€ y 11 M€</strong>.<br><br>
-            Cada punto perdido por abandono puede significar caer un puesto en la clasificación de constructores.
-          </div>
-        </div>
-        <div class="stat-card cyan" style="padding: 28px 32px; display: flex; flex-direction: column; justify-content: center;">
-          <div class="stat-number cyan" style="font-size: 44px; margin-bottom: 12px;">Cost Cap: ~125 M€</div>
-          <div class="stat-label" style="font-size: 22px; margin-bottom: 12px;">Límite presupuestario estricto por reglamento</div>
-          <div class="stat-desc" style="font-size: 20px; line-height: 1.55;">
-            Cada euro gastado en reparar piezas rotas por accidente es dinero que se resta directamente del desarrollo del coche en fábrica.<br><br>
-            En la F1 moderna, no terminar te castiga dos veces: en los puntos y en el presupuesto de evolución.
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 3: H1 - FIABILIDAD MECÁNICA -->
-    <section class="slide" data-slide="3">
-      <div>
-        <div class="slide-tag">Hipótesis 1 (1990 – 2023) &nbsp;<span class="badge-confirm">CONFIRMADA</span></div>
-        <h2 class="slide-title">La revolución de la fiabilidad: caída del 77%</h2>
-        <p class="slide-subtitle">La tasa de abandono mecánico se ha desplomado de forma continua en los últimos 34 años.</p>
-      </div>
-
-      <div class="split-layout">
-        <div class="chart-container">
-          <img src="img/h1_tasa_mecanica.png" alt="H1 Tasa Mecanica">
-        </div>
-        <div class="info-panel">
-          <div class="stat-card">
-            <div class="stat-number red">30.2% → 7.0%</div>
-            <div class="stat-label">Reducción absoluta de 23.3 puntos</div>
-            <div class="stat-desc">En los años 90, <strong>1 de cada 3 monoplazas</strong> rompía motor o transmisión en carrera. En la era actual, apenas <strong>1 de cada 14</strong>.</div>
-          </div>
-          <div class="stat-card cyan">
-            <div class="stat-number cyan">-77.0%</div>
-            <div class="stat-label">Criterio a priori superado con holgura</div>
-            <div class="stat-desc">El criterio exigía una reducción de al menos 2/3 (66.7%). La ingeniería moderna y las penalizaciones por motor han blindado los coches.</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 4: H2 - ACCIDENTES VS MECÁNICOS -->
-    <section class="slide" data-slide="4">
-      <div>
-        <div class="slide-tag">Hipótesis 2 (1990 – 2023) &nbsp;<span class="badge-not-confirm">NO SE CONFIRMA</span></div>
-        <h2 class="slide-title">¿Dominan los accidentes? No: empate técnico</h2>
-        <p class="slide-subtitle">Los accidentes no han aumentado: hoy pesan lo mismo porque los fallos mecánicos han desaparecido.</p>
-      </div>
-
-      <div class="split-layout">
-        <div class="chart-container">
-          <img src="img/h2_cruce_tendencias.png" alt="H2 Cruce Tendencias">
-        </div>
-        <div class="info-panel">
-          <div class="stat-card">
-            <div class="stat-number red">7.6% vs 7.0%</div>
-            <div class="stat-label">Tasas en 2020–2023 (Accidentes vs Averías)</div>
-            <div class="stat-desc">La tasa de accidentes también cayó (de <strong>17.8%</strong> en los 90 a <strong>7.6%</strong>), pero lleva una década estabilizada en ~7.5%. La mecánica se desplomó hasta encontrarse con ella.</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number" style="font-size:34px; color:var(--f1-silver);">2 de 4 temporadas > 50%</div>
-            <div class="stat-label">Por qué la hipótesis no se confirma</div>
-            <div class="stat-desc">En 2021 y 2023 hubo más accidentes que fallos, pero en 2020 y 2022 volvieron a ganar los fallos. Hay paridad estadística, no dominancia estable.</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 5: H3 EQUIPOS -->
-    <section class="slide" data-slide="5">
-      <div>
-        <div class="slide-tag">Hipótesis 3 (Temporada 2023 - Parte A) &nbsp;<span class="badge-not-confirm">NO SE CONFIRMA</span></div>
-        <h2 class="slide-title">Mito derribado: no existen los "equipos gafes"</h2>
-        <p class="slide-subtitle">Los accidentes en 2023 se repartieron entre todas las escuderías de forma indistinguible del azar.</p>
-      </div>
-
-      <div class="split-layout">
-        <div class="chart-container">
-          <img src="img/h3_equipos.png" alt="H3 Equipos">
-        </div>
-        <div class="info-panel">
-          <div class="stat-card">
-            <div class="stat-number red">48.5%</div>
-            <div class="stat-label">Top-3 equipos (Alpine 6, Williams 6, Haas 4)</div>
-            <div class="stat-desc">No alcanzan el umbral del 50%. Ningún equipo acapara los choques: incluso escuderías punteras sufrieron accidentes (Ferrari 3, Mercedes 2, Red Bull 2).</div>
-          </div>
-          <div class="stat-card cyan">
-            <div class="stat-number cyan">3.3 por equipo</div>
-            <div class="stat-label">Media de colisiones en la temporada</div>
-            <div class="stat-desc">Los 33 accidentes se repartieron de forma muy equilibrada entre las 10 escuderías (rango de 2 a 6). Estadísticamente, no hay concentración anómala.</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 6: H3 PARRILLA -->
-    <section class="slide" data-slide="6">
-      <div>
-        <div class="slide-tag">Hipótesis 3 (Temporada 2023 - Parte B) &nbsp;<span class="badge-confirm">GRADIENTE CONFIRMADO</span></div>
-        <h2 class="slide-title">El verdadero culpable: el embudo de la mitad trasera</h2>
-        <p class="slide-subtitle">El peligro no es el escudo del coche, es dónde sales: salir atrás multiplica el riesgo por 1.52x.</p>
-      </div>
-
-      <div class="split-layout">
-        <div class="chart-container">
-          <img src="img/h3_parrilla.png" alt="H3 Parrilla">
-        </div>
-        <div class="info-panel">
-          <div class="stat-card">
-            <div class="stat-number red">9.0% vs 5.9%</div>
-            <div class="stat-label">Tasa de accidentes por cada salida</div>
-            <div class="stat-desc">Los monoplazas que salieron entre el puesto 11 y el 20 tuvieron una tasa de accidente notablemente superior a los del Top-10.</div>
-          </div>
-          <div class="stat-card cyan">
-            <div class="stat-number cyan">+52% de riesgo</div>
-            <div class="stat-label">Gradiente 1.52x (Supera el umbral de 1.5x)</div>
-            <div class="stat-desc">Tráfico denso, frenadas comprometidas en la primera curva y aire sucio convierten al pelotón trasero en una zona de alto riesgo.</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 7: H4 PUNTOS PERDIDOS -->
-    <section class="slide" data-slide="7">
-      <div>
-        <div class="slide-tag">Hipótesis 4 (Temporada 2023) &nbsp;<span class="badge-confirm">CONFIRMADA</span></div>
-        <h2 class="slide-title">Un choque cuesta más del doble de puntos que una avería</h2>
-        <p class="slide-subtitle">Análisis contrafactual vuelta a vuelta: reconstruyendo qué posición ocupaba el piloto al abandonar.</p>
-      </div>
-
-      <div class="split-layout">
-        <div class="chart-container">
-          <img src="img/h4_puntos_perdidos.png" alt="H4 Puntos Perdidos">
-        </div>
-        <div class="info-panel">
-          <div class="stat-card">
-            <div class="stat-number red">65 pts vs 28 pts</div>
-            <div class="stat-label">Puntos perdidos estimados en 2023</div>
-            <div class="stat-desc">Los accidentes quemaron <strong>37 puntos más</strong> que los fallos mecánicos para los equipos de la parrilla.</div>
-          </div>
-          <div class="stat-card cyan">
-            <div class="stat-number cyan">2.32x (+132%)</div>
-            <div class="stat-label">Ratio contrafactual (Umbral ≥ 1.5x cumplido)</div>
-            <div class="stat-desc">Los accidentes dolieron más del doble porque ocurrieron con pilotos en zona de puntos; las averías mecánicas tendieron a pillarlos rodando más atrás (<strong>1.97 vs 1.12</strong> pts esperados por DNF).</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-        <!-- SLIDE 8: IMPACTO EN EL CAMPEONATO -->
-    <section class="slide" data-slide="8">
-      <div>
-        <div class="slide-tag">El Coste Deportivo en el Campeonato</div>
-        <h2 class="slide-title">¿Quién perdió millones por no ver la bandera a cuadros?</h2>
-        <p class="slide-subtitle">Los puntos perdidos no son abstractos: en 2023 decidieron el subcampeonato mundial y empates millonarios.</p>
-      </div>
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px;">
-        <div class="stat-card" style="padding: 28px 32px; display: flex; flex-direction: column; justify-content: center;">
-          <div class="stat-number red" style="font-size: 44px; margin-bottom: 12px;">~10 M€ en Juego</div>
-          <div class="stat-label" style="font-size: 22px; margin-bottom: 12px;">Ferrari vs Mercedes: El motor de Leclerc (P2 vs P3)</div>
-          <div class="stat-desc" style="font-size: 20px; line-height: 1.55;">
-            Mercedes terminó 2º (<strong>374 pts</strong>) y Ferrari 3º (<strong>363 pts</strong>): solo <strong>11 puntos</strong> de margen.<br><br>
-            En Baréin, el motor de Leclerc se rompió rodando en P3 (+15 pts). Sin esa avería mecánica, Ferrari era <strong>Subcampeón del Mundo</strong>.<br><br>
-            En el contrafactual de rendimiento medio (B), Ferrari superaba a Mercedes (<strong>423.5 vs 423.2 pts</strong>).
-          </div>
-        </div>
-
-        <div class="stat-card cyan" style="padding: 28px 32px; display: flex; flex-direction: column; justify-content: center;">
-          <div class="stat-number cyan" style="font-size: 44px; margin-bottom: 12px;">Empate a 266 pts</div>
-          <div class="stat-label" style="font-size: 22px; margin-bottom: 12px;">Aston Martin vs McLaren: La batalla por la P4</div>
-          <div class="stat-desc" style="font-size: 20px; line-height: 1.55;">
-            En carreras de Gran Premio (domingo), terminaron <strong>empatados exactamente a 266 puntos</strong> (el sprint abrió la brecha oficial a 302 vs 280 pts).<br><br>
-            En el contrafactual sin abandonos (B), Aston Martin alcanzaba <strong>302 pts vs 293 pts</strong> de McLaren.<br><br>
-            Los abandonos rompieron la igualdad a favor de McLaren, costándole a Aston Martin una posición y <strong>~9 M€</strong> de premio.
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 9: LA FACTURA DEL TALLER -->
-    <section class="slide" data-slide="9">
-      <div>
-        <div class="slide-tag">La Factura del Taller (Temporada 2023)</div>
-        <h2 class="slide-title">El verdadero coste: Daños vs Tope Presupuestario</h2>
-        <p class="slide-subtitle">En la era del límite presupuestario (Cost Cap), el accidente te castiga dos veces.</p>
-      </div>
-
-      <div class="split-layout">
-        <div class="chart-container">
-          <img src="img/top5_danos_pilotos.png" alt="Top 5 Daños por Piloto en 2023">
-        </div>
-        <div class="info-panel" style="gap: 16px;">
-          <div class="stat-card" style="border-left-color: #FFFFFF; padding: 20px 24px;">
-            <div class="stat-number" style="font-size: 26px; margin-bottom: 10px;">El Precio de Romperse</div>
-            <div class="stat-desc" style="font-size: 20px; color: var(--f1-silver); line-height: 1.45;">
-              Reponer componentes destrozados por un choque resta presupuesto de desarrollo en fábrica:
-              <ul style="margin-top: 8px; margin-left: 20px; line-height: 1.55; font-size: 19px;">
-                <li><strong>Alerón delantero:</strong> ~140.000 €</li>
-                <li><strong>Fondo plano (suelo):</strong> ~275.000 €</li>
-                <li><strong>Caja de cambios / Suspensión:</strong> ~150.000 € – 350.000 €</li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- GIF de accidente F1 con altura exacta para coincidir con la base de la gráfica sin desbordar abajo -->
-          <div class="gif-container" style="height: 260px; border-radius: 12px; overflow: hidden; border: 1px solid var(--f1-card-border); background: #000; box-shadow: 0 8px 24px rgba(0,0,0,0.4);">
-            <img src="img/accidente_sargeant.gif" alt="Accidente Logan Sargeant Zandvoort 2023" style="width: 100%; height: 100%; object-fit: cover; display: block;">
-          </div>
-        </div>
-      </div>
-    </section>
-
-        <!-- SLIDE 10: CONCLUSIONES - CONTRASTE DE HIPÓTESIS -->
-    <section class="slide" data-slide="10">
-      <div>
-        <div class="slide-tag">Conclusiones del Análisis</div>
-        <h2 class="slide-title">Veredicto Final: Las 4 Hipótesis del EDA</h2>
-        <p class="slide-subtitle">Dos escalas de análisis: la evolución histórica de la fiabilidad (1990–2023) y el impacto financiero en 2023.</p>
-      </div>
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
-        <!-- H1 -->
-        <div class="stat-card" style="border-left-color: #22c55e; padding: 14px 20px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <span style="font-size: 13px; font-weight: 800; color: var(--f1-silver); letter-spacing: 1px;">H1 • HISTÓRICO (1990–2023)</span>
-            <span class="badge-confirm">CONFIRMADA</span>
-          </div>
-          <div class="stat-label" style="font-size: 19px; margin-bottom: 4px;">Caída sostenida del fallo mecánico</div>
-          <div class="stat-number cyan" style="font-size: 30px; margin-bottom: 6px;">30.2% → 7.0% (-77%)</div>
-          <div class="stat-desc" style="font-size: 17px; line-height: 1.4;">
-            La tasa media de averías cayó más de dos tercios. La ingeniería moderna y las penalizaciones han blindado la fiabilidad de los motores.
-          </div>
-        </div>
-
-        <!-- H2 -->
-        <div class="stat-card" style="border-left-color: #94a3b8; padding: 14px 20px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <span style="font-size: 13px; font-weight: 800; color: var(--f1-silver); letter-spacing: 1px;">H2 • HISTÓRICO (1990–2023)</span>
-            <span class="badge-not-confirm">NO SE CONFIRMA</span>
-          </div>
-          <div class="stat-label" style="font-size: 19px; margin-bottom: 4px;">¿Dominio de los accidentes?</div>
-          <div class="stat-number" style="font-size: 30px; color: #cbd5e1; margin-bottom: 6px;">7.6% vs 7.0%</div>
-          <div class="stat-desc" style="font-size: 17px; line-height: 1.4;">
-            Existe <strong>paridad técnica</strong>, no dominio estructural: solo 2 de las últimas 4 temporadas superaron el 50% de cuota. Hay empate estadístico.
-          </div>
-        </div>
-
-        <!-- H3 -->
-        <div class="stat-card" style="border-left-color: #94a3b8; padding: 14px 20px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <span style="font-size: 13px; font-weight: 800; color: var(--f1-silver); letter-spacing: 1px;">H3 • TEMPORADA 2023</span>
-            <span class="badge-not-confirm">NO SE CONFIRMA</span>
-          </div>
-          <div class="stat-label" style="font-size: 19px; margin-bottom: 4px;">Concentración por equipos y parrilla</div>
-          <div class="stat-number red" style="font-size: 30px; margin-bottom: 6px;">3.3 media &nbsp;|&nbsp; 1.52x</div>
-          <div class="stat-desc" style="font-size: 17px; line-height: 1.4;">
-            Accidentes democráticos entre escuderías (media 3.3, azar). Pero <strong>sí emerge gradiente</strong>: la mitad trasera sufre un <strong>+52% de riesgo</strong>.
-          </div>
-        </div>
-
-        <!-- H4 -->
-        <div class="stat-card" style="border-left-color: #22c55e; padding: 14px 20px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <span style="font-size: 13px; font-weight: 800; color: var(--f1-silver); letter-spacing: 1px;">H4 • TEMPORADA 2023</span>
-            <span class="badge-confirm">CONFIRMADA</span>
-          </div>
-          <div class="stat-label" style="font-size: 19px; margin-bottom: 4px;">Coste deportivo: Choque vs Avería</div>
-          <div class="stat-number red" style="font-size: 30px; margin-bottom: 6px;">65 vs 28 pts (2.32x)</div>
-          <div class="stat-desc" style="font-size: 17px; line-height: 1.4;">
-            Los accidentes costaron más del doble de puntos contrafactuales que las averías mecánicas al ocurrir con pilotos en zona de puntos.
-          </div>
-        </div>
-      </div>
-
-      <!-- Próximas Líneas de Investigación / Preguntas Abiertas -->
-      <div style="margin-top: 16px; background: rgba(21, 21, 30, 0.75); border: 1px solid var(--f1-card-border); border-left: 3px solid #FFD100; border-radius: 8px; padding: 12px 20px;">
-        <div style="font-size: 12px; font-weight: 800; color: #FFD100; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px;">
-          Líneas de Futuro / Próximos Pasos
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-          <div style="display: flex; gap: 10px; align-items: flex-start;">
-            <span style="background: rgba(255, 209, 0, 0.15); color: #FFD100; font-weight: 900; font-size: 12px; padding: 2px 7px; border-radius: 4px; flex-shrink: 0; margin-top: 2px;">1</span>
-            <div>
-              <div style="font-size: 17px; font-weight: 700; color: #FFF; margin-bottom: 2px;">¿Suelo estructural en los fallos mecánicos?</div>
-              <div style="font-size: 15px; color: var(--f1-silver); line-height: 1.35;">
-                Analizar si se ha alcanzado un suelo natural en los abandonos por avería (~7%), donde reducir más fallos exigiría monoplazas demasiado pesados o costes prohibitivos.
-              </div>
-            </div>
-          </div>
-          <div style="display: flex; gap: 10px; align-items: flex-start;">
-            <span style="background: rgba(255, 209, 0, 0.15); color: #FFD100; font-weight: 900; font-size: 12px; padding: 2px 7px; border-radius: 4px; flex-shrink: 0; margin-top: 2px;">2</span>
-            <div>
-              <div style="font-size: 17px; font-weight: 700; color: #FFF; margin-bottom: 2px;">Influencia y efecto del piloto en el accidente</div>
-              <div style="font-size: 15px; color: var(--f1-silver); line-height: 1.35;">
-                Aislar estadísticamente cómo influye el factor humano de cada piloto en el riesgo de choque (agresividad en salida, gestión de tráfico y experiencia).
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-  </div>
-
-  <!-- Modal Lightbox for Fullscreen Chart Zoom -->
-  <div class="chart-lightbox" id="chartLightbox" aria-hidden="true">
-    <div class="lightbox-backdrop" id="lightboxBackdrop"></div>
-    <div class="lightbox-content">
-      <button class="lightbox-close" id="lightboxClose" title="Cerrar (Esc)">✕</button>
-      <img src="" id="lightboxImg" alt="Gráfica Ampliada" class="lightbox-img">
-      <div class="lightbox-hint">Pulsa en cualquier lugar o presiona Esc para cerrar</div>
-    </div>
-  </div>
-
-  <!-- Ambient Historical F1 Track at the bottom -->
-  <div class="bottom-f1-track" id="bottomF1Track">
-    <!-- Coche individual normal -->
-    <div class="bottom-f1-car" id="bottomF1Car">
-      <div class="bottom-f1-trail" id="bottomF1Trail"></div>
-      <img src="img/williams_fw14b_cutout.png" id="bottomF1Img" alt="Historical F1" class="bottom-f1-img">
-    </div>
-
-    <!-- Convoy de Safety Car liderado por Rayo McQueen (Sin estelas) -->
-    <div class="sc-convoy" id="scConvoy">
-      <!-- 4. Aston Martin AMR23 (Cola del pelotón) -->
-      <div class="convoy-car">
-        <img src="img/aston_martin_amr23_cutout.png" class="bottom-f1-img" alt="Aston Martin AMR23">
-      </div>
-      <!-- 3. Mercedes-AMG W10 -->
-      <div class="convoy-car">
-        <img src="img/mercedes_w10_right.png" class="bottom-f1-img" alt="Mercedes W10">
-      </div>
-      <!-- 2. Renault R25 -->
-      <div class="convoy-car">
-        <img src="img/renault_r25_cutout.png" class="bottom-f1-img" alt="Renault R25">
-      </div>
-      <!-- 1. Williams FW14B (Líder del pelotón de monoplazas F1) -->
-      <div class="convoy-car">
-        <img src="img/williams_fw14b_cutout.png" class="bottom-f1-img" alt="Williams FW14B">
-      </div>
-      <!-- SAFETY CAR: Rayo McQueen #95 (En cabeza de carrera con margen de seguridad) -->
-      <div class="convoy-car safety-car-lead">
-        <img src="img/rayo_mcqueen_sc.png" class="bottom-f1-img" style="height: 32px;" alt="Safety Car Rayo McQueen">
-      </div>
-    </div>
-  </div>
-
-  <!-- Bottom Bar with Controls -->
-  <div class="bottom-bar">
-    <div class="controls">
-      <button class="btn" id="prevBtn" title="Anterior">←</button>
-      <button class="btn" id="nextBtn" title="Siguiente">→</button>
-      <button class="btn" id="fsBtn" title="Pantalla Completa">⛶</button>
-    </div>
-  </div>
-
-  <script>
-    const slides = document.querySelectorAll('.slide');
-    const totalSlides = slides.length;
-    let currentSlide = 0;
-
-    const slideNumEl = document.getElementById('slideNum');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const fsBtn = document.getElementById('fsBtn');
-
-    // Inyectar pista de aceleración y monoplaza F1 para cada titular
-    document.querySelectorAll('.slide-title, .cover-title').forEach(title => {
-      const wrapper = document.createElement('div');
-      wrapper.className = 'title-wrapper';
-
-      const track = document.createElement('div');
-      track.className = 'f1-car-track';
-      track.innerHTML = `
-        <div class="f1-car-runner">
-          <div class="f1-car-trail"></div>
-          <img src="img/f1_car.svg" class="f1-car-img" alt="F1">
-        </div>
-      `;
-
-      title.parentNode.insertBefore(wrapper, title);
-      wrapper.appendChild(track);
-      wrapper.appendChild(title);
-    });
-
-    function updateSlide(index) {
-      if (index < 0) index = 0;
-      if (index >= totalSlides) index = totalSlides - 1;
-
-      slides.forEach((s, i) => {
-        const isTarget = (i === index);
-        if (s.classList.contains('active') && !isTarget) {
-          s.classList.remove('active');
-        } else if (isTarget) {
-          s.classList.remove('active');
-          void s.offsetWidth; // Forzar reflow para reiniciar la animación CSS desde t=0
-          s.classList.add('active');
-        }
-      });
-
-      currentSlide = index;
-      const formattedNum = String(index + 1).padStart(2, '0');
-      const formattedTotal = String(totalSlides).padStart(2, '0');
-      slideNumEl.textContent = `${formattedNum} / ${formattedTotal}`;
-
-      // Bandera a cuadros cuando se llega a la última vuelta (última diapositiva)
-      const flagEl = document.getElementById('chequeredFlag');
-      if (flagEl) {
-        if (index === totalSlides - 1) {
-          flagEl.classList.add('visible');
-        } else {
-          flagEl.classList.remove('visible');
-        }
-      }
-    }
-
-    function nextSlide() {
-      if (currentSlide < totalSlides - 1) {
-        updateSlide(currentSlide + 1);
-      }
-    }
-
-    function prevSlide() {
-      if (currentSlide > 0) {
-        updateSlide(currentSlide - 1);
-      }
-    }
-
-    // Keyboard navigation
-    // === Modal Lightbox para Ampliar Gráficas ===
-    const chartLightbox = document.getElementById('chartLightbox');
-    const lightboxImg = document.getElementById('lightboxImg');
-    const lightboxClose = document.getElementById('lightboxClose');
-    const lightboxBackdrop = document.getElementById('lightboxBackdrop');
-
-    function openLightbox(imgSrc, imgAlt) {
-      if (!chartLightbox || !lightboxImg) return;
-      lightboxImg.src = imgSrc;
-      lightboxImg.alt = imgAlt || 'Gráfica ampliada';
-      chartLightbox.classList.add('active');
-      chartLightbox.setAttribute('aria-hidden', 'false');
-    }
-
-    function closeLightbox() {
-      if (!chartLightbox) return;
-      chartLightbox.classList.remove('active');
-      chartLightbox.setAttribute('aria-hidden', 'true');
-      setTimeout(() => {
-        if (!chartLightbox.classList.contains('active')) {
-          lightboxImg.src = '';
-        }
-      }, 250);
-    }
-
-    document.querySelectorAll('.chart-container').forEach(container => {
-      container.addEventListener('click', () => {
-        const img = container.querySelector('img');
-        if (img) {
-          openLightbox(img.src, img.alt);
-        }
-      });
-    });
-
-    if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
-    if (lightboxBackdrop) lightboxBackdrop.addEventListener('click', closeLightbox);
-    if (lightboxImg) lightboxImg.addEventListener('click', closeLightbox);
-
-    window.addEventListener('keydown', (e) => {
-      // Si el visor de gráfica está abierto, Esc lo cierra
-      if (chartLightbox && chartLightbox.classList.contains('active')) {
-        if (e.key === 'Escape') {
-          closeLightbox();
-          return;
-        }
-      }
-
-      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
-        nextSlide();
-      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
-        prevSlide();
-      } else if (e.key === 'Home') {
-        updateSlide(0);
-      } else if (e.key === 'End') {
-        updateSlide(totalSlides - 1);
-      } else if (e.key.toLowerCase() === 'f') {
-        toggleFullScreen();
-      }
-    });
-
-    prevBtn.addEventListener('click', prevSlide);
-    nextBtn.addEventListener('click', nextSlide);
-
-    function toggleFullScreen() {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(err => {});
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        }
-      }
-    }
-
-    fsBtn.addEventListener('click', toggleFullScreen);
-
-    // Initial setup
-    updateSlide(0);
-
-    // === Monoplazas Ambientales Históricos (Paso periódico por abajo) ===
-    const historicalEras = [
-      {
-        svg: 'img/williams_fw14b_cutout.png',
-        tag: '1990s - Williams FW14B (Nigel Mansell 1992)',
-        color: '#0055DD'
-      },
-      {
-        svg: 'img/renault_r25_cutout.png',
-        tag: '2000s - Renault R25 (Fernando Alonso 2005)',
-        color: '#0082CA'
-      },
-      {
-        svg: 'img/mercedes_w10_right.png',
-        tag: '2010s - Mercedes-AMG W10 (Lewis Hamilton 2019)',
-        color: '#00D2BE'
-      },
-      {
-        svg: 'img/aston_martin_amr23_cutout.png',
-        tag: '2020s - Aston Martin AMR23 (Fernando Alonso 2023)',
-        color: '#00594F'
-      }
-    ];
-
-    // Pre-cargar y decodificar en memoria todos los coches para que NUNCA falte la imagen
-    const preloadedCarBitmaps = {};
-    historicalEras.forEach(era => {
-      const img = new Image();
-      img.src = era.svg;
-      if (img.decode) {
-        img.decode().then(() => {
-          preloadedCarBitmaps[era.svg] = true;
-        }).catch(() => {});
-      }
-    });
-
-    let currentEraIdx = 0;
-    const bottomCarEl = document.getElementById('bottomF1Car');
-    const bottomImgEl = document.getElementById('bottomF1Img');
-    const bottomTrailEl = document.getElementById('bottomF1Trail');
-
-    async function launchHistoricalCar() {
-      if (!bottomCarEl || !bottomImgEl) return;
-      const era = historicalEras[currentEraIdx];
-      
-      // Ocultar estela temporalmente hasta que el coche esté verificado en pantalla
-      bottomTrailEl.style.opacity = '0';
-      bottomImgEl.src = era.svg;
-      bottomTrailEl.style.background = `linear-gradient(to right, transparent, ${era.color}66, ${era.color})`;
-
-      // Esperar activamente a que la imagen esté 100% decodificada en memoria
-      try {
-        if (bottomImgEl.decode) {
-          await bottomImgEl.decode();
-        }
-      } catch (e) {
-        // En caso de que ya esté en caché
-      }
-
-      // Verificación de seguridad: si la imagen aún no tiene ancho real, esperar al evento load
-      if (bottomImgEl.naturalWidth === 0) {
-        bottomImgEl.onload = () => {
-          triggerCarPass();
-        };
-        return;
-      }
-
-      triggerCarPass();
-    }
-
-    function triggerCarPass() {
-      // Activar estela ahora que el coche está 100% visible y renderizado
-      bottomTrailEl.style.opacity = '1';
-
-      bottomCarEl.classList.remove('animating');
-      void bottomCarEl.offsetWidth; // Forzar reflow para reiniciar animación
-      bottomCarEl.classList.add('animating');
-
-      currentEraIdx = (currentEraIdx + 1) % historicalEras.length;
-    }
-
-    // === Sistema de Safety Car con Rayo McQueen ===
-    const lapCounterEl = document.getElementById('lapCounter');
-    const lapBadgeEl = document.getElementById('lapBadge');
-    const scConvoyEl = document.getElementById('scConvoy');
-    let isSafetyCarActive = false;
-
-    // Precarga de Rayo McQueen
-    const mcqueenPreload = new Image();
-    mcqueenPreload.src = 'img/rayo_mcqueen_sc.png';
-
-    function launchSafetyCar() {
-      if (isSafetyCarActive || !scConvoyEl || !lapCounterEl || !lapBadgeEl) return;
-      isSafetyCarActive = true;
-
-      // Activar modo SC en el contador superior
-      lapCounterEl.classList.add('sc-active');
-      lapBadgeEl.textContent = 'SC';
-
-      // Lanzar animación del convoy
-      scConvoyEl.classList.remove('animating');
-      void scConvoyEl.offsetWidth; // Forzar reflow
-      scConvoyEl.classList.add('animating');
-
-      // Al terminar de cruzar la pantalla, restaurar el estado normal
-      scConvoyEl.addEventListener('animationend', () => {
-        scConvoyEl.classList.remove('animating');
-        lapCounterEl.classList.remove('sc-active');
-        lapBadgeEl.textContent = 'LAP';
-        isSafetyCarActive = false;
-      }, { once: true });
-    }
-
-    // Tecla 'S' para forzar la salida del Safety Car manualmente en directo
-    document.addEventListener('keydown', (e) => {
-      if (e.key.toLowerCase() === 's' && !e.ctrlKey && !e.metaKey && !e.altKey) {
-        launchSafetyCar();
-      }
-    });
-
-    // Desfile periódico: 30% de probabilidad de Safety Car, o monoplaza normal
-    let paradeInterval = null;
-    function startParadeTimer() {
-      if (paradeInterval) clearInterval(paradeInterval);
-      paradeInterval = setInterval(() => {
-        if (document.visibilityState === 'visible' && !isSafetyCarActive) {
-          // 10% probabilidad de Safety Car, 90% coche normal
-          const isSC = Math.random() < 0.10;
-          if (isSC) {
-            launchSafetyCar();
-          } else {
-            launchHistoricalCar();
-          }
-        }
-      }, 20000);
-    }
-
-    setTimeout(() => {
-      launchHistoricalCar();
-      startParadeTimer();
-    }, 2500);
-
-    // Si el usuario cambia de pestaña y vuelve, sincronizar el intervalo
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') {
-        startParadeTimer();
-      }
-    });
-  </script>
-</body>
-</html>
-
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¿Cuánto cuesta no ver la bandera a cuadros? | F1 EDA</title>
+  <!-- Preload high-fidelity historical F1 cutouts to guarantee instant render -->
+  <link rel="preload" as="image" href="img/williams_fw14b_cutout.png">
+  <link rel="preload" as="image" href="img/renault_r25_cutout.png">
+  <link rel="preload" as="image" href="img/mercedes_w10_right.png">
+  <link rel="preload" as="image" href="img/aston_martin_amr23_cutout.png">
+  <link rel="preload" as="image" href="img/rayo_mcqueen_sc.png">
+  <style>
+    :root {
+      --f1-red: #E10600;
+      --f1-dark: #15151E;
+      --f1-card: #1C1C26;
+      --f1-card-border: #2D2D3E;
+      --f1-cyan: #4CC9F0;
+      --f1-silver: #B0B0C0;
+      --f1-text: #FFFFFF;
+      --f1-muted: #8E92A4;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--f1-dark);
+      color: var(--f1-text);
+      font-family: 'Bahnschrift', 'Titillium Web', -apple-system, BlinkMacSystemFont, sans-serif;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      user-select: none;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 32px;
+      z-index: 100;
+      background: linear-gradient(to bottom, rgba(21, 21, 30, 0.95), transparent);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--f1-silver);
+    }
+
+    .f1-badge {
+      background-color: var(--f1-red);
+      color: #fff;
+      font-size: 12px;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      font-style: italic;
+    }
+
+    .lap-counter {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      display: inline-flex;
+      align-items: center;
+      background: var(--f1-card);
+      border: 1px solid var(--f1-card-border);
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    .lap-badge {
+      background-color: var(--f1-red);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      padding: 4px 10px;
+      font-style: italic;
+    }
+
+    .lap-numbers {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--f1-text);
+      letter-spacing: 2px;
+      padding: 4px 12px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .chequered-flag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      max-width: 0;
+      padding: 0;
+      border-left: 0 solid var(--f1-card-border);
+      background: rgba(255, 255, 255, 0.08);
+      opacity: 0;
+      transform: scale(0.6) rotate(-10deg);
+      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
+                  transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                  max-width 0.35s ease, 
+                  padding 0.35s ease, 
+                  border-left 0.35s ease;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .chequered-flag.visible {
+      opacity: 1;
+      max-width: 54px;
+      padding: 0 10px;
+      border-left: 1px solid var(--f1-card-border);
+      transform: scale(1) rotate(0deg);
+    }
+
+    /* Safety Car Mode in Top Bar */
+    .lap-counter.sc-active {
+      border-color: #FFD100;
+      box-shadow: 0 0 16px rgba(255, 209, 0, 0.45);
+    }
+
+    .lap-counter.sc-active .lap-badge {
+      background-color: #FFD100;
+      color: #15151E;
+      font-weight: 900;
+      animation: scBeaconFlash 0.75s infinite alternate ease-in-out;
+    }
+
+    @keyframes scBeaconFlash {
+      0% {
+        background-color: #FFD100;
+        color: #15151E;
+        box-shadow: 0 0 8px rgba(255, 209, 0, 0.5);
+      }
+      100% {
+        background-color: #FF9500;
+        color: #000000;
+        box-shadow: 0 0 18px rgba(255, 149, 0, 0.9);
+      }
+    }
+
+    /* F1 Live Clock (Top Right) */
+    .f1-clock {
+      display: inline-flex;
+      align-items: center;
+      background: var(--f1-card);
+      border: 1px solid var(--f1-card-border);
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      user-select: none;
+    }
+
+    .clock-badge {
+      background-color: rgba(255, 255, 255, 0.08);
+      color: var(--f1-silver);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      padding: 4px 10px;
+      font-style: italic;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border-right: 1px solid var(--f1-card-border);
+    }
+
+    .clock-numbers {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--f1-text);
+      letter-spacing: 2px;
+      padding: 4px 12px;
+      font-variant-numeric: tabular-nums;
+      font-family: inherit;
+    }
+
+    @media (max-width: 520px) {
+      .clock-badge {
+        display: none;
+      }
+      .clock-numbers {
+        padding: 4px 8px;
+        font-size: 12px;
+      }
+    }
+
+    /* Safety Car Convoy with Rayo McQueen leading */
+    .sc-convoy {
+      position: absolute;
+      bottom: 2px;
+      left: 0;
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      transform: translate3d(-950px, 0, 0);
+      pointer-events: none;
+      will-change: transform, opacity;
+      backface-visibility: hidden;
+      transform-style: preserve-3d;
+      opacity: 0;
+    }
+
+    .convoy-car {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    /* Margen de seguridad reglamentario entre el Safety Car y el coche perseguidor */
+    .convoy-car.safety-car-lead {
+      margin-left: 110px;
+    }
+
+    /* Sin estelas en periodo de Safety Car (velocidad de precaución) */
+    .convoy-car .bottom-f1-trail {
+      display: none;
+    }
+
+    .sc-convoy.animating {
+      animation: scConvoyPass 10.0s linear forwards;
+    }
+
+    @keyframes scConvoyPass {
+      0% {
+        transform: translate3d(-950px, 0, 0);
+        opacity: 0;
+      }
+      1.5% {
+        opacity: 1;
+      }
+      98% {
+        opacity: 1;
+      }
+      100% {
+        transform: translate3d(calc(100vw + 100px), 0, 0);
+        opacity: 0;
+      }
+    }
+
+    /* Presentation Deck */
+    .deck {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: 64px 80px 48px 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(30px);
+      transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+    }
+
+    /* Typography & Components */
+    .slide-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--f1-red);
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .slide-title {
+      font-size: 38px;
+      font-weight: bold;
+      line-height: 1.15;
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+
+    .slide-subtitle {
+      font-size: 18px;
+      color: var(--f1-muted);
+      margin-bottom: 24px;
+      max-width: 900px;
+      line-height: 1.4;
+    }
+
+    /* F1 Car Title Animation */
+    .title-wrapper {
+      position: relative;
+      display: block;
+      width: 100%;
+      margin-bottom: 12px;
+      overflow: visible;
+    }
+
+    .cover .title-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      margin: 0 auto 16px auto;
+    }
+
+    .f1-car-track {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+      overflow: visible;
+    }
+
+    .f1-car-runner {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      transform: translate3d(-320px, -50%, 0);
+      display: flex;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      will-change: transform, opacity;
+      backface-visibility: hidden;
+      transform-style: preserve-3d;
+    }
+
+    .f1-car-trail {
+      width: 160px;
+      height: 3px;
+      background: linear-gradient(to right, transparent, rgba(225, 6, 0, 0.3), var(--f1-red) 70%, #FFF 100%);
+      box-shadow: 0 0 10px var(--f1-red), 0 0 3px #FFF;
+      margin-right: -20px;
+      border-radius: 2px;
+    }
+
+    .f1-car-img {
+      width: 145px;
+      height: 36px;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+      transform: translateZ(0);
+    }
+
+    /* Animation: Car sprint across title (Hardware-Accelerated) */
+    .slide.active .f1-car-runner {
+      animation: f1CarPass 1.15s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+    }
+
+    @keyframes f1CarPass {
+      0% {
+        transform: translate3d(-320px, -50%, 0);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      85% {
+        opacity: 1;
+      }
+      100% {
+        transform: translate3d(calc(100vw + 60px), -50%, 0);
+        opacity: 0;
+      }
+    }
+
+    /* Animation: Title reveals right after car passes */
+    .slide .slide-title,
+    .slide .cover-title {
+      opacity: 0;
+      transform: translateY(12px);
+      margin-bottom: 0;
+    }
+
+    .slide.active .slide-title,
+    .slide.active .cover-title {
+      animation: titleReveal 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.75s forwards;
+    }
+
+    @keyframes titleReveal {
+      0% {
+        opacity: 0;
+        transform: translateY(12px);
+        filter: blur(2px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+      }
+    }
+
+    /* Subtitle appears right after the title */
+    .slide .slide-subtitle,
+    .slide .cover-subtitle {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    .slide.active .slide-subtitle,
+    .slide.active .cover-subtitle {
+      animation: subtitleReveal 0.5s ease 1.05s forwards;
+    }
+
+    @keyframes subtitleReveal {
+      0% {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Slide Content Layouts */
+    .split-layout {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 32px;
+      align-items: center;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .dual-charts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: center;
+      flex: 1;
+    }
+
+    .chart-container {
+      background: var(--f1-card);
+      border: 1px solid var(--f1-card-border);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+      height: 100%;
+      max-height: 520px;
+      position: relative;
+      cursor: zoom-in;
+      transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+    }
+
+    .chart-container:hover {
+      border-color: rgba(225, 6, 0, 0.55);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(225, 6, 0, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .chart-container::after {
+      content: '🔍 Ampliar gráfica';
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: rgba(21, 21, 30, 0.88);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #E2E2E8;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      padding: 5px 12px;
+      border-radius: 6px;
+      opacity: 0;
+      transform: translateY(-4px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      pointer-events: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .chart-container:hover::after {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Modal Lightbox for High-Res Chart Zoom */
+    .chart-lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.25s;
+    }
+
+    .chart-lightbox.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .lightbox-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(10, 10, 16, 0.92);
+      backdrop-filter: blur(10px);
+      cursor: zoom-out;
+    }
+
+    .lightbox-content {
+      position: relative;
+      z-index: 1002;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 94vw;
+      max-height: 92vh;
+      transform: scale(0.93);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .chart-lightbox.active .lightbox-content {
+      transform: scale(1);
+    }
+
+    .lightbox-img {
+      max-width: 90vw;
+      max-height: 82vh;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: 12px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.12);
+      background: var(--f1-card);
+      cursor: zoom-out;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: -16px;
+      right: -16px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--f1-card);
+      border: 1px solid var(--f1-card-border);
+      color: #FFFFFF;
+      font-size: 18px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+      transition: background 0.2s, transform 0.2s, border-color 0.2s;
+      z-index: 1005;
+    }
+
+    .lightbox-close:hover {
+      background: var(--f1-red);
+      border-color: var(--f1-red);
+      transform: scale(1.1);
+    }
+
+    .lightbox-hint {
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--f1-muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-weight: 600;
+      user-select: none;
+    }
+
+    .chart-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+
+    .info-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .stat-card {
+      background: var(--f1-card);
+      border: 1px solid var(--f1-card-border);
+      border-left: 5px solid var(--f1-red);
+      border-radius: 12px;
+      padding: 20px 24px;
+    }
+
+    .stat-card.cyan {
+      border-left-color: var(--f1-cyan);
+    }
+
+    .stat-number {
+      font-size: 44px;
+      font-weight: 800;
+      color: var(--f1-text);
+      line-height: 1.05;
+      margin-bottom: 8px;
+    }
+
+    .stat-number.red { color: var(--f1-red); }
+    .stat-number.cyan { color: var(--f1-cyan); }
+
+    .stat-label {
+      font-size: 21px;
+      color: #EDEDF4;
+      font-weight: 700;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+
+    .stat-desc {
+      font-size: 20px;
+      color: #B8B8CC;
+      line-height: 1.45;
+    }
+
+    .stat-desc strong {
+      color: #FFFFFF;
+      font-weight: 700;
+    }
+
+    /* Cover Slide */
+    .cover {
+      text-align: center;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cover-f1-stripe {
+      width: 80px;
+      height: 6px;
+      background: var(--f1-red);
+      margin: 0 auto 24px auto;
+      border-radius: 3px;
+    }
+
+    .cover-title {
+      font-size: 56px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      line-height: 1.1;
+      max-width: 950px;
+      margin-bottom: 16px;
+    }
+
+    .cover-subtitle {
+      font-size: 22px;
+      color: var(--f1-silver);
+      margin-bottom: 32px;
+      max-width: 800px;
+    }
+
+    .cover-author {
+      display: inline-flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--f1-card);
+      border: 1px solid var(--f1-card-border);
+      padding: 12px 28px;
+      border-radius: 30px;
+      font-size: 15px;
+      color: var(--f1-silver);
+    }
+
+    /* Bottom Controls */
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 48px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 0 32px;
+      z-index: 100;
+      background: linear-gradient(to top, rgba(21, 21, 30, 0.95), transparent);
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      background: var(--f1-card);
+      border: 1px solid var(--f1-card-border);
+      color: var(--f1-text);
+      width: 34px;
+      height: 34px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .btn:hover {
+      background: var(--f1-red);
+      border-color: var(--f1-red);
+    }
+
+    /* Ambient Historical F1 Track at the bottom */
+    .bottom-f1-track {
+      position: fixed;
+      bottom: 6px;
+      left: 0;
+      right: 0;
+      height: 42px;
+      pointer-events: none;
+      z-index: 95;
+      overflow: hidden;
+    }
+
+    .bottom-f1-car {
+      position: absolute;
+      bottom: 2px;
+      left: 0;
+      transform: translate3d(-320px, 0, 0);
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+      will-change: transform, opacity;
+      backface-visibility: hidden;
+      transform-style: preserve-3d;
+    }
+
+    .bottom-f1-trail {
+      width: 140px;
+      height: 2.5px;
+      background: linear-gradient(to right, transparent, rgba(225, 6, 0, 0.4), var(--f1-red));
+      margin-right: -15px;
+      border-radius: 1px;
+    }
+
+    .bottom-f1-img {
+      height: 30px;
+      width: auto;
+      max-width: 160px;
+      object-fit: contain;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+      transform: translateZ(0);
+    }
+
+    .bottom-f1-car.animating {
+      animation: bottomCarPass 4.0s linear forwards;
+    }
+
+    @keyframes bottomCarPass {
+      0% {
+        transform: translate3d(-320px, 0, 0);
+        opacity: 0;
+      }
+      4% {
+        opacity: 1;
+      }
+      94% {
+        opacity: 1;
+      }
+      100% {
+        transform: translate3d(calc(100vw + 60px), 0, 0);
+        opacity: 0;
+      }
+    }
+
+
+    /* Key visual tags */
+    .badge-confirm {
+      background: rgba(34, 197, 94, 0.15);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      padding: 5px 14px;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .badge-not-confirm {
+      background: rgba(148, 163, 184, 0.15);
+      color: #cbd5e1;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      padding: 5px 14px;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar -->
+  <div class="top-bar">
+    <div class="brand">
+      <span class="f1-badge">F1</span>
+    </div>
+    <div class="lap-counter" id="lapCounter">
+      <span class="lap-badge" id="lapBadge">LAP</span>
+      <span class="lap-numbers" id="slideNum">01 / 10</span>
+      <span class="chequered-flag" id="chequeredFlag" title="¡Bandera a Cuadros! Final de Carrera">
+        <svg width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="1.5" y1="1" x2="1.5" y2="15" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+          <g transform="translate(3, 1)">
+            <rect width="18" height="11" rx="1.5" fill="#FFFFFF"/>
+            <rect x="0" y="0" width="4.5" height="3.67" fill="#15151E"/>
+            <rect x="9" y="0" width="4.5" height="3.67" fill="#15151E"/>
+            <rect x="4.5" y="3.67" width="4.5" height="3.67" fill="#15151E"/>
+            <rect x="13.5" y="3.67" width="4.5" height="3.67" fill="#15151E"/>
+            <rect x="0" y="7.34" width="4.5" height="3.66" fill="#15151E"/>
+            <rect x="9" y="7.34" width="4.5" height="3.66" fill="#15151E"/>
+          </g>
+        </svg>
+      </span>
+    </div>
+    <div class="f1-clock" id="f1Clock" title="Hora local actual">
+      <span class="clock-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        TIME
+      </span>
+      <span class="clock-numbers" id="clockTime">--:--:--</span>
+    </div>
+  </div>
+
+  <!-- Deck of Slides -->
+  <div class="deck">
+
+    <!-- SLIDE 1: PORTADA -->
+    <section class="slide cover" data-slide="1">
+      <div class="cover-f1-stripe"></div>
+      <h1 class="cover-title">¿CUÁNTO CUESTA NO VER LA BANDERA A CUADROS?</h1>
+      <p class="cover-subtitle">Impacto deportivo y financiero de los abandonos en la Fórmula 1: roturas mecánicas vs. accidentes</p>
+      <div class="cover-author">
+        <span style="color:var(--f1-red); font-weight:800;">AUTOR:</span> Borja Bueno
+      </div>
+    </section>
+
+    <!-- SLIDE 2: CONTEXTO DE NEGOCIO -->
+    <section class="slide" data-slide="2">
+      <div>
+        <div class="slide-tag">El Negocio de la F1</div>
+        <h2 class="slide-title">La F1 se corre en el asfalto, pero se gana en cheques</h2>
+        <p class="slide-subtitle">La Fórmula 1 no solo reparte trofeos: reparte más de 1.100 M€ en premios por estricto orden de puntos.</p>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px;">
+        <div class="stat-card" style="padding: 28px 32px; display: flex; flex-direction: column; justify-content: center;">
+          <div class="stat-number red" style="font-size: 44px; margin-bottom: 12px;">~1.100 M€</div>
+          <div class="stat-label" style="font-size: 22px; margin-bottom: 12px;">Bolsa anual de premios del Mundial de Constructores</div>
+          <div class="stat-desc" style="font-size: 20px; line-height: 1.55;">
+            Una sola posición en el mundial a final de temporada equivale a una diferencia de entre <strong>7 M€ y 11 M€</strong>.<br><br>
+            Cada punto perdido por abandono puede significar caer un puesto en la clasificación de constructores.
+          </div>
+        </div>
+        <div class="stat-card cyan" style="padding: 28px 32px; display: flex; flex-direction: column; justify-content: center;">
+          <div class="stat-number cyan" style="font-size: 44px; margin-bottom: 12px;">Cost Cap: ~125 M€</div>
+          <div class="stat-label" style="font-size: 22px; margin-bottom: 12px;">Límite presupuestario estricto por reglamento</div>
+          <div class="stat-desc" style="font-size: 20px; line-height: 1.55;">
+            Cada euro gastado en reparar piezas rotas por accidente es dinero que se resta directamente del desarrollo del coche en fábrica.<br><br>
+            En la F1 moderna, no terminar te castiga dos veces: en los puntos y en el presupuesto de evolución.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: H1 - FIABILIDAD MECÁNICA -->
+    <section class="slide" data-slide="3">
+      <div>
+        <div class="slide-tag">Hipótesis 1 (1990 – 2023) &nbsp;<span class="badge-confirm">CONFIRMADA</span></div>
+        <h2 class="slide-title">La revolución de la fiabilidad: caída del 77%</h2>
+        <p class="slide-subtitle">La tasa de abandono mecánico se ha desplomado de forma continua en los últimos 34 años.</p>
+      </div>
+
+      <div class="split-layout">
+        <div class="chart-container">
+          <img src="img/h1_tasa_mecanica.png" alt="H1 Tasa Mecanica">
+        </div>
+        <div class="info-panel">
+          <div class="stat-card">
+            <div class="stat-number red">30.2% → 7.0%</div>
+            <div class="stat-label">Reducción absoluta de 23.3 puntos</div>
+            <div class="stat-desc">En los años 90, <strong>1 de cada 3 monoplazas</strong> rompía motor o transmisión en carrera. En la era actual, apenas <strong>1 de cada 14</strong>.</div>
+          </div>
+          <div class="stat-card cyan">
+            <div class="stat-number cyan">-77.0%</div>
+            <div class="stat-label">Criterio a priori superado con holgura</div>
+            <div class="stat-desc">El criterio exigía una reducción de al menos 2/3 (66.7%). La ingeniería moderna y las penalizaciones por motor han blindado los coches.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: H2 - ACCIDENTES VS MECÁNICOS -->
+    <section class="slide" data-slide="4">
+      <div>
+        <div class="slide-tag">Hipótesis 2 (1990 – 2023) &nbsp;<span class="badge-not-confirm">NO SE CONFIRMA</span></div>
+        <h2 class="slide-title">¿Dominan los accidentes? No: empate técnico</h2>
+        <p class="slide-subtitle">Los accidentes no han aumentado: hoy pesan lo mismo porque los fallos mecánicos han desaparecido.</p>
+      </div>
+
+      <div class="split-layout">
+        <div class="chart-container">
+          <img src="img/h2_cruce_tendencias.png" alt="H2 Cruce Tendencias">
+        </div>
+        <div class="info-panel">
+          <div class="stat-card">
+            <div class="stat-number red">7.6% vs 7.0%</div>
+            <div class="stat-label">Tasas en 2020–2023 (Accidentes vs Averías)</div>
+            <div class="stat-desc">La tasa de accidentes también cayó (de <strong>17.8%</strong> en los 90 a <strong>7.6%</strong>), pero lleva una década estabilizada en ~7.5%. La mecánica se desplomó hasta encontrarse con ella.</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" style="font-size:34px; color:var(--f1-silver);">2 de 4 temporadas > 50%</div>
+            <div class="stat-label">Por qué la hipótesis no se confirma</div>
+            <div class="stat-desc">En 2021 y 2023 hubo más accidentes que fallos, pero en 2020 y 2022 volvieron a ganar los fallos. Hay paridad estadística, no dominancia estable.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: H3 EQUIPOS -->
+    <section class="slide" data-slide="5">
+      <div>
+        <div class="slide-tag">Hipótesis 3 (Temporada 2023 - Parte A) &nbsp;<span class="badge-not-confirm">NO SE CONFIRMA</span></div>
+        <h2 class="slide-title">Mito derribado: no existen los "equipos gafes"</h2>
+        <p class="slide-subtitle">Los accidentes en 2023 se repartieron entre todas las escuderías de forma indistinguible del azar.</p>
+      </div>
+
+      <div class="split-layout">
+        <div class="chart-container">
+          <img src="img/h3_equipos.png" alt="H3 Equipos">
+        </div>
+        <div class="info-panel">
+          <div class="stat-card">
+            <div class="stat-number red">48.5%</div>
+            <div class="stat-label">Top-3 equipos (Alpine 6, Williams 6, Haas 4)</div>
+            <div class="stat-desc">No alcanzan el umbral del 50%. Ningún equipo acapara los choques: incluso escuderías punteras sufrieron accidentes (Ferrari 3, Mercedes 2, Red Bull 2).</div>
+          </div>
+          <div class="stat-card cyan">
+            <div class="stat-number cyan">3.3 por equipo</div>
+            <div class="stat-label">Media de colisiones en la temporada</div>
+            <div class="stat-desc">Los 33 accidentes se repartieron de forma muy equilibrada entre las 10 escuderías (rango de 2 a 6). Estadísticamente, no hay concentración anómala.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: H3 PARRILLA -->
+    <section class="slide" data-slide="6">
+      <div>
+        <div class="slide-tag">Hipótesis 3 (Temporada 2023 - Parte B) &nbsp;<span class="badge-confirm">GRADIENTE CONFIRMADO</span></div>
+        <h2 class="slide-title">El verdadero culpable: el embudo de la mitad trasera</h2>
+        <p class="slide-subtitle">El peligro no es el escudo del coche, es dónde sales: salir atrás multiplica el riesgo por 1.52x.</p>
+      </div>
+
+      <div class="split-layout">
+        <div class="chart-container">
+          <img src="img/h3_parrilla.png" alt="H3 Parrilla">
+        </div>
+        <div class="info-panel">
+          <div class="stat-card">
+            <div class="stat-number red">9.0% vs 5.9%</div>
+            <div class="stat-label">Tasa de accidentes por cada salida</div>
+            <div class="stat-desc">Los monoplazas que salieron entre el puesto 11 y el 20 tuvieron una tasa de accidente notablemente superior a los del Top-10.</div>
+          </div>
+          <div class="stat-card cyan">
+            <div class="stat-number cyan">+52% de riesgo</div>
+            <div class="stat-label">Gradiente 1.52x (Supera el umbral de 1.5x)</div>
+            <div class="stat-desc">Tráfico denso, frenadas comprometidas en la primera curva y aire sucio convierten al pelotón trasero en una zona de alto riesgo.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: H4 PUNTOS PERDIDOS -->
+    <section class="slide" data-slide="7">
+      <div>
+        <div class="slide-tag">Hipótesis 4 (Temporada 2023) &nbsp;<span class="badge-confirm">CONFIRMADA</span></div>
+        <h2 class="slide-title">Un choque cuesta más del doble de puntos que una avería</h2>
+        <p class="slide-subtitle">Análisis contrafactual vuelta a vuelta: reconstruyendo qué posición ocupaba el piloto al abandonar.</p>
+      </div>
+
+      <div class="split-layout">
+        <div class="chart-container">
+          <img src="img/h4_puntos_perdidos.png" alt="H4 Puntos Perdidos">
+        </div>
+        <div class="info-panel">
+          <div class="stat-card">
+            <div class="stat-number red">65 pts vs 28 pts</div>
+            <div class="stat-label">Puntos perdidos estimados en 2023</div>
+            <div class="stat-desc">Los accidentes quemaron <strong>37 puntos más</strong> que los fallos mecánicos para los equipos de la parrilla.</div>
+          </div>
+          <div class="stat-card cyan">
+            <div class="stat-number cyan">2.32x (+132%)</div>
+            <div class="stat-label">Ratio contrafactual (Umbral ≥ 1.5x cumplido)</div>
+            <div class="stat-desc">Los accidentes dolieron más del doble porque ocurrieron con pilotos en zona de puntos; las averías mecánicas tendieron a pillarlos rodando más atrás (<strong>1.97 vs 1.12</strong> pts esperados por DNF).</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+        <!-- SLIDE 8: IMPACTO EN EL CAMPEONATO -->
+    <section class="slide" data-slide="8">
+      <div>
+        <div class="slide-tag">El Coste Deportivo en el Campeonato</div>
+        <h2 class="slide-title">¿Quién perdió millones por no ver la bandera a cuadros?</h2>
+        <p class="slide-subtitle">Los puntos perdidos no son abstractos: en 2023 decidieron el subcampeonato mundial y empates millonarios.</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px;">
+        <div class="stat-card" style="padding: 28px 32px; display: flex; flex-direction: column; justify-content: center;">
+          <div class="stat-number red" style="font-size: 44px; margin-bottom: 12px;">~10 M€ en Juego</div>
+          <div class="stat-label" style="font-size: 22px; margin-bottom: 12px;">Ferrari vs Mercedes: El motor de Leclerc (P2 vs P3)</div>
+          <div class="stat-desc" style="font-size: 20px; line-height: 1.55;">
+            Mercedes terminó 2º (<strong>374 pts</strong>) y Ferrari 3º (<strong>363 pts</strong>): solo <strong>11 puntos</strong> de margen.<br><br>
+            En Baréin, el motor de Leclerc se rompió rodando en P3 (+15 pts). Sin esa avería mecánica, Ferrari era <strong>Subcampeón del Mundo</strong>.<br><br>
+            En el contrafactual de rendimiento medio (B), Ferrari superaba a Mercedes (<strong>423.5 vs 423.2 pts</strong>).
+          </div>
+        </div>
+
+        <div class="stat-card cyan" style="padding: 28px 32px; display: flex; flex-direction: column; justify-content: center;">
+          <div class="stat-number cyan" style="font-size: 44px; margin-bottom: 12px;">Empate a 266 pts</div>
+          <div class="stat-label" style="font-size: 22px; margin-bottom: 12px;">Aston Martin vs McLaren: La batalla por la P4</div>
+          <div class="stat-desc" style="font-size: 20px; line-height: 1.55;">
+            En carreras de Gran Premio (domingo), terminaron <strong>empatados exactamente a 266 puntos</strong> (el sprint abrió la brecha oficial a 302 vs 280 pts).<br><br>
+            En el contrafactual sin abandonos (B), Aston Martin alcanzaba <strong>302 pts vs 293 pts</strong> de McLaren.<br><br>
+            Los abandonos rompieron la igualdad a favor de McLaren, costándole a Aston Martin una posición y <strong>~9 M€</strong> de premio.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: LA FACTURA DEL TALLER -->
+    <section class="slide" data-slide="9">
+      <div>
+        <div class="slide-tag">La Factura del Taller (Temporada 2023)</div>
+        <h2 class="slide-title">El verdadero coste: Daños vs Tope Presupuestario</h2>
+        <p class="slide-subtitle">En la era del límite presupuestario (Cost Cap), el accidente te castiga dos veces.</p>
+      </div>
+
+      <div class="split-layout">
+        <div class="chart-container">
+          <img src="img/top5_danos_pilotos.png" alt="Top 5 Daños por Piloto en 2023">
+        </div>
+        <div class="info-panel" style="gap: 16px;">
+          <div class="stat-card" style="border-left-color: #FFFFFF; padding: 20px 24px;">
+            <div class="stat-number" style="font-size: 26px; margin-bottom: 10px;">El Precio de Romperse</div>
+            <div class="stat-desc" style="font-size: 20px; color: var(--f1-silver); line-height: 1.45;">
+              Reponer componentes destrozados por un choque resta presupuesto de desarrollo en fábrica:
+              <ul style="margin-top: 8px; margin-left: 20px; line-height: 1.55; font-size: 19px;">
+                <li><strong>Alerón delantero:</strong> ~140.000 €</li>
+                <li><strong>Fondo plano (suelo):</strong> ~275.000 €</li>
+                <li><strong>Caja de cambios / Suspensión:</strong> ~150.000 € – 350.000 €</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- GIF de accidente F1 con altura exacta para coincidir con la base de la gráfica sin desbordar abajo -->
+          <div class="gif-container" style="height: 260px; border-radius: 12px; overflow: hidden; border: 1px solid var(--f1-card-border); background: #000; box-shadow: 0 8px 24px rgba(0,0,0,0.4);">
+            <img src="img/accidente_sargeant.gif" alt="Accidente Logan Sargeant Zandvoort 2023" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+          </div>
+        </div>
+      </div>
+    </section>
+
+        <!-- SLIDE 10: CONCLUSIONES - CONTRASTE DE HIPÓTESIS -->
+    <section class="slide" data-slide="10">
+      <div>
+        <div class="slide-tag">Conclusiones del Análisis</div>
+        <h2 class="slide-title">Veredicto Final: Las 4 Hipótesis del EDA</h2>
+        <p class="slide-subtitle">Dos escalas de análisis: la evolución histórica de la fiabilidad (1990–2023) y el impacto financiero en 2023.</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+        <!-- H1 -->
+        <div class="stat-card" style="border-left-color: #22c55e; padding: 14px 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 13px; font-weight: 800; color: var(--f1-silver); letter-spacing: 1px;">H1 • HISTÓRICO (1990–2023)</span>
+            <span class="badge-confirm">CONFIRMADA</span>
+          </div>
+          <div class="stat-label" style="font-size: 19px; margin-bottom: 4px;">Caída sostenida del fallo mecánico</div>
+          <div class="stat-number cyan" style="font-size: 30px; margin-bottom: 6px;">30.2% → 7.0% (-77%)</div>
+          <div class="stat-desc" style="font-size: 17px; line-height: 1.4;">
+            La tasa media de averías cayó más de dos tercios. La ingeniería moderna y las penalizaciones han blindado la fiabilidad de los motores.
+          </div>
+        </div>
+
+        <!-- H2 -->
+        <div class="stat-card" style="border-left-color: #94a3b8; padding: 14px 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 13px; font-weight: 800; color: var(--f1-silver); letter-spacing: 1px;">H2 • HISTÓRICO (1990–2023)</span>
+            <span class="badge-not-confirm">NO SE CONFIRMA</span>
+          </div>
+          <div class="stat-label" style="font-size: 19px; margin-bottom: 4px;">¿Dominio de los accidentes?</div>
+          <div class="stat-number" style="font-size: 30px; color: #cbd5e1; margin-bottom: 6px;">7.6% vs 7.0%</div>
+          <div class="stat-desc" style="font-size: 17px; line-height: 1.4;">
+            Existe <strong>paridad técnica</strong>, no dominio estructural: solo 2 de las últimas 4 temporadas superaron el 50% de cuota. Hay empate estadístico.
+          </div>
+        </div>
+
+        <!-- H3 -->
+        <div class="stat-card" style="border-left-color: #94a3b8; padding: 14px 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 13px; font-weight: 800; color: var(--f1-silver); letter-spacing: 1px;">H3 • TEMPORADA 2023</span>
+            <span class="badge-not-confirm">NO SE CONFIRMA</span>
+          </div>
+          <div class="stat-label" style="font-size: 19px; margin-bottom: 4px;">Concentración por equipos y parrilla</div>
+          <div class="stat-number red" style="font-size: 30px; margin-bottom: 6px;">3.3 media &nbsp;|&nbsp; 1.52x</div>
+          <div class="stat-desc" style="font-size: 17px; line-height: 1.4;">
+            Accidentes democráticos entre escuderías (media 3.3, azar). Pero <strong>sí emerge gradiente</strong>: la mitad trasera sufre un <strong>+52% de riesgo</strong>.
+          </div>
+        </div>
+
+        <!-- H4 -->
+        <div class="stat-card" style="border-left-color: #22c55e; padding: 14px 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 13px; font-weight: 800; color: var(--f1-silver); letter-spacing: 1px;">H4 • TEMPORADA 2023</span>
+            <span class="badge-confirm">CONFIRMADA</span>
+          </div>
+          <div class="stat-label" style="font-size: 19px; margin-bottom: 4px;">Coste deportivo: Choque vs Avería</div>
+          <div class="stat-number red" style="font-size: 30px; margin-bottom: 6px;">65 vs 28 pts (2.32x)</div>
+          <div class="stat-desc" style="font-size: 17px; line-height: 1.4;">
+            Los accidentes costaron más del doble de puntos contrafactuales que las averías mecánicas al ocurrir con pilotos en zona de puntos.
+          </div>
+        </div>
+      </div>
+
+      <!-- Próximas Líneas de Investigación / Preguntas Abiertas -->
+      <div style="margin-top: 16px; background: rgba(21, 21, 30, 0.75); border: 1px solid var(--f1-card-border); border-left: 3px solid #FFD100; border-radius: 8px; padding: 12px 20px;">
+        <div style="font-size: 12px; font-weight: 800; color: #FFD100; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px;">
+          Líneas de Futuro / Próximos Pasos
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          <div style="display: flex; gap: 10px; align-items: flex-start;">
+            <span style="background: rgba(255, 209, 0, 0.15); color: #FFD100; font-weight: 900; font-size: 12px; padding: 2px 7px; border-radius: 4px; flex-shrink: 0; margin-top: 2px;">1</span>
+            <div>
+              <div style="font-size: 17px; font-weight: 700; color: #FFF; margin-bottom: 2px;">¿Suelo estructural en los fallos mecánicos?</div>
+              <div style="font-size: 15px; color: var(--f1-silver); line-height: 1.35;">
+                Analizar si se ha alcanzado un suelo natural en los abandonos por avería (~7%), donde reducir más fallos exigiría monoplazas demasiado pesados o costes prohibitivos.
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: flex-start;">
+            <span style="background: rgba(255, 209, 0, 0.15); color: #FFD100; font-weight: 900; font-size: 12px; padding: 2px 7px; border-radius: 4px; flex-shrink: 0; margin-top: 2px;">2</span>
+            <div>
+              <div style="font-size: 17px; font-weight: 700; color: #FFF; margin-bottom: 2px;">Influencia y efecto del piloto en el accidente</div>
+              <div style="font-size: 15px; color: var(--f1-silver); line-height: 1.35;">
+                Aislar estadísticamente cómo influye el factor humano de cada piloto en el riesgo de choque (agresividad en salida, gestión de tráfico y experiencia).
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Modal Lightbox for Fullscreen Chart Zoom -->
+  <div class="chart-lightbox" id="chartLightbox" aria-hidden="true">
+    <div class="lightbox-backdrop" id="lightboxBackdrop"></div>
+    <div class="lightbox-content">
+      <button class="lightbox-close" id="lightboxClose" title="Cerrar (Esc)">✕</button>
+      <img src="" id="lightboxImg" alt="Gráfica Ampliada" class="lightbox-img">
+      <div class="lightbox-hint">Pulsa en cualquier lugar o presiona Esc para cerrar</div>
+    </div>
+  </div>
+
+  <!-- Ambient Historical F1 Track at the bottom -->
+  <div class="bottom-f1-track" id="bottomF1Track">
+    <!-- Coche individual normal -->
+    <div class="bottom-f1-car" id="bottomF1Car">
+      <div class="bottom-f1-trail" id="bottomF1Trail"></div>
+      <img src="img/williams_fw14b_cutout.png" id="bottomF1Img" alt="Historical F1" class="bottom-f1-img">
+    </div>
+
+    <!-- Convoy de Safety Car liderado por Rayo McQueen (Sin estelas) -->
+    <div class="sc-convoy" id="scConvoy">
+      <!-- 4. Aston Martin AMR23 (Cola del pelotón) -->
+      <div class="convoy-car">
+        <img src="img/aston_martin_amr23_cutout.png" class="bottom-f1-img" alt="Aston Martin AMR23">
+      </div>
+      <!-- 3. Mercedes-AMG W10 -->
+      <div class="convoy-car">
+        <img src="img/mercedes_w10_right.png" class="bottom-f1-img" alt="Mercedes W10">
+      </div>
+      <!-- 2. Renault R25 -->
+      <div class="convoy-car">
+        <img src="img/renault_r25_cutout.png" class="bottom-f1-img" alt="Renault R25">
+      </div>
+      <!-- 1. Williams FW14B (Líder del pelotón de monoplazas F1) -->
+      <div class="convoy-car">
+        <img src="img/williams_fw14b_cutout.png" class="bottom-f1-img" alt="Williams FW14B">
+      </div>
+      <!-- SAFETY CAR: Rayo McQueen #95 (En cabeza de carrera con margen de seguridad) -->
+      <div class="convoy-car safety-car-lead">
+        <img src="img/rayo_mcqueen_sc.png" class="bottom-f1-img" style="height: 32px;" alt="Safety Car Rayo McQueen">
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Bar with Controls -->
+  <div class="bottom-bar">
+    <div class="controls">
+      <button class="btn" id="prevBtn" title="Anterior">←</button>
+      <button class="btn" id="nextBtn" title="Siguiente">→</button>
+      <button class="btn" id="fsBtn" title="Pantalla Completa">⛶</button>
+    </div>
+  </div>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    let currentSlide = 0;
+
+    const slideNumEl = document.getElementById('slideNum');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const fsBtn = document.getElementById('fsBtn');
+
+    // Inyectar pista de aceleración y monoplaza F1 para cada titular
+    document.querySelectorAll('.slide-title, .cover-title').forEach(title => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'title-wrapper';
+
+      const track = document.createElement('div');
+      track.className = 'f1-car-track';
+      track.innerHTML = `
+        <div class="f1-car-runner">
+          <div class="f1-car-trail"></div>
+          <img src="img/f1_car.svg" class="f1-car-img" alt="F1">
+        </div>
+      `;
+
+      title.parentNode.insertBefore(wrapper, title);
+      wrapper.appendChild(track);
+      wrapper.appendChild(title);
+    });
+
+    function updateSlide(index) {
+      if (index < 0) index = 0;
+      if (index >= totalSlides) index = totalSlides - 1;
+
+      slides.forEach((s, i) => {
+        const isTarget = (i === index);
+        if (s.classList.contains('active') && !isTarget) {
+          s.classList.remove('active');
+        } else if (isTarget) {
+          s.classList.remove('active');
+          void s.offsetWidth; // Forzar reflow para reiniciar la animación CSS desde t=0
+          s.classList.add('active');
+        }
+      });
+
+      currentSlide = index;
+      const formattedNum = String(index + 1).padStart(2, '0');
+      const formattedTotal = String(totalSlides).padStart(2, '0');
+      slideNumEl.textContent = `${formattedNum} / ${formattedTotal}`;
+
+      // Bandera a cuadros cuando se llega a la última vuelta (última diapositiva)
+      const flagEl = document.getElementById('chequeredFlag');
+      if (flagEl) {
+        if (index === totalSlides - 1) {
+          flagEl.classList.add('visible');
+        } else {
+          flagEl.classList.remove('visible');
+        }
+      }
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) {
+        updateSlide(currentSlide + 1);
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        updateSlide(currentSlide - 1);
+      }
+    }
+
+    // Keyboard navigation
+    // === Modal Lightbox para Ampliar Gráficas ===
+    const chartLightbox = document.getElementById('chartLightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const lightboxClose = document.getElementById('lightboxClose');
+    const lightboxBackdrop = document.getElementById('lightboxBackdrop');
+
+    function openLightbox(imgSrc, imgAlt) {
+      if (!chartLightbox || !lightboxImg) return;
+      lightboxImg.src = imgSrc;
+      lightboxImg.alt = imgAlt || 'Gráfica ampliada';
+      chartLightbox.classList.add('active');
+      chartLightbox.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeLightbox() {
+      if (!chartLightbox) return;
+      chartLightbox.classList.remove('active');
+      chartLightbox.setAttribute('aria-hidden', 'true');
+      setTimeout(() => {
+        if (!chartLightbox.classList.contains('active')) {
+          lightboxImg.src = '';
+        }
+      }, 250);
+    }
+
+    document.querySelectorAll('.chart-container').forEach(container => {
+      container.addEventListener('click', () => {
+        const img = container.querySelector('img');
+        if (img) {
+          openLightbox(img.src, img.alt);
+        }
+      });
+    });
+
+    if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
+    if (lightboxBackdrop) lightboxBackdrop.addEventListener('click', closeLightbox);
+    if (lightboxImg) lightboxImg.addEventListener('click', closeLightbox);
+
+    window.addEventListener('keydown', (e) => {
+      // Si el visor de gráfica está abierto, Esc lo cierra
+      if (chartLightbox && chartLightbox.classList.contains('active')) {
+        if (e.key === 'Escape') {
+          closeLightbox();
+          return;
+        }
+      }
+
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        prevSlide();
+      } else if (e.key === 'Home') {
+        updateSlide(0);
+      } else if (e.key === 'End') {
+        updateSlide(totalSlides - 1);
+      } else if (e.key.toLowerCase() === 'f') {
+        toggleFullScreen();
+      }
+    });
+
+    prevBtn.addEventListener('click', prevSlide);
+    nextBtn.addEventListener('click', nextSlide);
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {});
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    fsBtn.addEventListener('click', toggleFullScreen);
+
+    // Initial setup
+    updateSlide(0);
+
+    // === Reloj Digital F1 en Tiempo Real (Top Bar) ===
+    function updateClock() {
+      const clockEl = document.getElementById('clockTime');
+      if (!clockEl) return;
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      clockEl.textContent = `${hours}:${minutes}:${seconds}`;
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+
+    // === Monoplazas Ambientales Históricos (Paso periódico por abajo) ===
+    const historicalEras = [
+      {
+        svg: 'img/williams_fw14b_cutout.png',
+        tag: '1990s - Williams FW14B (Nigel Mansell 1992)',
+        color: '#0055DD'
+      },
+      {
+        svg: 'img/renault_r25_cutout.png',
+        tag: '2000s - Renault R25 (Fernando Alonso 2005)',
+        color: '#0082CA'
+      },
+      {
+        svg: 'img/mercedes_w10_right.png',
+        tag: '2010s - Mercedes-AMG W10 (Lewis Hamilton 2019)',
+        color: '#00D2BE'
+      },
+      {
+        svg: 'img/aston_martin_amr23_cutout.png',
+        tag: '2020s - Aston Martin AMR23 (Fernando Alonso 2023)',
+        color: '#00594F'
+      }
+    ];
+
+    // Pre-cargar y decodificar en memoria todos los coches para que NUNCA falte la imagen
+    const preloadedCarBitmaps = {};
+    historicalEras.forEach(era => {
+      const img = new Image();
+      img.src = era.svg;
+      if (img.decode) {
+        img.decode().then(() => {
+          preloadedCarBitmaps[era.svg] = true;
+        }).catch(() => {});
+      }
+    });
+
+    let currentEraIdx = 0;
+    const bottomCarEl = document.getElementById('bottomF1Car');
+    const bottomImgEl = document.getElementById('bottomF1Img');
+    const bottomTrailEl = document.getElementById('bottomF1Trail');
+
+    async function launchHistoricalCar() {
+      if (!bottomCarEl || !bottomImgEl) return;
+      const era = historicalEras[currentEraIdx];
+      
+      // Ocultar estela temporalmente hasta que el coche esté verificado en pantalla
+      bottomTrailEl.style.opacity = '0';
+      bottomImgEl.src = era.svg;
+      bottomTrailEl.style.background = `linear-gradient(to right, transparent, ${era.color}66, ${era.color})`;
+
+      // Esperar activamente a que la imagen esté 100% decodificada en memoria
+      try {
+        if (bottomImgEl.decode) {
+          await bottomImgEl.decode();
+        }
+      } catch (e) {
+        // En caso de que ya esté en caché
+      }
+
+      // Verificación de seguridad: si la imagen aún no tiene ancho real, esperar al evento load
+      if (bottomImgEl.naturalWidth === 0) {
+        bottomImgEl.onload = () => {
+          triggerCarPass();
+        };
+        return;
+      }
+
+      triggerCarPass();
+    }
+
+    function triggerCarPass() {
+      // Activar estela ahora que el coche está 100% visible y renderizado
+      bottomTrailEl.style.opacity = '1';
+
+      bottomCarEl.classList.remove('animating');
+      void bottomCarEl.offsetWidth; // Forzar reflow para reiniciar animación
+      bottomCarEl.classList.add('animating');
+
+      currentEraIdx = (currentEraIdx + 1) % historicalEras.length;
+    }
+
+    // === Sistema de Safety Car con Rayo McQueen ===
+    const lapCounterEl = document.getElementById('lapCounter');
+    const lapBadgeEl = document.getElementById('lapBadge');
+    const scConvoyEl = document.getElementById('scConvoy');
+    let isSafetyCarActive = false;
+
+    // Precarga de Rayo McQueen
+    const mcqueenPreload = new Image();
+    mcqueenPreload.src = 'img/rayo_mcqueen_sc.png';
+
+    function launchSafetyCar() {
+      if (isSafetyCarActive || !scConvoyEl || !lapCounterEl || !lapBadgeEl) return;
+      isSafetyCarActive = true;
+
+      // Activar modo SC en el contador superior
+      lapCounterEl.classList.add('sc-active');
+      lapBadgeEl.textContent = 'SC';
+
+      // Lanzar animación del convoy
+      scConvoyEl.classList.remove('animating');
+      void scConvoyEl.offsetWidth; // Forzar reflow
+      scConvoyEl.classList.add('animating');
+
+      // Al terminar de cruzar la pantalla, restaurar el estado normal
+      scConvoyEl.addEventListener('animationend', () => {
+        scConvoyEl.classList.remove('animating');
+        lapCounterEl.classList.remove('sc-active');
+        lapBadgeEl.textContent = 'LAP';
+        isSafetyCarActive = false;
+      }, { once: true });
+    }
+
+    // Tecla 'S' para forzar la salida del Safety Car manualmente en directo
+    document.addEventListener('keydown', (e) => {
+      if (e.key.toLowerCase() === 's' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        launchSafetyCar();
+      }
+    });
+
+    // Desfile periódico: 30% de probabilidad de Safety Car, o monoplaza normal
+    let paradeInterval = null;
+    function startParadeTimer() {
+      if (paradeInterval) clearInterval(paradeInterval);
+      paradeInterval = setInterval(() => {
+        if (document.visibilityState === 'visible' && !isSafetyCarActive) {
+          // 10% probabilidad de Safety Car, 90% coche normal
+          const isSC = Math.random() < 0.10;
+          if (isSC) {
+            launchSafetyCar();
+          } else {
+            launchHistoricalCar();
+          }
+        }
+      }, 20000);
+    }
+
+    setTimeout(() => {
+      launchHistoricalCar();
+      startParadeTimer();
+    }, 2500);
+
+    // Si el usuario cambia de pestaña y vuelve, sincronizar el intervalo
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        startParadeTimer();
+      }
+    });
+  </script>
+</body>
+</html>
+
