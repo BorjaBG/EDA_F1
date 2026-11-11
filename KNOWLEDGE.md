@@ -354,15 +354,15 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
   - ✅ **Presentación Web Interactiva (`presentacion/index.html`):** COMPLETADA Y PRESENTADA (11 nov 2026).
   - ✅ **Subida a GitHub (`origin/main`):** Estructura `src/`, `docs/`, `README.md`, `requirements.txt` y `presentacion/` subida (re-ejecutados `00`, `01` y `04` con salida HTML truncada `max_rows=10` para reducir de ~16 MB a <300 KB y asegurar previsualización en GitHub).
   - ✅ **Publicación en GitHub Pages (`https://borjabg.github.io/EDA_F1/`):** Configurado workflow automático `.github/workflows/deploy-pages.yml` que publica únicamente `presentacion/` mediante GitHub Actions y enlazado en la cabecera del `README.md`.
+  - ✅ **Memoria complementaria final (`docs/memoria.html` + `docs/memoria.pdf`):** Documento en formato A4 de **6 páginas exactas** (portada dedicada + 5 páginas de fuentes, limpieza/auditoría con Gemini, técnicas, sensibilidades, dificultades, código/web y líneas futuras) ya exportado y verificado visualmente en `docs/memoria.pdf` (569,9 KB).
 
 ### ⏳ Pendiente
 
-- **Memoria (30 %):** Documentar proceso, fuentes, auditoría, resultados H1–H4 y dificultades (máx. 10 páginas).
+- **Push final a GitHub:** Subir `docs/memoria.html`, `docs/memoria.pdf`, `README.md` y `KNOWLEDGE.md`.
 
 ### 📊 Próximos pasos inmediatos
 
-1. **Git:** Subir los últimos retoques de `README.md` y `KNOWLEDGE.md`.
-2. **Memoria:** Redactar la memoria ejecutiva de 10 páginas.
+1. **Git:** Hacer `commit` + `push` final con la memoria en PDF y documentación actualizada.
 
 ## 9. Hilo narrativo de la presentación (borrador)
 
@@ -416,6 +416,8 @@ EDA_F1/
 │       └── analysis.py                    # Evaluación reproducible de H1–H4
 │
 ├── docs/
+│   ├── memoria.pdf                        # Memoria complementaria final en PDF (6 páginas A4)
+│   ├── memoria.html                       # Código fuente maquetado de la memoria
 │   ├── informe_statusGeneric.md           # Auditoría completa de los 112 statusId (1990–2023)
 │   └── informe_retired_statusId31.md      # Auditoría caso a caso de los 67 estados "Retired"
 │

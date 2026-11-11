@@ -57,6 +57,8 @@ EDA_F1/
 │       ├── plotting.py                  # Contexto visual F1 Broadcast y umbral_criterio()
 │       └── analysis.py                  # Métricas y evaluación reproducible de H1–H4
 ├── docs/
+│   ├── memoria.pdf                      # Memoria complementaria final en PDF (6 páginas A4)
+│   ├── memoria.html                     # Código fuente maquetado de la memoria
 │   ├── informe_statusGeneric.md         # Auditoría completa de los 112 statusId (1990–2023)
 │   └── informe_retired_statusId31.md    # Auditoría caso a caso de los 67 estados "Retired"
 ├── presentacion/
