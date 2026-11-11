@@ -353,15 +353,15 @@ El criterio 2 (3 de 4 temporadas con cuota > 50%) no se cumple porque 2020 (48.1
   - ✅ Movidos `informe_statusGeneric.md` e `informe_retired_statusId31.md` a `docs/`, redactado `README.md`, creado `requirements.txt`, depurado `.gitignore` y limpiados ficheros temporales/intermedios.
   - ✅ **Presentación Web Interactiva (`presentacion/index.html`):** COMPLETADA Y PRESENTADA (11 nov 2026).
   - ✅ **Subida a GitHub (`origin/main`):** Estructura `src/`, `docs/`, `README.md`, `requirements.txt` y `presentacion/` subida (re-ejecutados `00`, `01` y `04` con salida HTML truncada `max_rows=10` para reducir de ~16 MB a <300 KB y asegurar previsualización en GitHub).
+  - ✅ **Publicación en GitHub Pages (`https://borjabg.github.io/EDA_F1/`):** Configurado workflow automático `.github/workflows/deploy-pages.yml` que publica únicamente `presentacion/` mediante GitHub Actions y enlazado en la cabecera del `README.md`.
 
 ### ⏳ Pendiente
 
 - **Memoria (30 %):** Documentar proceso, fuentes, auditoría, resultados H1–H4 y dificultades (máx. 10 páginas).
-- **Push de ajuste menor:** Subir los cuadernos aligerados (`00`, `01`, `04`) y este `KNOWLEDGE.md` actualizado a `origin/main`.
 
 ### 📊 Próximos pasos inmediatos
 
-1. **Git:** Subir el aligeramiento de los 3 notebooks (<300 KB) y la actualización de `KNOWLEDGE.md`.
+1. **Git:** Subir los últimos retoques de `README.md` y `KNOWLEDGE.md`.
 2. **Memoria:** Redactar la memoria ejecutiva de 10 páginas.
 
 ## 9. Hilo narrativo de la presentación (borrador)
@@ -388,6 +388,9 @@ Empezar con empatía (afición del autor por la F1). Cerrar con números de impa
 
 ```
 EDA_F1/
+├── .github/
+│   └── workflows/
+│       └── deploy-pages.yml               # Despliegue automático de presentacion/ en GitHub Pages
 ├── src/
 │   ├── main.ipynb                         # ✅ COMPLETADO: cuaderno ejecutivo maestro
 │   ├── data/
@@ -426,7 +429,7 @@ EDA_F1/
 └── KNOWLEDGE.md                           # Este documento
 ```
 
-**Repo remoto (GitHub):** github.com/BorjaBG/EDA_F1 (acceso concedido a la IA vía GitHub App, 2 nov 2026; con permiso de ESCRITURA). Estado remoto actualizado al 11 nov 2026: `.gitignore`, `KNOWLEDGE.md`, `README.md`, `requirements.txt`, `docs/`, `presentacion/` y `src/` (`data/README.md`, `utils/`, `notebooks/`, `main.ipynb`). Los CSVs pesados quedan excluidos del control de versiones.
+**Repo remoto (GitHub):** github.com/BorjaBG/EDA_F1 (acceso concedido a la IA vía GitHub App, 2 nov 2026; con permiso de ESCRITURA). Estado remoto actualizado al 11 nov 2026: `.github/workflows/deploy-pages.yml`, `.gitignore`, `KNOWLEDGE.md`, `README.md`, `requirements.txt`, `docs/`, `presentacion/` y `src/` (`data/README.md`, `utils/`, `notebooks/`, `main.ipynb`). Los CSVs pesados quedan excluidos del control de versiones. **Presentación desplegada vía GitHub Pages:** `https://borjabg.github.io/EDA_F1/`.
 
 ## 11. Decisiones tomadas y documentadas
 

@@ -2,6 +2,8 @@
 
 Análisis Exploratorio de Datos (EDA) sobre el impacto deportivo y financiero de los abandonos (**DNFs**) en la Fórmula 1 entre **1990 y 2023**, comparando **roturas mecánicas** frente a **accidentes**.
 
+> **Presentación interactiva online:** [Ver presentación en directo (GitHub Pages)](https://borjabg.github.io/EDA_F1/)
+
 ---
 
 ## Caso de Negocio
@@ -34,6 +36,9 @@ Todas las hipótesis y criterios de aceptación fueron definidos _a priori_ ante
 
 ```text
 EDA_F1/
+├── .github/
+│   └── workflows/
+│       └── deploy-pages.yml             # Despliegue automático de presentacion/ en GitHub Pages
 ├── src/
 │   ├── main.ipynb                       # Cuaderno ejecutivo maestro (orquesta utils/ y resume H1–H4)
 │   ├── data/
